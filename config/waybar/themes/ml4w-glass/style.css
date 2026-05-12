@@ -175,6 +175,34 @@ window#waybar.empty #window {
 }
 
 /* -----------------------------------------------------
+ * Mode Toggle
+ * ----------------------------------------------------- */
+
+#custom-mode-toggle {
+    padding: 0px 8px;
+    border-radius: 8px;
+    margin: 5px 2px;
+}
+
+#custom-mode-toggle.server {
+    color: #ff9e64;
+}
+
+/* -----------------------------------------------------
+ * Keyboard Backlight
+ * ----------------------------------------------------- */
+
+#custom-kbd-backlight {
+    padding: 0px 8px;
+    border-radius: 8px;
+    margin: 5px 2px;
+}
+
+#custom-kbd-backlight.off {
+    opacity: 0.4;
+}
+
+/* -----------------------------------------------------
  * Idle Inhibitor
  * ----------------------------------------------------- */
 

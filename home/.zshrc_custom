@@ -4,11 +4,18 @@ dotfiles-sync() {
     cd ~/dotfiles
     cp ~/.config/fastfetch/config.jsonc config/fastfetch/
     cp ~/.config/hypr/conf/windows/default.conf config/hypr/conf/windows/
+    cp ~/.config/hypr/conf/autostart.conf config/hypr/conf/
+    cp ~/.config/hypr/hypridle-server.conf config/hypr/
     cp ~/.config/waybar/modules.json config/waybar/
     cp ~/.config/waybar/themes/ml4w-glass-center/config config/waybar/themes/ml4w-glass-center/
     cp ~/.config/waybar/themes/ml4w-glass/style.css config/waybar/themes/ml4w-glass/
     cp ~/.config/kitty/kitty.conf config/kitty/
     cp ~/.zshrc_custom home/
+    cp ~/.local/bin/mode-status.sh home/.local/bin/
+    cp ~/.local/bin/toggle-mode.sh home/.local/bin/
+    cp ~/.local/bin/start-hypridle.sh home/.local/bin/
+    cp ~/.local/bin/kbd-backlight-status.sh home/.local/bin/
+    cp ~/.local/bin/toggle-kbd-backlight.sh home/.local/bin/
     git add .
     git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
     git push

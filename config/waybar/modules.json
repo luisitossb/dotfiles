@@ -191,6 +191,28 @@
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
+  // Server/Laptop mode toggle
+  "custom/mode-toggle": {
+    "exec": "~/.local/bin/mode-status.sh",
+    "return-type": "json",
+    "interval": 60,
+    "signal": 8,
+    "exec-on-event": true,
+    "on-click": "~/.local/bin/toggle-mode.sh",
+    "on-scroll-up": "true",
+    "on-scroll-down": "true"
+  },
+  // Keyboard backlight toggle
+  "custom/kbd-backlight": {
+    "exec": "~/.local/bin/kbd-backlight-status.sh",
+    "return-type": "json",
+    "interval": 60,
+    "signal": 9,
+    "exec-on-event": true,
+    "on-click": "~/.local/bin/toggle-kbd-backlight.sh",
+    "on-scroll-up": "brightnessctl --device asus::kbd_backlight set +1",
+    "on-scroll-down": "brightnessctl --device asus::kbd_backlight set 1-"
+  },
   // Hypridle inhibitor
   "custom/hypridle": {
     "format": "",
