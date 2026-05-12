@@ -22,14 +22,15 @@
     ],
     // Modules Center
     "modules-center": [
+        "network",
         "hyprland/workspaces",
+        "custom/nowplaying",
         "custom/empty"
     ],
     // Modules Right
     "modules-right": [
         "pulseaudio",
         "battery",
-        "network",
         "custom/mode-toggle",
         "custom/kbd-backlight",
         "group/hardware",

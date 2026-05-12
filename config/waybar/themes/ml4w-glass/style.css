@@ -10,7 +10,7 @@
  * General
  * ----------------------------------------------------- */
 
- * {
+* {
     font-family: "Fira Sans Semibold", "JetBrainsMono Nerd Font", "Font Awesome 7 Free", "Font Awesome 7 Brands", "Font Awesome 6 Free", "Font Awesome 6 Brands", FontAwesome, "Material Icons", Roboto, Helvetica, Arial, sans-serif;
     font-size: 12px;
     border: none;
@@ -18,97 +18,57 @@
 }
 
 window#waybar {
-    background:transparent;
+    background: transparent;
 }
 
 .modules-left {
-    background-color: @surface;
-    border-radius: 12px;
-    background: radial-gradient(circle at 50% 250%, alpha(darker(@surface),0.9), alpha(@surface_dim,0.9)) padding-box,
-        linear-gradient(@primary,@on_primary) border-box;
-    border: 2px solid transparent;
-    opacity:0.8;
-    padding:0px;
-    margin:3px;
-    box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.2);
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 .modules-right {
-    background-color: @surface;
-    border-radius: 12px;
-    background: radial-gradient(circle at 50% 250%, alpha(darker(@surface),0.9), alpha(@surface_dim,0.9)) padding-box,
-        linear-gradient(@primary,@on_primary) border-box;
-    border: 2px solid transparent;
-    opacity:0.8;
-    padding:0px;
-    margin:3px;
-    box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.3);
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 .modules-center {
-    background-color: @surface;
-    border-radius: 12px;
-    background: radial-gradient(circle at 50% 250%, alpha(darker(@surface),0.9), alpha(@surface_dim,0.9)) padding-box,
-        linear-gradient(@primary,@on_primary) border-box;
-    border: 2px solid transparent;
-    opacity:0.8;
-    margin:5px;
-    box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.2);
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 label.module {
-    font-size: 12px;
-    margin-left: 6px;
-    margin-right: 6px;
-    border-radius: 5px;
+    margin: 0 4px;
+    padding: 0 6px;
 }
-
-/*
-label.module {
-    font-size: 14px;
-    color: @on_surface;
-    padding:3px 10px;
-    transition: all 0.3s ease-out;    
-    background: radial-gradient(circle at 50% 250%, @on_tertiary_fixed_variant, @on_tertiary_fixed) padding-box,
-        linear-gradient(@on_primary_fixed_variant, @on_primary_fixed) border-box;
-    border-radius: 10px;
-    border: 0px solid transparent;	
-}
-
-label.module:hover {
-}
-*/
 
 /* -----------------------------------------------------
  * Workspaces
  * ----------------------------------------------------- */
 
 #workspaces {
-    padding: 5px 3px 5px 3px;
-    min-width: 176px;
+    padding: 0 4px;
 }
 
 #workspaces button {
     color: @on_surface;
-    border-radius: 3px;
-    padding:0px 5px 0px 5px;
-    margin:0px 2px 0px 2px;
+    background: transparent;
+    border: none;
+    padding: 0 6px;
+    margin: 0 2px;
     transition: all 0.3s ease-in-out;
-    border: 1px solid transparent;
 }
 
 #workspaces button.active {
-    background:alpha(@primary,0.2);
-    border: 1px solid transparent;
-    transition: all 0.3s ease-in-out;
-    min-width: 30px;
-    border-radius: 8px;
-    box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    color: @primary;
+    font-weight: bold;
+    min-width: 20px;
 }
 
 #workspaces button:hover {
-    background:alpha(@secondary,0.2);
-    border-radius: 15px;
+    color: @secondary;
 }
 
 /* -----------------------------------------------------
@@ -116,13 +76,10 @@ label.module:hover {
  * ----------------------------------------------------- */
 
 tooltip {
-    background-color: @surface;
-    border-radius: 12px;
-    background: radial-gradient(circle at 50% 250%, @surface, @surface_dim) padding-box,
-        linear-gradient(#FFFFFF,@on_primary) border-box;
-    border: 1px solid transparent;	
-    opacity:0.7;
-    margin:10px;
+    background-color: alpha(@surface, 0.9);
+    border-radius: 8px;
+    border: 1px solid alpha(@primary, 0.3);
+    color: @on_surface;
 }
 
 tooltip label {
@@ -133,11 +90,10 @@ tooltip label {
  * Window
  * ----------------------------------------------------- */
 
-#window {
-}
+#window {}
 
 window#waybar.empty #window {
-    background-color:transparent;
+    background-color: transparent;
 }
 
 /* -----------------------------------------------------
@@ -145,20 +101,15 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #taskbar {
-    padding: 5px 0px 5px 0px;
+    padding: 0;
 }
 
 #taskbar button {
-    border-radius: 6px;
-    padding:0px 5px 0px 5px;
+    padding: 0 4px;
 }
 
 #taskbar button:hover {
-    background:@primary;
-    color:@on_primary;    
-}
-
-#taskbar.empty {
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -166,8 +117,8 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #custom-ml4w-welcome {
-    margin-top:5px;
-    margin-bottom:5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     background-image: url("../../assets/gengar.png");
     background-position: center;
     background-repeat: no-repeat;
@@ -180,9 +131,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #custom-mode-toggle {
-    padding: 0px 8px;
-    border-radius: 8px;
-    margin: 5px 2px;
+    padding: 0 6px;
 }
 
 #custom-mode-toggle.server {
@@ -194,9 +143,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #custom-kbd-backlight {
-    padding: 0px 8px;
-    border-radius: 8px;
-    margin: 5px 2px;
+    padding: 0 6px;
 }
 
 #custom-kbd-backlight.off {
@@ -207,45 +154,35 @@ window#waybar.empty #window {
  * Idle Inhibitor
  * ----------------------------------------------------- */
 
-#idle_inhibitor {
-}
-
-#idle_inhibitor.activated {
-}
+#idle_inhibitor {}
+#idle_inhibitor.activated {}
 
 /* -----------------------------------------------------
  * App Launcher
  * ----------------------------------------------------- */
 
 #custom-appmenu {
-    padding-right:3px;
-    padding-left:5px;
-}
-
-#custom-appmenu:hover {
+    padding-right: 3px;
+    padding-left: 5px;
 }
 
 /* -----------------------------------------------------
  * Custom Now Playing
  * ----------------------------------------------------- */
 
-#custom-nowplaying {
-}
-
-#custom-nowplaying.playing {
-}
-
-#custom-nowplaying.paused {
-}
+#custom-nowplaying {}
+#custom-nowplaying.playing {}
+#custom-nowplaying.paused { opacity: 0.6; }
 
 /* -----------------------------------------------------
  * Custom Notification
  * ----------------------------------------------------- */
 
 #custom-notification {
-    font-size: 20px;
+    font-size: 16px;
     font-family: "Material Icons";
     color: @icon_color;
+    padding: 0 4px;
 }
 
 /* -----------------------------------------------------
@@ -253,6 +190,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #custom-exit {
+    padding: 0 4px;
 }
 
 /* -----------------------------------------------------
@@ -260,31 +198,21 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #custom-updates.yellow {
-    border-radius: 8px;
-    margin:5px 0px 5px 5px;
-    padding:0px 6px 0px 6px;
-    background-color: @secondary;
-    color: @on_secondary;
+    color: @secondary;
+    padding: 0 4px;
 }
 
 #custom-updates.red {
-    border-radius: 8px;
-    margin:6px 0px 6px 7px;
-    padding:0px 6px 0px 6px;
-    background-color: @error;
-    color:@on_error;
+    color: @error;
+    padding: 0 4px;
 }
 
 /* -----------------------------------------------------
  * Hardware Group
  * ----------------------------------------------------- */
 
-#disk,#memory,#cpu,#language {
-    margin:0px;
-    padding:0px;
-}
-
-#language {
+#disk, #memory, #cpu, #language {
+    padding: 0 2px;
 }
 
 /* -----------------------------------------------------
@@ -292,6 +220,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #power-profiles-daemon {
+    padding: 0 4px;
 }
 
 /* -----------------------------------------------------
@@ -299,21 +228,8 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #clock {
-    margin-left: 12px;
-    margin-right: 12px;
-}
-
-#clock:hover {
-}
-
-/* -----------------------------------------------------
- * Backlight
- * ----------------------------------------------------- */
-
-#backlight {
-}
-
-#backlight:hover {
+    padding: 0 8px;
+    color: @on_surface;
 }
 
 /* -----------------------------------------------------
@@ -321,12 +237,11 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #pulseaudio {
-}
-
-#pulseaudio:hover {
+    padding: 0 4px;
 }
 
 #pulseaudio.muted {
+    opacity: 0.5;
 }
 
 /* -----------------------------------------------------
@@ -334,31 +249,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #network {
-}
-
-#network.ethernet:hover {
-}
-
-#network.wifi:hover {
-}
-
-#network.ethernet {
-}
-
-#network.wifi {
-}
-
-/* -----------------------------------------------------
- * Bluetooth
- * ----------------------------------------------------- */
-
-#bluetooth, #bluetooth.on, #bluetooth.connected {
-}
-
-#bluetooth:hover {
-}
-
-#bluetooth.off {
+    padding: 0 4px;
 }
 
 /* -----------------------------------------------------
@@ -366,19 +257,24 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #battery {
+    padding: 0 4px;
 }
 
-#battery.charging, #battery.plugged {
-}
-
-@keyframes blink {
-    to {
-        background-color: @background;
-        color: @on_surface;
-    }
+#battery.warning:not(.charging) {
+    color: orange;
 }
 
 #battery.critical:not(.charging) {
+    color: red;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to { color: @error; }
 }
 
 /* -----------------------------------------------------
@@ -386,7 +282,7 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
 #tray {
-    padding: 0px 5px 0px 10px;
+    padding: 0 4px;
 }
 
 #tray > .passive {
