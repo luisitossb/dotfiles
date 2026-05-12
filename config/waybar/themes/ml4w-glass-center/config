@@ -25,19 +25,15 @@
         "hyprland/workspaces",
         "custom/empty"
     ],
-    // Modules Right    
+    // Modules Right
     "modules-right": [
-        "custom/updates",
         "pulseaudio",
-        //"backlight",
-        "bluetooth",
-        "network",
         "battery",
+        "network",
         "custom/mode-toggle",
         "custom/kbd-backlight",
         "group/hardware",
         "group/tools",
-        "tray",
         "custom/notification",
         "custom/exit",
         "custom/ml4w-welcome"

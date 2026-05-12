@@ -1,0 +1,91 @@
+version = 3
+final_space = true
+console_title_template = '{{ .Shell }} in {{ .Folder }}'
+
+[transient_prompt]
+  template = '⚡ '
+  background = 'transparent'
+  foreground = '#f9e2af'
+
+[secondary_prompt]
+  template = '⚡⚡ '
+  foreground = '#f9e2af'
+  background = 'transparent'
+
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+  newline = true
+
+  [[blocks.segments]]
+    type = 'session'
+    style = 'diamond'
+    leading_diamond = "╭─"
+    trailing_diamond = ""
+    foreground = '#1e1e2e'
+    background = '#f9e2af'
+    template = ' {{ .UserName }} '
+
+  [[blocks.segments]]
+    type = 'path'
+    style = 'diamond'
+    leading_diamond = ""
+    trailing_diamond = ""
+    foreground = '#1e1e2e'
+    background = '#89b4fa'
+    template = '  {{ .Path }} '
+    [blocks.segments.properties]
+      style = 'folder'
+      cache_duration = 'none'
+
+  [[blocks.segments]]
+    type = 'time'
+    style = 'diamond'
+    leading_diamond = ""
+    trailing_diamond = ""
+    foreground = '#1e1e2e'
+    background = '#f38ba8'
+    template = ' ♡ {{ .CurrentDate | date "15:04" }} '
+
+  [[blocks.segments]]
+    type = 'git'
+    style = 'diamond'
+    leading_diamond = ""
+    trailing_diamond = ""
+    foreground = '#1e1e2e'
+    background = '#a6e3a1'
+    template = '  {{ .HEAD }}{{ if or (.Working.Changed) (.Staging.Changed) }} *{{ end }} '
+    [blocks.segments.properties]
+      branch_icon = ''
+      cache_duration = 'none'
+      fetch_status = true
+
+[[blocks]]
+  type = 'rprompt'
+  overflow = 'hidden'
+
+  [[blocks.segments]]
+    type = 'executiontime'
+    style = 'plain'
+    foreground = '#f9e2af'
+    background = 'transparent'
+    template = ' {{ .FormattedMs }}'
+    [blocks.segments.properties]
+      cache_duration = 'none'
+      threshold = 5000
+
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+  newline = true
+
+  [[blocks.segments]]
+    type = 'text'
+    style = 'plain'
+    foreground = '#f9e2af'
+    background = 'transparent'
+    foreground_templates = [
+      '{{if gt .Code 0}}#f38ba8{{end}}',
+      '{{if eq .Code 0}}#f9e2af{{end}}'
+    ]
+    template = '╰─⚡ '

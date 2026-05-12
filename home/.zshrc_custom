@@ -10,12 +10,15 @@ dotfiles-sync() {
     cp ~/.config/waybar/themes/ml4w-glass-center/config config/waybar/themes/ml4w-glass-center/
     cp ~/.config/waybar/themes/ml4w-glass/style.css config/waybar/themes/ml4w-glass/
     cp ~/.config/kitty/kitty.conf config/kitty/
+    cp ~/.config/ohmyposh/luisito.toml config/ohmyposh/
+    cp ~/.config/rofi/config-cliphist-img.rasi config/rofi/
     cp ~/.zshrc_custom home/
     cp ~/.local/bin/mode-status.sh home/.local/bin/
     cp ~/.local/bin/toggle-mode.sh home/.local/bin/
     cp ~/.local/bin/start-hypridle.sh home/.local/bin/
     cp ~/.local/bin/kbd-backlight-status.sh home/.local/bin/
     cp ~/.local/bin/toggle-kbd-backlight.sh home/.local/bin/
+    cp ~/.local/bin/cliphist-rofi-img.sh home/.local/bin/
     git add .
     git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
     git push

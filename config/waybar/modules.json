@@ -142,9 +142,7 @@
   },
   // Rofi Application Launcher
   "custom/appmenu": {
-    // START APPS LABEL
-    "format": "Apps",
-    // END APPS LABEL
+    "format": "",
     "on-click": "~/.config/hypr/scripts/launcher.sh",
     "on-click-right": "~/.config/hypr/scripts/keybindings.sh",
     "tooltip-format": "Left: Open the application launcher\nRight: Show all keybindings"
@@ -343,7 +341,7 @@
   // Network
   "network": {
     "format": "{ifname}",
-    "format-wifi": " {signalStrength}%",
+    "format-wifi": "",
     "format-ethernet": "  {ifname}",
     "format-disconnected": "Disconnected ⚠",
     "tooltip-format": " {ifname} via {gwaddri}",
