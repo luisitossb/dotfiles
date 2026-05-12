@@ -210,8 +210,8 @@
     "signal": 9,
     "exec-on-event": true,
     "on-click": "~/.local/bin/toggle-kbd-backlight.sh",
-    "on-scroll-up": "brightnessctl --device asus::kbd_backlight set +1",
-    "on-scroll-down": "brightnessctl --device asus::kbd_backlight set 1-"
+    "on-scroll-up": "true",
+    "on-scroll-down": "true"
   },
   // Hypridle inhibitor
   "custom/hypridle": {
