@@ -3,6 +3,9 @@
 (defpoll cpu_usage :interval "2s" :initial "0"
   `top -bn1 | grep "Cpu(s)" | awk '{print int($2+$4)}'`)
 
+(defpoll cpu_temp :interval "2s" :initial "0"
+  `sensors 2>/dev/null | awk '/^Package id 0/ {gsub(/[^0-9.]/,"",$4); print int($4); exit}'`)
+
 (defpoll ram_usage :interval "2s" :initial "0"
   `free | awk '/Mem:/ {printf "%.0f", $3/$2*100}'`)
 
@@ -18,14 +21,29 @@
 (defpoll vram_usage :interval "2s" :initial "0"
   `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
 
-(defpoll vram_info :interval "2s"
-  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%dM/%dM", $1, $2}'`)
+(defpoll gpu_temp :interval "2s" :initial "0"
+  `nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null`)
+
+(defpoll volume_pct :interval "1s" :initial "0"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f", $2*100}'`)
+
+(defpoll is_muted :interval "1s" :initial "false"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo "true" || echo "false"`)
+
+(defpoll battery_pct :interval "30s" :initial "100"
+  `cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo "100"`)
+
+(defpoll battery_status :interval "10s" :initial "Discharging"
+  `cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1 || echo "Unknown"`)
+
+(defpoll net_speed :interval "2s" :initial "↑0K ↓0K"
+  `~/.config/eww/scripts/net-speed.sh`)
+
+(defpoll uptime_str :interval "60s" :initial ""
+  `uptime -p | sed 's/up //'`)
 
 (defpoll clock_time :interval "1s"
   `date '+%H:%M'`)
-
-(defpoll clock_seconds :interval "1s"
-  `date '+%S'`)
 
 (defpoll clock_date :interval "60s"
   `date '+%A, %B %-d'`)
@@ -51,14 +69,43 @@
     (scale :min 0 :max 100 :value value :active false
            :class "bar ${color}")))
 
+(defwidget sys-row [icon label value]
+  (box :class "sys-row" :orientation "h" :space-evenly false :spacing 8
+    (label :text icon :class "stat-icon")
+    (label :text label :class "stat-label" :halign "start" :hexpand true)
+    (label :text value :class "stat-value" :halign "end")))
+
+(defwidget vol-row []
+  (box :class "sys-row" :orientation "h" :space-evenly false :spacing 8
+    (label :text {is_muted == "true" ? "󰝟" : volume_pct < 30 ? "󰕿" : volume_pct < 70 ? "󰖀" : "󰕾"}
+           :class {is_muted == "true" ? "stat-icon muted" : "stat-icon"})
+    (label :text "Volume" :class "stat-label" :halign "start" :hexpand true)
+    (button :class "vol-btn" :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+      (label :text {is_muted == "true" ? "muted" : "${volume_pct}%"}
+             :class {is_muted == "true" ? "stat-value muted" : "stat-value"}))))
+
+(defwidget bat-row []
+  (box :class "sys-row" :orientation "h" :space-evenly false :spacing 8
+    (label :text {battery_status == "Charging" ? "󰂄" :
+                  battery_pct > 80 ? "󰁹" :
+                  battery_pct > 60 ? "󰁾" :
+                  battery_pct > 40 ? "󰁼" :
+                  battery_pct > 20 ? "󰁺" : "󰁻"}
+           :class {battery_status == "Charging" ? "stat-icon battery-charging" :
+                   battery_pct <= 20 ? "stat-icon battery-low" : "stat-icon"})
+    (label :text "Battery" :class "stat-label" :halign "start" :hexpand true)
+    (label :text {battery_status == "Charging" ? "${battery_pct}% +" : "${battery_pct}%"}
+           :class {battery_pct <= 20 && battery_status != "Charging" ? "stat-value battery-low" : "stat-value"})))
+
 (defwidget now-playing []
   (box :class "now-playing"
        :orientation "h"
        :space-evenly false
        :spacing 12
        :visible {player_status != "Stopped"}
-    (label :text {player_status == "Playing" ? "󰎇" : "󰏤"}
-           :class "music-icon")
+    (button :class "music-btn" :onclick "playerctl play-pause"
+      (label :text {player_status == "Playing" ? "󰎇" : "󰏤"}
+             :class "music-icon"))
     (box :orientation "v" :space-evenly false :hexpand true :spacing 2
       (label :text {song_title != "" ? song_title : "Nothing playing"}
              :class "song-title"
@@ -79,12 +126,21 @@
 
     (box :class "sep")
 
-    ; Stats
+    ; Resource stats
     (box :class "stats" :orientation "v" :space-evenly false :spacing 14
-      (stat-row :label "CPU"  :value cpu_usage  :info "${cpu_usage}%"   :icon "󰍛" :color "cpu")
-      (stat-row :label "RAM"  :value ram_usage  :info ram_used          :icon ""  :color "ram")
-      (stat-row :label "Disk" :value disk_usage :info disk_info         :icon "󰉉" :color "disk")
-      (stat-row :label "VRAM" :value vram_usage :info vram_info         :icon "󰍹" :color "vram"))
+      (stat-row :label "CPU"  :value cpu_usage  :info "${cpu_temp}°C" :icon "󰍛" :color "cpu")
+      (stat-row :label "RAM"  :value ram_usage  :info ram_used        :icon ""  :color "ram")
+      (stat-row :label "Disk" :value disk_usage :info disk_info       :icon "󰉉" :color "disk")
+      (stat-row :label "VRAM" :value vram_usage :info "${gpu_temp}°C" :icon "󰍹" :color "vram"))
+
+    (box :class "sep")
+
+    ; System info
+    (box :class "sysinfo" :orientation "v" :space-evenly false :spacing 10
+      (vol-row)
+      (bat-row)
+      (sys-row :icon "󰓅" :label "Network" :value net_speed)
+      (sys-row :icon "󰔟" :label "Uptime"  :value uptime_str))
 
     (box :class "sep")
 

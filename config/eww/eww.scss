@@ -11,6 +11,7 @@ $mauve:    #cba6f7;
 $teal:     #94e2d5;
 $yellow:   #f9e2af;
 $red:      #f38ba8;
+$peach:    #fab387;
 
 * {
   font-family: "JetBrainsMono Nerd Font";
@@ -107,7 +108,25 @@ scale.vram trough highlight {
   border-radius: 4px;
 }
 
+// ── System Info ───────────────────────────────────────────────────────────
+
+.sys-row { padding: 1px 0; }
+
+// Volume button — no chrome, looks like text
+.vol-btn { all: unset; }
+.vol-btn:hover label { color: $text; }
+
+// Muted state
+.muted { color: $surface1; }
+
+// Battery states
+.battery-low     { color: $red; }
+.battery-charging { color: $green; }
+
 // ── Now Playing ───────────────────────────────────────────────────────────
+
+.music-btn { all: unset; }
+.music-btn:hover label { color: $blue; }
 
 .music-icon {
   font-size: 28px;
