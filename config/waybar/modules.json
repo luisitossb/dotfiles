@@ -125,7 +125,7 @@
   // Settings
   "custom/settings": {
     "format": "",
-    "on-click": "sleep 0.1 && com.ml4w.dotfilessettings",
+    "on-click": "sleep 0.1 && ml4w-dotfiles-settings",
     "tooltip-format": "ML4W Settings"
   },
   // Keybindings
