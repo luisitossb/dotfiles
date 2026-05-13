@@ -67,6 +67,21 @@ echo -e "\n[Theme]\nCurrent=sddm-astronaut-theme" | sudo tee -a /etc/sddm.conf
 echo "zen-browser" > ~/.config/ml4w/settings/browser.sh
 ```
 
+## Hardware-specific notes
+
+### AMD GPU (desktop setup)
+The eww dashboard GPU widgets are written for NVIDIA and use `nvidia-smi` for GPU temperature and VRAM usage. On an AMD GPU machine these will silently fail or show nothing.
+
+**What needs tweaking in `~/.config/eww/eww.yuck` and `~/.config/eww/eww.scss`:**
+- GPU temp: replace `nvidia-smi` call with a read from sysfs, e.g. `cat /sys/class/drm/card1/device/hwmon/hwmon*/temp1_input` (divide by 1000 for °C) — card number may vary, check with `ls /sys/class/drm/`
+- VRAM used/total: replace `nvidia-smi --query-gpu=memory.used` with `rocm-smi --showmeminfo vram` if ROCm is installed, or read from `/sys/class/drm/card1/device/mem_info_vram_used` and `mem_info_vram_total` (values are in bytes)
+
+Everything else in the eww dashboard (CPU, RAM, disk, network, volume, uptime, now-playing) works without any changes.
+
+**No changes needed for:** keyboard backlight module (not applicable on desktop), battery service (not applicable on desktop), all Hyprland/waybar/kitty config.
+
+---
+
 ## Keeping dotfiles updated
 
 Run `dotfiles-sync` from anywhere to copy the latest config files and push to GitHub:
