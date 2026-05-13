@@ -36,6 +36,9 @@
 (defpoll battery_status :interval "10s" :initial "Discharging"
   `cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1 || echo "Unknown"`)
 
+(defpoll battery_health :interval "300s" :initial "?"
+  `cat /sys/class/power_supply/BAT0/energy_full /sys/class/power_supply/BAT0/energy_full_design 2>/dev/null | awk 'NR==1{ef=$1} NR==2{printf "%.0f", ef/$1*100}'`)
+
 (defpoll net_speed :interval "2s" :initial "↑0K ↓0K"
   `~/.config/eww/scripts/net-speed.sh`)
 
@@ -94,7 +97,7 @@
            :class {battery_status == "Charging" ? "stat-icon battery-charging" :
                    battery_pct <= 20 ? "stat-icon battery-low" : "stat-icon"})
     (label :text "Battery" :class "stat-label" :halign "start" :hexpand true)
-    (label :text {battery_status == "Charging" ? "${battery_pct}% +" : "${battery_pct}%"}
+    (label :text {battery_status == "Charging" ? "${battery_pct}% + (${battery_health}%)" : "${battery_pct}% (${battery_health}%)"}
            :class {battery_pct <= 20 && battery_status != "Charging" ? "stat-value battery-low" : "stat-value"})))
 
 (defwidget now-playing []

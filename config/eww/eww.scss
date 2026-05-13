@@ -120,8 +120,10 @@ scale.vram trough highlight {
 .muted { color: $surface1; }
 
 // Battery states
-.battery-low     { color: $red; }
+.battery-low      { color: $red; }
 .battery-charging { color: $green; }
+
+.bat-value { font-size: 12px; color: $subtext0; }
 
 // ── Now Playing ───────────────────────────────────────────────────────────
 
