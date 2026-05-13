@@ -293,10 +293,8 @@
     },
     "modules": [
       "custom/system",
-      "disk",
       "cpu",
-      "memory",
-      "hyprland/language"
+      "memory"
     ]
   },
   // Group Tools
