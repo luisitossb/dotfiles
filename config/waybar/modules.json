@@ -13,11 +13,21 @@
     "on-click": "activate",
     "active-only": false,
     "all-outputs": true,
-    "format": "{}",
-    "format-icons": {
-      "urgent": "",
-      "active": "",
-      "default": ""
+    "format": "{id}{windows}",
+    "format-window-separator": "",
+    "window-rewrite-default": " 󰣆",
+    "window-rewrite": {
+      "kitty": " 󰄛",
+      "discord": " 󰙯",
+      "zen": " 󰈹",
+      "dev\\.zed\\.Zed": " 󰘐",
+      "spotify": " 󰓇",
+      "steam": " 󰓓",
+      "thunar": " 󰉋",
+      "vlc": " 󰕼",
+      "obsidian": " 󱓧",
+      "telegram": " 󰨝",
+      "code|vscodium": " 󰨞"
     },
     "persistent-workspaces": {
       "*": 5
