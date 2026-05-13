@@ -20,6 +20,8 @@ dotfiles-sync() {
     # Hyprland
     cp ~/.config/hypr/conf/windows/default.conf config/hypr/conf/windows/
     cp ~/.config/hypr/conf/autostart.conf config/hypr/conf/
+    cp ~/.config/hypr/conf/keybindings/default.conf config/hypr/conf/keybindings/
+    cp ~/.config/hypr/conf/cursor.conf config/hypr/conf/
     cp ~/.config/hypr/hypridle-server.conf config/hypr/
     # Waybar
     cp ~/.config/waybar/modules.json config/waybar/
@@ -32,6 +34,11 @@ dotfiles-sync() {
     cp ~/.config/kitty/kitty.conf config/kitty/
     cp ~/.config/ohmyposh/luisito.toml config/ohmyposh/
     cp ~/.config/rofi/config-cliphist-img.rasi config/rofi/
+    cp ~/.config/btop/btop.conf config/btop/
+    cp ~/.config/swaync/config.json config/swaync/
+    # eww dashboard
+    cp ~/.config/eww/eww.yuck config/eww/
+    cp ~/.config/eww/eww.scss config/eww/
     # Home & scripts
     cp ~/.zshrc_custom home/
     cp ~/.local/bin/mode-status.sh home/.local/bin/
