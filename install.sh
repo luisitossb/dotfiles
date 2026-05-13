@@ -232,7 +232,7 @@ AUR_PKGS=(
     pokemon-colorscripts-git
     python-pywalfox
     localsend-bin
-    zen-browser-bin
+    opera-gx
 )
 
 paru -S --needed --noconfirm "${AUR_PKGS[@]}" || warn "Some AUR packages failed — check output above"
@@ -330,6 +330,18 @@ info "UFW enabled (deny incoming, allow SSH)"
 
 # ── Docker group ──────────────────────────────────────────────────────────────
 sudo usermod -aG docker "$USER" && info "Added $USER to docker group"
+
+# ── Ollama tuning ─────────────────────────────────────────────────────────────
+step "Configuring Ollama"
+sudo mkdir -p /etc/systemd/system/ollama.service.d
+sudo tee /etc/systemd/system/ollama.service.d/override.conf > /dev/null << 'EOF'
+[Service]
+Environment="OLLAMA_MAX_LOADED_MODELS=1"
+Environment="OLLAMA_NUM_PARALLEL=1"
+Environment="OLLAMA_KEEP_ALIVE=5s"
+EOF
+sudo systemctl daemon-reload
+info "Ollama: max 1 model loaded, 5s keep-alive"
 
 # ── SDDM theme ────────────────────────────────────────────────────────────────
 step "Configuring SDDM"
