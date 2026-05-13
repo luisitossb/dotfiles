@@ -256,14 +256,14 @@
   },
   // CPU
   "cpu": {
-    "format": "/ C {usage}% ",
+    "format": "󰻟 {usage}% ",
     "on-click": "~/.config/ml4w/settings/system-monitor.sh",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
   // Memory
   "memory": {
-    "format": "/ M {}% ",
+    "format": "󰍛 {}% ",
     "on-click": "~/.config/ml4w/settings/system-monitor.sh",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
