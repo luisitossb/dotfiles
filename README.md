@@ -69,18 +69,66 @@ echo -e "\n[Theme]\nCurrent=sddm-astronaut-theme" | sudo tee -a /etc/sddm.conf
 echo "zen-browser" > ~/.config/ml4w/settings/browser.sh
 ```
 
-## Hardware-specific notes
+## Hardware reference
 
-### AMD GPU (desktop setup)
-The eww dashboard GPU widgets are written for NVIDIA and use `nvidia-smi` for GPU temperature and VRAM usage. On an AMD GPU machine these will silently fail or show nothing.
+### Source machine (current laptop)
+- **Model:** ASUS laptop
+- **CPU:** Intel i7-8750H
+- **RAM:** 32GB
+- **GPU:** NVIDIA (discrete)
+- **Storage:** 1TB NVMe (btrfs)
+- **Form factor:** Laptop — has keyboard backlight (asus::kbd_backlight), battery, lid
 
-**What needs tweaking in `~/.config/eww/eww.yuck` and `~/.config/eww/eww.scss`:**
-- GPU temp: replace `nvidia-smi` call with a read from sysfs, e.g. `cat /sys/class/drm/card1/device/hwmon/hwmon*/temp1_input` (divide by 1000 for °C) — card number may vary, check with `ls /sys/class/drm/`
-- VRAM used/total: replace `nvidia-smi --query-gpu=memory.used` with `rocm-smi --showmeminfo vram` if ROCm is installed, or read from `/sys/class/drm/card1/device/mem_info_vram_used` and `mem_info_vram_total` (values are in bytes)
+### Target machine (AMD desktop)
+- **GPU:** AMD (discrete)
+- **Form factor:** Desktop — no keyboard backlight, no battery, no lid
 
-Everything else in the eww dashboard (CPU, RAM, disk, network, volume, uptime, now-playing) works without any changes.
+---
 
-**No changes needed for:** keyboard backlight module (not applicable on desktop), battery service (not applicable on desktop), all Hyprland/waybar/kitty config.
+## Porting to a new machine
+
+### What transfers with zero changes
+Everything visual and behavioral works on any machine:
+- All Hyprland config (gaps, borders, keybindings, windowrules, autostart)
+- Waybar (layout, modules, Gengar icon, drawers, mode toggle, 12hr clock)
+- eww dashboard — CPU, RAM, disk, network speed, volume, uptime, now-playing
+- Kitty, Zsh, Fastfetch, SDDM theme, Zen Browser
+
+### What needs changes on an AMD desktop
+
+**eww GPU widgets — file: `~/.config/eww/eww.yuck`**
+
+There are two `defpoll` blocks that call `nvidia-smi`. On AMD these return nothing and the widgets show 0.
+
+**`vram_usage` poll (VRAM % used):**
+```
+; CURRENT (NVIDIA):
+(defpoll vram_usage :interval "2s" :initial "0"
+  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
+
+; REPLACE WITH (AMD — sysfs, no extra tools needed):
+(defpoll vram_usage :interval "2s" :initial "0"
+  `awk 'BEGIN{u=0;t=0} FILENAME~"used"{u=$1} FILENAME~"total"{t=$1} END{if(t>0)printf "%.0f",u/t*100;else print 0}' /sys/class/drm/card1/device/mem_info_vram_used /sys/class/drm/card1/device/mem_info_vram_total`)
+```
+
+**`gpu_temp` poll (GPU temperature):**
+```
+; CURRENT (NVIDIA):
+(defpoll gpu_temp :interval "2s" :initial "0"
+  `nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null`)
+
+; REPLACE WITH (AMD — sysfs, no extra tools needed):
+(defpoll gpu_temp :interval "2s" :initial "0"
+  `cat /sys/class/drm/card1/device/hwmon/hwmon*/temp1_input 2>/dev/null | awk '{printf "%.0f", $1/1000}'`)
+```
+
+> **Note:** `card1` is typical for a desktop with one GPU but verify first: `ls /sys/class/drm/` — look for `card0` or `card1` that has a `device/` subdirectory with `mem_info_vram_*` files.
+
+### What's irrelevant on a desktop (skip or remove)
+- **Keyboard backlight** — waybar `kbd-backlight` module and scripts (`~/.local/bin/kbd-backlight-status.sh`, `toggle-kbd-backlight.sh`) — desktop has no backlight, module will just be absent from bar
+- **Battery service** — `/etc/systemd/system/battery-charge-limit.service` — no battery on desktop, skip entirely
+- **Hypridle suspend** — `~/.config/hypr/hypridle.conf` has a 1800s suspend listener — fine to keep but won't do much on a desktop that's always on
+- **Server/laptop mode toggle** — lid-close behavior toggle is irrelevant without a lid; the mode-toggle waybar module can be removed from `modules.json` if desired
 
 ---
 
