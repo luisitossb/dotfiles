@@ -16,55 +16,92 @@ Built on top of [ml4w](https://github.com/mylinuxforwork/dotfiles) with my own c
 
 ## What's in this repo
 
-These are my personal tweaks — not the full rice, just the files I've customized:
+Custom configs and scripts organized by category. `install.sh` deploys everything automatically.
 
+**Hyprland**
 | File | What it controls |
 |------|-----------------|
-| `config/fastfetch/config.jsonc` | Fastfetch layout + pokemon logo |
-| `config/hypr/conf/windows/default.conf` | Gaps (5px), borders, layout |
-| `config/waybar/modules.json` | Waybar modules, clock (12hr), click-to-reveal drawers |
-| `config/waybar/themes/ml4w-glass-center/config` | Waybar margins (flush to top) |
-| `config/waybar/themes/ml4w-glass/style.css` | Waybar CSS — Gengar icon, compact pill size |
-| `config/kitty/kitty.conf` | Terminal opacity (0.5) + padding |
-| `home/.zshrc_custom` | Personal zsh additions |
+| `config/hypr/conf/autostart.conf` | eww daemon, hypridle, wallpaper, ml4w listeners |
+| `config/hypr/conf/keybindings/default.conf` | All keybindings (Super+S for eww, etc.) |
+| `config/hypr/conf/windowrules/default.conf` | Window rules |
+| `config/hypr/conf/windows/default.conf` | Gaps (5px in/out), borders, layout |
+| `config/hypr/conf/cursor.conf` | Cursor theme/size |
+| `config/hypr/conf/keyboard.conf` | Keyboard layout |
+| `config/hypr/hypridle.conf` | Idle timeouts — laptop mode (suspends at 1800s) |
+| `config/hypr/hypridle-server.conf` | Idle timeouts — server mode (no suspend) |
+
+**Waybar**
+| File | What it controls |
+|------|-----------------|
+| `config/waybar/modules.json` | All module definitions — clock (12hr), drawers, mode toggle, kbd backlight |
+| `config/waybar/themes/ml4w-glass-center/config` | Bar layout, margins flush to top |
+| `config/waybar/themes/ml4w-glass-center/default/style.css` | Theme default styles |
+| `config/waybar/themes/ml4w-glass/style.css` | Gengar icon, compact pill sizing |
+
+**eww dashboard** (Super+S to toggle)
+| File | What it controls |
+|------|-----------------|
+| `config/eww/eww.yuck` | Dashboard layout and data polls — CPU, RAM, GPU, disk, net, volume, battery, now-playing |
+| `config/eww/eww.scss` | Dashboard styles (Catppuccin Mocha) |
+| `config/eww/scripts/net-speed.sh` | Network speed poller (reads /proc/net/dev) |
+
+**Terminal / shell**
+| File | What it controls |
+|------|-----------------|
+| `config/kitty/kitty.conf` | Opacity (0.5), dynamic opacity, padding |
+| `config/ohmyposh/luisito.toml` | Oh My Posh prompt theme |
+| `home/.zshrc_custom` | dotfiles-sync alias, personal zsh additions |
+
+**System tools**
+| File | What it controls |
+|------|-----------------|
+| `config/fastfetch/config.jsonc` | Fastfetch layout + random pokemon sprite |
+| `config/btop/btop.conf` | btop settings |
+| `config/btop/themes/catppuccin_mocha.theme` | btop color theme |
+| `config/swaync/config.json` | Notification center config |
+| `config/rofi/config-cliphist-img.rasi` | Rofi clipboard history UI |
+
+**Scripts** (deployed to `~/.local/bin/`)
+| File | What it does |
+|------|-------------|
+| `home/.local/bin/mode-status.sh` | Reads current laptop/server mode for waybar |
+| `home/.local/bin/toggle-mode.sh` | Switches laptop↔server mode, updates logind + hypridle |
+| `home/.local/bin/start-hypridle.sh` | Launches correct hypridle config based on current mode |
+| `home/.local/bin/kbd-backlight-status.sh` | Reads ASUS keyboard backlight level for waybar |
+| `home/.local/bin/toggle-kbd-backlight.sh` | Cycles backlight off→1→2→3→off |
+| `home/.local/bin/cliphist-rofi-img.sh` | Clipboard history picker with image preview |
+
+**Services**
+| File | What it does |
+|------|-------------|
+| `home/.config/systemd/user/open-webui.service` | User systemd service for Open WebUI (Ollama frontend) |
 
 ## Setting up on a new machine
-
-This repo contains customizations only. You still need the base stack first:
 
 **1. Install CachyOS**
 https://cachyos.org
 
-**2. Install the ml4w dotfiles**
-```
-bash <(curl -s https://raw.githubusercontent.com/mylinuxforwork/dotfiles/main/setup/install.sh)
-```
-
-**3. Install dependencies**
-```
-paru -S zsh oh-my-zsh-git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting pokemon-colorscripts-git sddm-astronaut-theme zen-browser-bin github-cli
-```
-
-**4. Clone this repo and apply files**
+**2. Clone this repo and run install.sh**
 ```
 git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles
-cd ~/dotfiles
+cd ~/dotfiles && bash install.sh
+```
+`install.sh` handles packages, GPU drivers (auto-detected), AUR packages, all dotfile deployment, services, Ollama tuning, firewall, and more. After it finishes, reboot.
 
-cp config/fastfetch/config.jsonc ~/.config/fastfetch/
-cp config/hypr/conf/windows/default.conf ~/.config/hypr/conf/windows/
-cp config/waybar/modules.json ~/.config/waybar/
-cp config/waybar/themes/ml4w-glass-center/config ~/.config/waybar/themes/ml4w-glass-center/
-cp config/waybar/themes/ml4w-glass/style.css ~/.config/waybar/themes/ml4w-glass/
-cp config/kitty/kitty.conf ~/.config/kitty/
-cp home/.zshrc_custom ~/.zshrc_custom
+**3. Install ml4w (manual step — after reboot)**
+
+ml4w is a required runtime dependency. Several waybar modules and autostart entries call scripts from `~/.config/ml4w/scripts/` — wallpaper restore, network/bluetooth launchers, system updates, hyprsunset toggle, and the autostart listener chain. Without ml4w those features are broken.
+
+Install via CachyOS Package Installer (search "ml4w") or:
+```
+yay -S ml4w-hyprland
+```
+Then re-deploy dotfiles to override ml4w defaults:
+```
+cd ~/dotfiles && bash install.sh
 ```
 
-**5. Set SDDM theme**
-```
-echo -e "\n[Theme]\nCurrent=sddm-astronaut-theme" | sudo tee -a /etc/sddm.conf
-```
-
-**6. Set Zen as default browser**
+**4. Set Zen as default browser**
 ```
 echo "zen-browser" > ~/.config/ml4w/settings/browser.sh
 ```
@@ -129,6 +166,27 @@ There are two `defpoll` blocks that call `nvidia-smi`. On AMD these return nothi
 - **Battery service** — `/etc/systemd/system/battery-charge-limit.service` — no battery on desktop, skip entirely
 - **Hypridle suspend** — `~/.config/hypr/hypridle.conf` has a 1800s suspend listener — fine to keep but won't do much on a desktop that's always on
 - **Server/laptop mode toggle** — lid-close behavior toggle is irrelevant without a lid; the mode-toggle waybar module can be removed from `modules.json` if desired
+
+---
+
+## Lua migration (future)
+
+Hyprland 0.55 (released May 2026) deprecated the hyprlang `.conf` format in favor of Lua. `.conf` files still load fine for now — deprecated means a warning, not broken. At some future major version they will stop working entirely.
+
+**What will need converting when that happens:**
+
+All `.conf` files in `config/hypr/`:
+- `conf/autostart.conf`
+- `conf/keybindings/default.conf`
+- `conf/windowrules/default.conf`
+- `conf/windows/default.conf`
+- `conf/cursor.conf`
+- `conf/keyboard.conf`
+- `hypridle.conf` and `hypridle-server.conf`
+
+The actual settings (gap values, keybinds, rules, timeouts) all stay the same — only the syntax changes. The `.conf` files in this repo serve as the source of truth for what values to carry over.
+
+When Hyprland publishes a migration guide, follow that. The `.conf` files here make it easy to see exactly what was customized vs defaults.
 
 ---
 
