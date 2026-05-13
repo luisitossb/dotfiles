@@ -340,6 +340,24 @@ Current=Nordic-darker
 EOF
 info "SDDM theme set to Nordic-darker"
 
+# ── Battery charge limit ──────────────────────────────────────────────────────
+step "Configuring battery charge limit"
+sudo tee /etc/systemd/system/battery-charge-limit.service > /dev/null <<'EOF'
+[Unit]
+Description=Set battery charge limit to 80%
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo 80 > /sys/class/power_supply/BAT0/charge_control_end_threshold'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl enable --now battery-charge-limit 2>/dev/null && info "Battery charge limit set to 80%" \
+    || warn "Battery charge limit service failed — may not have BAT0"
+
 # ── Limine bootloader ─────────────────────────────────────────────────────────
 step "Configuring Limine"
 if [[ -f /boot/limine.conf ]]; then
