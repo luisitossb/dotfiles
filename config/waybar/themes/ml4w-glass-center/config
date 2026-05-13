@@ -33,8 +33,11 @@
         "battery",
         "custom/mode-toggle",
         "custom/kbd-backlight",
-        "group/hardware",
-        "group/tools",
+        "cpu",
+        "memory",
+        "custom/cliphist",
+        "custom/hyprshade",
+        "power-profiles-daemon",
         "custom/notification",
         "custom/exit",
         "custom/ml4w-welcome"

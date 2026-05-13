@@ -309,7 +309,6 @@
     "modules": [
       "custom/tools",
       "custom/cliphist",
-      "custom/hypridle",
       "custom/hyprshade",
       "power-profiles-daemon"
     ]
