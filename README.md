@@ -77,6 +77,8 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 
 ## Setting up on a new machine
 
+### CachyOS (primary / x86_64)
+
 **1. Install CachyOS**
 https://cachyos.org
 
@@ -104,6 +106,50 @@ cd ~/dotfiles && bash install.sh
 ```
 echo "zen-browser" > ~/.config/ml4w/settings/browser.sh
 ```
+
+---
+
+### Apple Silicon / Asahi Linux (M1/M2/M3 Mac)
+
+Use `install-asahi.sh` instead of `install.sh`. It's adapted for Arch ARM on Asahi Linux — strips CachyOS-specific packages, GPU drivers (Asahi manages its own AGX driver), CPU microcode, Limine, and the battery charge limit service.
+
+**1. Run the Asahi installer from macOS**
+```
+curl https://alx.sh | sh
+```
+Follow the prompts, then boot into Asahi Linux and connect to WiFi.
+
+**2. Clone this repo and run install-asahi.sh**
+```
+git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles
+cd ~/dotfiles && bash install-asahi.sh
+```
+The script handles packages (ARM-compatible), eww built from AUR for ARM, all dotfile deployment, services, Ollama in CPU-only mode, firewall, and SDDM. After it finishes, reboot.
+
+**3. Install ml4w (same as CachyOS — after reboot)**
+```
+yay -S ml4w-hyprland
+```
+Then re-deploy dotfiles:
+```
+cd ~/dotfiles && bash install-asahi.sh
+```
+
+**4. Browser**
+
+Zen Browser may not have an ARM build yet — check [releases](https://github.com/zen-browser/desktop/releases). If no aarch64 build exists, use Firefox (`sudo pacman -S firefox`) and set:
+```
+echo "firefox" > ~/.config/ml4w/settings/browser.sh
+```
+
+**5. Remove eww GPU widgets**
+
+The eww dashboard polls `nvidia-smi` for VRAM and GPU temp — these don't work on Apple Silicon. After setup, remove or comment out the `vram_usage` and `gpu_temp` defpoll blocks in `~/.config/eww/eww.yuck`. Everything else (CPU, RAM, disk, network, volume, battery, now-playing) works fine.
+
+> **Key Apple Silicon notes:**
+> - GPU drivers are managed by Asahi — do NOT install mesa/vulkan manually
+> - Ollama runs CPU-only (no GPU acceleration on Apple Silicon)
+> - No keyboard backlight, no nvidia-smi
 
 ## Hardware reference
 
