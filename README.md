@@ -1,6 +1,8 @@
-# LuisitoRice Dotfiles
+# LuiNux
 
-My personal customizations on top of the [ml4w](https://github.com/mylinuxforwork/dotfiles) Hyprland rice, running on CachyOS.
+My personal Hyprland rice on CachyOS. Luis + Linux = LuiNux.
+
+Built on top of [ml4w](https://github.com/mylinuxforwork/dotfiles) with my own customizations layered on top.
 
 ## System
 - **OS:** CachyOS (Arch-based)
