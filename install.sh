@@ -126,6 +126,9 @@ BASE_PKGS=(
     playerctl udiskie ufw inotify-tools
     ripgrep fd bat
 
+    # Widgets / visualizers
+    eww cava
+
     # Media / files
     nautilus dolphin gvfs gvfs-mtp tumbler
     ffmpegthumbnailer loupe vlc
@@ -230,7 +233,6 @@ AUR_PKGS=(
     python-pywalfox
     localsend-bin
     zen-browser-bin
-    awww
 )
 
 paru -S --needed --noconfirm "${AUR_PKGS[@]}" || warn "Some AUR packages failed — check output above"
@@ -245,12 +247,11 @@ step "Deploying dotfiles"
 
 mkdir -p ~/.config ~/.local/bin ~/.config/systemd/user
 
-# Config directories
-for dir in fastfetch hypr kitty ohmyposh quickshell rofi waybar; do
-    if [[ -d "$DOTFILES_DIR/config/$dir" ]]; then
-        cp -r "$DOTFILES_DIR/config/$dir" ~/.config/
-        info "Deployed: ~/.config/$dir"
-    fi
+# Config directories — deploy everything in config/ automatically
+for dir_path in "$DOTFILES_DIR/config/"/*/; do
+    dir_name=$(basename "$dir_path")
+    cp -r "$dir_path" ~/.config/
+    info "Deployed: ~/.config/$dir_name"
 done
 
 # Home files
@@ -338,6 +339,15 @@ sudo tee /etc/sddm.conf.d/theme.conf > /dev/null <<EOF
 Current=Nordic-darker
 EOF
 info "SDDM theme set to Nordic-darker"
+
+# ── Limine bootloader ─────────────────────────────────────────────────────────
+step "Configuring Limine"
+if [[ -f /boot/limine.conf ]]; then
+    sudo sed -i 's/^timeout: .*/timeout: 0/' /boot/limine.conf
+    info "Limine timeout set to 0 (instant boot)"
+else
+    warn "Limine config not found at /boot/limine.conf — skipping"
+fi
 
 # ── Ollama models ─────────────────────────────────────────────────────────────
 step "Pulling Ollama models"
