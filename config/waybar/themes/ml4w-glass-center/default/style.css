@@ -1,0 +1,349 @@
+/*
+ * __        __          _                  ____  _         _
+ * \ \      / /_ _ _   _| |__   __ _ _ __  / ___|| |_ _   _| | ___
+ *  \ \ /\ / / _` | | | | '_ \ / _` | '__| \___ \| __| | | | |/ _ \
+ *   \ V  V / (_| | |_| | |_) | (_| | |     ___) | |_| |_| | |  __/
+ *    \_/\_/ \__,_|\__, |_.__/ \__,_|_|    |____/ \__|\__, |_|\___|
+ *                 |___/                              |___/
+ *
+ * -----------------------------------------------------
+ * General
+ * ----------------------------------------------------- */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "Fira Sans", "Font Awesome 7 Free", "Font Awesome 7 Brands", "Font Awesome 6 Free", "Font Awesome 6 Brands", FontAwesome, "Material Icons", sans-serif;
+    font-size: 12px;
+    border: none;
+    border-radius: 0px;
+}
+
+window#waybar {
+    background: transparent;
+}
+
+.modules-left {
+    background: rgba(10, 10, 20, 0.82);
+    border-radius: 14px;
+    padding: 0 6px;
+    margin: 5px 0;
+}
+
+.modules-right {
+    background: rgba(10, 10, 20, 0.82);
+    border-radius: 14px;
+    padding: 0 6px;
+    margin: 5px 0;
+}
+
+.modules-center {
+    background: rgba(10, 10, 20, 0.82);
+    border-radius: 14px;
+    padding: 0 6px;
+    margin: 5px 0;
+}
+
+label.module {
+    margin: 0 4px;
+    padding: 0 6px;
+}
+
+/* -----------------------------------------------------
+ * Workspaces
+ * ----------------------------------------------------- */
+
+#workspaces {
+    padding: 0 4px;
+}
+
+#workspaces button {
+    color: @on_surface;
+    background: transparent;
+    border: none;
+    padding: 0 6px;
+    margin: 0 2px;
+    transition: all 0.3s ease-in-out;
+}
+
+#workspaces button.active {
+    color: white;
+    font-weight: bold;
+    min-width: 20px;
+    background: alpha(white, 0.3);
+    border-radius: 6px;
+    padding: 0 8px;
+}
+
+#workspaces button:hover {
+    color: @secondary;
+}
+
+/* -----------------------------------------------------
+ * Tooltips
+ * ----------------------------------------------------- */
+
+tooltip {
+    background-color: alpha(@surface, 0.9);
+    border-radius: 8px;
+    border: 1px solid alpha(@primary, 0.3);
+    color: @on_surface;
+}
+
+tooltip label {
+    color: @on_surface;
+}
+
+/* -----------------------------------------------------
+ * Window
+ * ----------------------------------------------------- */
+
+#window {}
+
+window#waybar.empty #window {
+    background-color: transparent;
+}
+
+/* -----------------------------------------------------
+ * Taskbar
+ * ----------------------------------------------------- */
+
+#taskbar {
+    padding: 0;
+}
+
+#taskbar button {
+    padding: 0 4px;
+}
+
+#taskbar button:hover {
+    color: @primary;
+}
+
+/* -----------------------------------------------------
+ * ML4W Icon
+ * ----------------------------------------------------- */
+
+#custom-ml4w-welcome {
+    padding: 0 8px;
+    color: #c084fc;
+    font-weight: bold;
+}
+
+/* -----------------------------------------------------
+ * Mode Toggle
+ * ----------------------------------------------------- */
+
+#custom-mode-toggle {
+    padding: 0 6px;
+    color: #e2e8f0;
+}
+
+#custom-mode-toggle.server {
+    color: #f87171;
+}
+
+/* -----------------------------------------------------
+ * Keyboard Backlight
+ * ----------------------------------------------------- */
+
+#custom-kbd-backlight {
+    padding: 0 6px;
+    color: #fde68a;
+}
+
+#custom-kbd-backlight.off {
+    color: #94a3b8;
+    opacity: 0.4;
+}
+
+/* -----------------------------------------------------
+ * Idle Inhibitor
+ * ----------------------------------------------------- */
+
+#idle_inhibitor {}
+#idle_inhibitor.activated {}
+
+/* -----------------------------------------------------
+ * App Launcher
+ * ----------------------------------------------------- */
+
+#custom-appmenu {
+    padding-right: 3px;
+    padding-left: 5px;
+}
+
+/* -----------------------------------------------------
+ * Custom Now Playing
+ * ----------------------------------------------------- */
+
+#custom-nowplaying {}
+#custom-nowplaying.playing {}
+#custom-nowplaying.paused { opacity: 0.6; }
+
+/* -----------------------------------------------------
+ * Custom Cliphist
+ * ----------------------------------------------------- */
+
+#custom-cliphist {
+    padding: 0 4px;
+    color: #e2e8f0;
+}
+
+/* -----------------------------------------------------
+ * Custom Hyprshade
+ * ----------------------------------------------------- */
+
+#custom-hyprshade {
+    padding: 0 4px;
+    color: #f97316;
+}
+
+/* -----------------------------------------------------
+ * Custom Notification
+ * ----------------------------------------------------- */
+
+#custom-notification {
+    font-size: 16px;
+    font-family: "Material Icons";
+    color: #a5b4fc;
+    padding: 0 4px;
+}
+
+/* -----------------------------------------------------
+ * Custom Exit
+ * ----------------------------------------------------- */
+
+#custom-exit {
+    padding: 0 4px;
+    color: #f87171;
+}
+
+/* -----------------------------------------------------
+ * Custom Updates
+ * ----------------------------------------------------- */
+
+#custom-updates.yellow {
+    color: @secondary;
+    padding: 0 4px;
+}
+
+#custom-updates.red {
+    color: @error;
+    padding: 0 4px;
+}
+
+/* -----------------------------------------------------
+ * Hardware Group
+ * ----------------------------------------------------- */
+
+#disk, #language {
+    padding: 0 2px;
+}
+
+#cpu {
+    padding: 0 2px;
+    color: #c084fc;
+}
+
+#memory {
+    padding: 0 2px;
+    color: #67e8f9;
+}
+
+/* -----------------------------------------------------
+ * Power Profiles Daemon
+ * ----------------------------------------------------- */
+
+#power-profiles-daemon {
+    padding: 0 4px;
+    color: #e2e8f0;
+}
+
+#power-profiles-daemon.performance {
+    color: #fcd34d;
+}
+
+#power-profiles-daemon.balanced {
+    color: #60a5fa;
+}
+
+#power-profiles-daemon.power-saver {
+    color: #86efac;
+}
+
+/* -----------------------------------------------------
+ * Clock
+ * ----------------------------------------------------- */
+
+#clock {
+    padding: 0 8px;
+    color: @on_surface;
+}
+
+/* -----------------------------------------------------
+ * Pulseaudio
+ * ----------------------------------------------------- */
+
+#pulseaudio {
+    padding: 0 4px;
+    color: #7dd3fc;
+}
+
+#pulseaudio.muted {
+    color: #94a3b8;
+    opacity: 0.6;
+}
+
+/* -----------------------------------------------------
+ * Network
+ * ----------------------------------------------------- */
+
+#network {
+    padding: 0 4px;
+    color: #6ee7b7;
+}
+
+/* -----------------------------------------------------
+ * Battery
+ * ----------------------------------------------------- */
+
+#battery {
+    padding: 0 4px;
+    color: #86efac;
+}
+
+#battery.charging, #battery.plugged {
+    color: #86efac;
+}
+
+#battery.warning:not(.charging) {
+    color: #fbbf24;
+}
+
+#battery.critical:not(.charging) {
+    color: #f87171;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to { color: #ef4444; }
+}
+
+/* -----------------------------------------------------
+ * Tray
+ * ----------------------------------------------------- */
+
+#tray {
+    padding: 0 4px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
