@@ -35,8 +35,7 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 |------|-----------------|
 | `config/waybar/modules.json` | All module definitions — clock (12hr), drawers, mode toggle, kbd backlight |
 | `config/waybar/themes/ml4w-glass-center/config` | Bar layout, margins flush to top |
-| `config/waybar/themes/ml4w-glass-center/default/style.css` | Theme default styles |
-| `config/waybar/themes/ml4w-glass/style.css` | Gengar icon, compact pill sizing |
+| `config/waybar/themes/ml4w-glass-center/default/style.css` | Bar styles — "luis" label, compact pill sizing |
 
 **eww dashboard** (Super+S to toggle)
 | File | What it controls |
