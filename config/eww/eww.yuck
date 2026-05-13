@@ -1,0 +1,102 @@
+; ── Polls ─────────────────────────────────────────────────────────────────────
+
+(defpoll cpu_usage :interval "2s" :initial "0"
+  `top -bn1 | grep "Cpu(s)" | awk '{print int($2+$4)}'`)
+
+(defpoll ram_usage :interval "2s" :initial "0"
+  `free | awk '/Mem:/ {printf "%.0f", $3/$2*100}'`)
+
+(defpoll ram_used :interval "2s"
+  `free -h | awk '/Mem:/ {print $3}'`)
+
+(defpoll disk_usage :interval "30s" :initial "0"
+  `df / | awk 'NR==2 {gsub(/%/,""); print $5}'`)
+
+(defpoll disk_info :interval "30s"
+  `df -h / | awk 'NR==2 {print $3 "/" $2}'`)
+
+(defpoll vram_usage :interval "2s" :initial "0"
+  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
+
+(defpoll vram_info :interval "2s"
+  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%dM/%dM", $1, $2}'`)
+
+(defpoll clock_time :interval "1s"
+  `date '+%H:%M'`)
+
+(defpoll clock_seconds :interval "1s"
+  `date '+%S'`)
+
+(defpoll clock_date :interval "60s"
+  `date '+%A, %B %-d'`)
+
+(defpoll song_title :interval "2s"
+  `playerctl metadata title 2>/dev/null || echo ""`)
+
+(defpoll song_artist :interval "2s"
+  `playerctl metadata artist 2>/dev/null || echo ""`)
+
+(defpoll player_status :interval "2s"
+  `playerctl status 2>/dev/null || echo "Stopped"`)
+
+; ── Widgets ───────────────────────────────────────────────────────────────────
+
+(defwidget stat-row [label value info icon color]
+  (box :class "stat-row" :orientation "v" :space-evenly false :spacing 4
+    (box :orientation "h" :space-evenly false :spacing 8
+      (label :text icon :class "stat-icon")
+      (label :text label :class "stat-label" :halign "start" :hexpand true)
+      (label :text info :class "stat-info")
+      (label :text "${value}%" :class "stat-value"))
+    (scale :min 0 :max 100 :value value :active false
+           :class "bar ${color}")))
+
+(defwidget now-playing []
+  (box :class "now-playing"
+       :orientation "h"
+       :space-evenly false
+       :spacing 12
+       :visible {player_status != "Stopped"}
+    (label :text {player_status == "Playing" ? "󰎇" : "󰏤"}
+           :class "music-icon")
+    (box :orientation "v" :space-evenly false :hexpand true :spacing 2
+      (label :text {song_title != "" ? song_title : "Nothing playing"}
+             :class "song-title"
+             :halign "start"
+             :limit-width 28)
+      (label :text song_artist
+             :class "song-artist"
+             :halign "start"
+             :limit-width 28))))
+
+(defwidget dashboard []
+  (box :class "dashboard" :orientation "v" :space-evenly false :spacing 18
+
+    ; Clock
+    (box :class "clock-box" :orientation "v" :space-evenly false :spacing 2
+      (label :text clock_time :class "clock-time")
+      (label :text clock_date :class "clock-date"))
+
+    (box :class "sep")
+
+    ; Stats
+    (box :class "stats" :orientation "v" :space-evenly false :spacing 14
+      (stat-row :label "CPU"  :value cpu_usage  :info "${cpu_usage}%"   :icon "󰍛" :color "cpu")
+      (stat-row :label "RAM"  :value ram_usage  :info ram_used          :icon ""  :color "ram")
+      (stat-row :label "Disk" :value disk_usage :info disk_info         :icon "󰉉" :color "disk")
+      (stat-row :label "VRAM" :value vram_usage :info vram_info         :icon "󰍹" :color "vram"))
+
+    (box :class "sep")
+
+    ; Now playing
+    (now-playing)))
+
+; ── Window ────────────────────────────────────────────────────────────────────
+
+(defwindow dashboard
+  :monitor 0
+  :geometry (geometry :x "16px" :y "16px" :width "280px" :anchor "top right")
+  :stacking "fg"
+  :exclusive false
+  :focusable false
+  (dashboard))
