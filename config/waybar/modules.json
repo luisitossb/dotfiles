@@ -29,9 +29,6 @@
       "telegram": " 󰨝",
       "code|vscodium": " 󰨞"
     },
-    "persistent-workspaces": {
-      "*": 5
-    }
   },
   // Taskbar
   "wlr/taskbar": {
