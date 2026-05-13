@@ -22,9 +22,9 @@ dotfiles-sync() {
 
     cd "$DOTS" || return 1
 
-    # Hyprland — full sync, skip the 'hypr/' symlink (points to ml4w source)
+    # Hyprland — full sync, skip the 'hypr' symlink (points to ml4w source)
     mkdir -p config/hypr
-    "${R[@]}" --exclude='/hypr/' ~/.config/hypr/ config/hypr/
+    "${R[@]}" --exclude='hypr' ~/.config/hypr/ config/hypr/
 
     # ml4w user settings and color theme
     mkdir -p config/ml4w/settings config/ml4w/colors
@@ -48,11 +48,11 @@ dotfiles-sync() {
     "${R[@]}" ~/.config/swaync/     config/swaync/
     "${R[@]}" ~/.config/quickshell/ config/quickshell/
 
-    # Home files and scripts
+    # Home files and scripts (only .sh scripts, skip installed binaries and symlinks)
     cp ~/.zshrc_custom home/
     mkdir -p home/.local/bin home/.config/systemd/user
-    "${R[@]}" ~/.local/bin/           home/.local/bin/
-    "${R[@]}" ~/.config/systemd/user/ home/.config/systemd/user/
+    "${R[@]}" --exclude='*' --include='*.sh' ~/.local/bin/ home/.local/bin/
+    "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
     git add .
     git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
