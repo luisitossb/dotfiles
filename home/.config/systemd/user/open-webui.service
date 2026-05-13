@@ -1,0 +1,29 @@
+[Unit]
+Description=Open WebUI
+After=network.target ollama.service
+
+[Service]
+ExecStart=/home/luisito/.local/bin/open-webui serve
+Restart=always
+Environment=OLLAMA_BASE_URL=http://127.0.0.1:11434
+Environment=DEFAULT_MODELS=llama3.1:8b
+# RAG - use nomic-embed-text for document embeddings
+Environment=RAG_EMBEDDING_ENGINE=ollama
+Environment=RAG_EMBEDDING_MODEL=nomic-embed-text
+Environment=RAG_OLLAMA_BASE_URL=http://127.0.0.1:11434
+# Web search - SearXNG (self-hosted, queries Google/Bing/DDG simultaneously)
+Environment=ENABLE_RAG_WEB_SEARCH=true
+Environment=RAG_WEB_SEARCH_ENGINE=searxng
+Environment=SEARXNG_QUERY_URL=http://localhost:8888/search?q=<query>&format=json
+Environment=ENABLE_SEARCH_QUERY=true
+# Code execution
+Environment=ENABLE_CODE_EXECUTION=true
+Environment=CODE_EXECUTION_ENGINE=pyodide
+# RAG defaults - enable for all chats
+Environment=RAG_RERANKING_MODEL_AUTO_SELECT=true
+Environment=ENABLE_RAG_HYBRID_SEARCH=true
+# Web search on by default in new chats
+Environment=ENABLE_WEB_SEARCH_IN_NEW_CHAT=true
+
+[Install]
+WantedBy=default.target
