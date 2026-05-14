@@ -33,8 +33,6 @@
         "battery",
         "custom/mode-toggle",
         "custom/kbd-backlight",
-        "cpu",
-        "memory",
         "custom/cliphist",
         "custom/hyprshade",
         "power-profiles-daemon",
