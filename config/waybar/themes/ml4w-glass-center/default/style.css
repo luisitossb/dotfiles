@@ -126,7 +126,7 @@ window#waybar.empty #window {
 
 #custom-ml4w-welcome {
     padding: 0 8px;
-    color: #c084fc;
+    color: @primary;
     font-weight: bold;
 }
 
@@ -140,7 +140,7 @@ window#waybar.empty #window {
 }
 
 #custom-mode-toggle.server {
-    color: @error;
+    color: @secondary;
 }
 
 /* -----------------------------------------------------
@@ -149,7 +149,7 @@ window#waybar.empty #window {
 
 #custom-kbd-backlight {
     padding: 0 6px;
-    color: #fde68a;
+    color: @primary;
 }
 
 #custom-kbd-backlight.off {
@@ -228,7 +228,7 @@ window#waybar.empty #window {
 
 #custom-exit {
     padding: 0 4px;
-    color: @error;
+    color: @primary;
 }
 
 /* -----------------------------------------------------

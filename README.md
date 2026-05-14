@@ -37,7 +37,7 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 | `config/waybar/themes/ml4w-glass-center/config` | Bar layout, margins flush to top |
 | `config/waybar/themes/ml4w-glass-center/default/style.css` | Bar styles — dynamic matugen theming, "luis" label, compact pill sizing |
 
-> **Dynamic theming:** Waybar colors are driven by `~/.config/waybar/colors.css`, which matugen regenerates from the wallpaper on every wallpaper change. All icon colors, workspace numbers, clock, and panel backgrounds update automatically. Only the "luis" label (purple), keyboard backlight (yellow), and server/critical states (red) are intentionally fixed.
+> **Dynamic theming:** Waybar colors are driven by `~/.config/waybar/colors.css`, which matugen regenerates from the wallpaper on every wallpaper change. Every element — panel backgrounds, all icons, clock, workspace numbers, "luis" label, keyboard backlight, power button, and server mode indicator — uses a matugen palette variable (`@primary`, `@secondary`, `@tertiary`, etc.) and shifts automatically with the wallpaper. The only hardcoded color remaining is the battery critical blink animation.
 
 **eww dashboard** (Super+S to toggle)
 | File | What it controls |
