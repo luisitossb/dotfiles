@@ -37,8 +37,8 @@
     background-color: @surface;
     border-radius: 12px;
     background: radial-gradient(circle at 50% 250%, @surface, @surface_dim) padding-box,
-        linear-gradient(#FFFFFF,@on_primary) border-box;
-    border: 1px solid transparent;	
+        linear-gradient(@primary_fixed,@on_primary) border-box;
+    border: 1px solid transparent;
     opacity:0.9;
     margin:10px;
     margin-right:18px;
@@ -130,7 +130,7 @@
   border-radius: 10px;
   margin: 2px 12px 12px 12px;
   align-items: center;
-  color: alpha(#000000, 0.8);
+  color: @on_surface;
 }
 
 .widget-mpris button {
@@ -138,7 +138,7 @@
   border-radius: 20px;
   padding: 4px;
   margin: 20px 2px;
-  color: alpha(#000000, 0.8);
+  color: @on_surface;
 }
 
 .widget-mpris button:hover {
@@ -151,7 +151,7 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  color: alpha(#000000, 0.8);
+  color: @on_surface;
 }
 
 .widget-mpris-album-art {
@@ -301,7 +301,7 @@ trough highlight {
     background-color: @surface;
     border-radius: 12px;
     background: radial-gradient(circle at 50% 250%, @primary, @surface) padding-box,
-        linear-gradient(#FFFFFF,@on_primary) border-box;
+        linear-gradient(@primary_fixed,@on_primary) border-box;
     border: 1px solid transparent;	
     opacity:1.0;
     padding:10px;
