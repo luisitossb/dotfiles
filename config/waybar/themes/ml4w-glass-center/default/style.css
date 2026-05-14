@@ -1,3 +1,5 @@
+@import url("/home/luisito/.config/waybar/colors.css");
+
 /*
  * __        __          _                  ____  _         _
  * \ \      / /_ _ _   _| |__   __ _ _ __  / ___|| |_ _   _| | ___
@@ -22,21 +24,21 @@ window#waybar {
 }
 
 .modules-left {
-    background: rgba(10, 10, 20, 0.82);
+    background: @blur_background8;
     border-radius: 14px;
     padding: 0 6px;
     margin: 5px 0;
 }
 
 .modules-right {
-    background: rgba(10, 10, 20, 0.82);
+    background: @blur_background8;
     border-radius: 14px;
     padding: 0 6px;
     margin: 5px 0;
 }
 
 .modules-center {
-    background: rgba(10, 10, 20, 0.82);
+    background: @blur_background8;
     border-radius: 14px;
     padding: 0 6px;
     margin: 5px 0;
@@ -56,7 +58,7 @@ label.module {
 }
 
 #workspaces button {
-    color: @on_surface;
+    color: @secondary;
     background: transparent;
     border: none;
     padding: 0 6px;
@@ -65,16 +67,16 @@ label.module {
 }
 
 #workspaces button.active {
-    color: white;
+    color: @primary;
     font-weight: bold;
     min-width: 20px;
-    background: alpha(white, 0.3);
+    background: alpha(@primary, 0.2);
     border-radius: 6px;
     padding: 0 8px;
 }
 
 #workspaces button:hover {
-    color: @secondary;
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -134,11 +136,11 @@ window#waybar.empty #window {
 
 #custom-mode-toggle {
     padding: 0 6px;
-    color: #e2e8f0;
+    color: @primary;
 }
 
 #custom-mode-toggle.server {
-    color: #f87171;
+    color: @error;
 }
 
 /* -----------------------------------------------------
@@ -151,8 +153,20 @@ window#waybar.empty #window {
 }
 
 #custom-kbd-backlight.off {
-    color: #94a3b8;
+    color: @outline;
     opacity: 0.4;
+}
+
+#custom-kbd-backlight.kbd-1 {
+    opacity: 0.5;
+}
+
+#custom-kbd-backlight.kbd-2 {
+    opacity: 0.75;
+}
+
+#custom-kbd-backlight.kbd-3 {
+    opacity: 1.0;
 }
 
 /* -----------------------------------------------------
@@ -185,7 +199,7 @@ window#waybar.empty #window {
 
 #custom-cliphist {
     padding: 0 4px;
-    color: #e2e8f0;
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -194,7 +208,7 @@ window#waybar.empty #window {
 
 #custom-hyprshade {
     padding: 0 4px;
-    color: #f97316;
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -204,7 +218,7 @@ window#waybar.empty #window {
 #custom-notification {
     font-size: 16px;
     font-family: "Material Icons";
-    color: #a5b4fc;
+    color: @primary;
     padding: 0 4px;
 }
 
@@ -214,7 +228,7 @@ window#waybar.empty #window {
 
 #custom-exit {
     padding: 0 4px;
-    color: #f87171;
+    color: @error;
 }
 
 /* -----------------------------------------------------
@@ -255,19 +269,19 @@ window#waybar.empty #window {
 
 #power-profiles-daemon {
     padding: 0 4px;
-    color: #e2e8f0;
+    color: @primary;
 }
 
 #power-profiles-daemon.performance {
-    color: #fcd34d;
+    color: @tertiary;
 }
 
 #power-profiles-daemon.balanced {
-    color: #60a5fa;
+    color: @primary;
 }
 
 #power-profiles-daemon.power-saver {
-    color: #86efac;
+    color: @secondary;
 }
 
 /* -----------------------------------------------------
@@ -276,7 +290,7 @@ window#waybar.empty #window {
 
 #clock {
     padding: 0 8px;
-    color: @on_surface;
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -285,11 +299,11 @@ window#waybar.empty #window {
 
 #pulseaudio {
     padding: 0 4px;
-    color: #7dd3fc;
+    color: @primary;
 }
 
 #pulseaudio.muted {
-    color: #94a3b8;
+    color: @outline;
     opacity: 0.6;
 }
 
@@ -299,7 +313,7 @@ window#waybar.empty #window {
 
 #network {
     padding: 0 4px;
-    color: #6ee7b7;
+    color: @primary;
 }
 
 /* -----------------------------------------------------
@@ -308,19 +322,19 @@ window#waybar.empty #window {
 
 #battery {
     padding: 0 4px;
-    color: #86efac;
+    color: @primary;
 }
 
 #battery.charging, #battery.plugged {
-    color: #86efac;
+    color: @primary;
 }
 
 #battery.warning:not(.charging) {
-    color: #fbbf24;
+    color: @secondary;
 }
 
 #battery.critical:not(.charging) {
-    color: #f87171;
+    color: @error;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: linear;
@@ -329,7 +343,7 @@ window#waybar.empty #window {
 }
 
 @keyframes blink {
-    to { color: #ef4444; }
+    to { color: @error_container; }
 }
 
 /* -----------------------------------------------------

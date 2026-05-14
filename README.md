@@ -35,7 +35,9 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 |------|-----------------|
 | `config/waybar/modules.json` | All module definitions — clock (12hr), drawers, mode toggle, kbd backlight |
 | `config/waybar/themes/ml4w-glass-center/config` | Bar layout, margins flush to top |
-| `config/waybar/themes/ml4w-glass-center/default/style.css` | Bar styles — "luis" label, compact pill sizing |
+| `config/waybar/themes/ml4w-glass-center/default/style.css` | Bar styles — dynamic matugen theming, "luis" label, compact pill sizing |
+
+> **Dynamic theming:** Waybar colors are driven by `~/.config/waybar/colors.css`, which matugen regenerates from the wallpaper on every wallpaper change. All icon colors, workspace numbers, clock, and panel backgrounds update automatically. Only the "luis" label (purple), keyboard backlight (yellow), and server/critical states (red) are intentionally fixed.
 
 **eww dashboard** (Super+S to toggle)
 | File | What it controls |
@@ -66,7 +68,7 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 | `home/.local/bin/mode-status.sh` | Reads current laptop/server mode for waybar |
 | `home/.local/bin/toggle-mode.sh` | Switches laptop↔server mode, updates logind + hypridle |
 | `home/.local/bin/start-hypridle.sh` | Launches correct hypridle config based on current mode |
-| `home/.local/bin/kbd-backlight-status.sh` | Reads ASUS keyboard backlight level for waybar |
+| `home/.local/bin/kbd-backlight-status.sh` | Reads ASUS keyboard backlight level for waybar — sun icon with increasing rays per level, yellow |
 | `home/.local/bin/toggle-kbd-backlight.sh` | Cycles backlight off→1→2→3→off |
 | `home/.local/bin/cliphist-rofi-img.sh` | Clipboard history picker with image preview |
 
