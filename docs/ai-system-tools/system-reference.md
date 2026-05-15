@@ -258,6 +258,15 @@ matugen image "$(cat ~/.config/ml4w/settings/wallpaper.sh)"
 # Or just change wallpaper via ml4w/waypaper — matugen runs automatically
 ```
 
+### Swap
+```bash
+# Swap is zram-based (compressed RAM, NOT SSD — fast, no NVMe wear)
+# Managed by: dev-zram0.swap (systemd unit)
+sudo systemctl status dev-zram0.swap     # check swap status
+# If swap fills up and you want to clear it:
+sudo swapoff -a && sudo swapon -a && sudo systemctl start dev-zram0.swap
+```
+
 ### System / hardware
 ```bash
 lspci | grep -i vga                 # identify GPU
@@ -353,6 +362,7 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 | Session save/restore scripts | Removed | Caused eww widget duplication on reboot |
 | Quick-search terminal (Super+\\) | Removed | Caused Hyprland windowrule errors |
 | Scroll speed overrides (Opera/Discord) | Removed | Broke Opera settings menu |
+| localsearch-3 (GNOME Tracker) | Masked | File indexer for GNOME search — not needed on Hyprland, was throwing constant D-Bus errors. Masked via `systemctl --user mask localsearch-3`. Tracked in dotfiles so mask persists on reinstall. |
 | Sunshine windowrule (hide workspace 6) | Removed | `windowrule = workspace special:sunshine silent, class:^(sunshine)$` caused Hyprland config errors — invalid field class syntax. Workspace 6 stays visible when Moonlight is connected, acceptable tradeoff. |
 
 ---
