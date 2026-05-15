@@ -54,6 +54,10 @@ dotfiles-sync() {
     "${R[@]}" --exclude='*' --include='*.sh' ~/.local/bin/ home/.local/bin/
     "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
+    # AI - System Tools documentation (markdown only)
+    mkdir -p docs/ai-system-tools
+    rsync -a --delete --include='*.md' --exclude='*' ~/'AI - System Tools'/ docs/ai-system-tools/
+
     git add .
     git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
     git push
