@@ -93,9 +93,10 @@ Full reference document for AI assistants. Read this to understand the system wi
 ### Remote Access (Tailscale + Sunshine + Moonlight)
 
 - **Tailscale:** Installed — creates private WireGuard mesh network between devices. Daemon: `tailscaled.service` (system). Laptop Tailscale IP: `100.87.199.5`
-- **Tailscale connected devices:** Linux laptop (`100.87.199.5`), Windows desktop, Mac
+- **Tailscale connected devices:** Linux laptop (`100.87.199.5`), Windows desktop, Mac, phone (iOS/Android)
+- **Adding a new device:** Install Tailscale + sign in (use auth key method on Mac/iOS — see below), install Moonlight, add PC → `100.87.199.5`
 - **Sunshine:** Installed — self-hosted game stream host (remote desktop server). User service: `sunshine.service`. Web UI: `https://localhost:47990`
-- **Moonlight:** Client app installed on Windows desktop and Mac — connects to Sunshine via Tailscale IP `100.87.199.5`
+- **Moonlight:** Client available on Windows, Mac, iOS, Android — connects to Sunshine via Tailscale IP `100.87.199.5`, no port needed
 - **Capture config:** `wlr` capture + `vaapi` encoder on `/dev/dri/renderD129` (Intel iGPU). NVENC unusable because Intel drives the display and DMABUF cross-GPU import fails. VAAPI uses Intel's hardware encoder instead.
 - **Headless monitor:** `HEADLESS-1` (1920x1080@60) defined in `~/.config/hypr/monitors.conf` — virtual display so Hyprland always has something to render to when lid is closed. Created on each Hyprland start via `exec-once = hyprctl output create headless` in autostart.conf.
 - **DRM layout:** `card1`/`renderD128` = NVIDIA, `card2`/`renderD129` = Intel (eDP-1 laptop screen)
@@ -116,7 +117,7 @@ No browser needed. Works every time.
 - **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
 - **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
 - **Aliases in zshrc_custom:**
-  - `oc` — openclaude with qwen2.5-coder:7b (Ollama)
+  - `oc` — openclaude with qwen2.5-coder:7b
   - `ai` — aider with qwen2.5-coder:7b
 
 ### Theming
@@ -346,6 +347,7 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 | Session save/restore scripts | Removed | Caused eww widget duplication on reboot |
 | Quick-search terminal (Super+\\) | Removed | Caused Hyprland windowrule errors |
 | Scroll speed overrides (Opera/Discord) | Removed | Broke Opera settings menu |
+| Sunshine windowrule (hide workspace 6) | Removed | `windowrule = workspace special:sunshine silent, class:^(sunshine)$` caused Hyprland config errors — invalid field class syntax. Workspace 6 stays visible when Moonlight is connected, acceptable tradeoff. |
 
 ---
 

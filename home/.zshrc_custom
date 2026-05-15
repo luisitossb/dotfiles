@@ -5,15 +5,9 @@ export PATH="$HOME/.local/share/npm/bin:$PATH"
 
 # openclaude with local Ollama (native provider — better tool calling)
 alias oc='openclaude --provider ollama --model qwen2.5-coder:7b --dangerously-skip-permissions'
-alias oc-big='openclaude --provider ollama --model qwen2.5-coder:14b --dangerously-skip-permissions'
-
-# coder (qwen2.5-coder:14b) + reviewer (qwen2.5-coder:7b) loop
-alias oc-loop='openclaude --provider ollama --model qwen2.5-coder:14b --dangerously-skip-permissions --agents '"'"'{"reviewer":{"description":"Reviews code written by the coder for bugs and improvements","prompt":"You are a senior code reviewer. Review all code changes critically for bugs, edge cases, and improvements. Be specific and actionable. Always suggest concrete fixes."}}'"'"''
 
 # aider - reliable file editing with local Ollama (no function-calling needed)
 alias ai='aider --model ollama/qwen2.5-coder:7b --no-auto-commits'
-alias ai-loop='aider --architect --model ollama/qwen2.5-coder:14b --editor-model ollama/qwen2.5-coder:7b --no-auto-commits'
-alias ai-big='aider --model ollama/qwen2.5-coder:14b --no-auto-commits'
 
 dotfiles-sync() {
     local DOTS=~/dotfiles
