@@ -5,6 +5,10 @@
 # Usage:
 #   git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles
 #   cd ~/dotfiles && bash install.sh
+#
+# Flags:
+#   --dotfiles-only   Skip all package installs; only deploy configs + system files.
+#                     Use after a second ml4w install to overlay dotfiles on top.
 
 set -euo pipefail
 
@@ -23,6 +27,12 @@ confirm() {
     [[ "$yn" =~ ^[Yy]$ ]]
 }
 
+# ── Parse flags ───────────────────────────────────────────────────────────────
+DOTFILES_ONLY=false
+if [[ "${1:-}" == "--dotfiles-only" ]]; then
+    DOTFILES_ONLY=true
+fi
+
 # ── Sanity checks ─────────────────────────────────────────────────────────────
 if [[ "$EUID" -eq 0 ]]; then
     err "Don't run as root. Run as your regular user."
@@ -37,6 +47,11 @@ fi
 step "Starting luisito setup"
 echo "  Dotfiles: $DOTFILES_DIR"
 echo "  User:     $USER"
+if [[ "$DOTFILES_ONLY" == "true" ]]; then
+    echo ""
+    warn "Dotfiles-only mode — skipping package installs, services, and system config."
+    warn "Only deploying configs, scripts, and system files (Jellyfin hook, etc.)"
+fi
 
 # ── Hardware detection ────────────────────────────────────────────────────────
 step "Detecting hardware"
@@ -58,9 +73,16 @@ if lspci 2>/dev/null | grep -Eqi "intel.*(vga|graphics|display)" && [[ "$GPU" !=
     HYBRID=true
 fi
 
-info "GPU: $GPU  |  CPU: $CPU  |  Hybrid iGPU: $HYBRID"
+IS_LAPTOP=false
+if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
+    IS_LAPTOP=true
+fi
+
+info "GPU: $GPU  |  CPU: $CPU  |  Hybrid iGPU: $HYBRID  |  Laptop: $IS_LAPTOP"
 
 # ── Base packages ─────────────────────────────────────────────────────────────
+if [[ "$DOTFILES_ONLY" == "false" ]]; then
+
 step "Installing base packages"
 
 BASE_PKGS=(
@@ -149,6 +171,9 @@ BASE_PKGS=(
     # Python extras
     matugen
 
+    # Gaming (multilib must be enabled — CachyOS enables it by default)
+    steam gamemode lib32-gamemode
+
     # Misc
     wine winetricks unrar unzip
     openssh nss-mdns avahi
@@ -233,6 +258,10 @@ AUR_PKGS=(
     python-pywalfox
     localsend-bin
     opera-gx
+
+    # Gaming
+    spotify
+    proton-ge-custom-bin
 )
 
 paru -S --needed --noconfirm "${AUR_PKGS[@]}" || warn "Some AUR packages failed — check output above"
@@ -241,6 +270,8 @@ paru -S --needed --noconfirm "${AUR_PKGS[@]}" || warn "Some AUR packages failed 
 step "Installing Open WebUI"
 pipx install open-webui && info "Open WebUI installed via pipx" \
     || pip install --user open-webui && info "Open WebUI installed via pip"
+
+fi  # end DOTFILES_ONLY==false block
 
 # ── Dotfiles ──────────────────────────────────────────────────────────────────
 step "Deploying dotfiles"
@@ -277,6 +308,40 @@ fi
 if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
     echo '[[ -f ~/.zshrc_custom ]] && source ~/.zshrc_custom' >> ~/.zshrc
     info "Linked .zshrc_custom in .zshrc"
+fi
+
+# ── Jellyfin OSD fix ──────────────────────────────────────────────────────────
+step "Installing Jellyfin OSD fix"
+if [[ -f "$DOTFILES_DIR/system/jellyfin-osd-fix.sh" ]]; then
+    sudo cp "$DOTFILES_DIR/system/jellyfin-osd-fix.sh" /usr/local/bin/
+    sudo chmod +x /usr/local/bin/jellyfin-osd-fix.sh
+    sudo mkdir -p /etc/pacman.d/hooks
+    sudo cp "$DOTFILES_DIR/system/jellyfin-osd-fix.hook" /etc/pacman.d/hooks/
+    info "Installed pacman hook → auto-applies fix on every Jellyfin update"
+    if [[ -d /usr/share/jellyfin/web ]]; then
+        sudo /usr/local/bin/jellyfin-osd-fix.sh
+    fi
+else
+    warn "system/jellyfin-osd-fix.sh not found in dotfiles — skipping"
+fi
+
+# ── Desktop-specific adjustments ─────────────────────────────────────────────
+if [[ "$IS_LAPTOP" == "false" ]]; then
+    step "Desktop machine detected"
+    warn "No keyboard backlight — kbd-backlight waybar module will be absent (harmless)"
+    warn "No battery — battery-charge-limit service will be skipped"
+    warn "eww GPU widgets use nvidia-smi by default — if GPU is AMD, update eww.yuck:"
+    warn "  See README.md → 'Porting to a new machine' for AMD eww replacements"
+fi
+
+if [[ "$DOTFILES_ONLY" == "true" ]]; then
+    step "Manual step required: ml4w"
+    echo "  ml4w needs to be installed separately if not already done."
+    echo "  Install via: yay -S ml4w-hyprland"
+    echo "  Then re-run: cd ~/dotfiles && bash install.sh --dotfiles-only"
+    echo ""
+    echo -e "${GREEN}  Dotfiles deployed. Done!${NC}"
+    exit 0
 fi
 
 # ── Bluetooth: off by default ─────────────────────────────────────────────────
@@ -328,8 +393,9 @@ sudo ufw default allow outgoing
 sudo ufw allow ssh
 info "UFW enabled (deny incoming, allow SSH)"
 
-# ── Docker group ──────────────────────────────────────────────────────────────
+# ── Groups ────────────────────────────────────────────────────────────────────
 sudo usermod -aG docker "$USER" && info "Added $USER to docker group"
+sudo usermod -aG games  "$USER" && info "Added $USER to games group"
 
 # ── Ollama tuning ─────────────────────────────────────────────────────────────
 step "Configuring Ollama"
@@ -352,9 +418,10 @@ Current=Nordic-darker
 EOF
 info "SDDM theme set to Nordic-darker"
 
-# ── Battery charge limit ──────────────────────────────────────────────────────
-step "Configuring battery charge limit"
-sudo tee /etc/systemd/system/battery-charge-limit.service > /dev/null <<'EOF'
+# ── Battery charge limit (laptop only) ───────────────────────────────────────
+if [[ "$IS_LAPTOP" == "true" ]]; then
+    step "Configuring battery charge limit"
+    sudo tee /etc/systemd/system/battery-charge-limit.service > /dev/null <<'EOF'
 [Unit]
 Description=Set battery charge limit to 80%
 After=multi-user.target
@@ -367,8 +434,12 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl enable --now battery-charge-limit 2>/dev/null && info "Battery charge limit set to 80%" \
-    || warn "Battery charge limit service failed — may not have BAT0"
+    sudo systemctl enable --now battery-charge-limit 2>/dev/null \
+        && info "Battery charge limit set to 80%" \
+        || warn "Battery charge limit service failed — may not have BAT0"
+else
+    info "Desktop detected — skipping battery charge limit service"
+fi
 
 # ── Limine bootloader ─────────────────────────────────────────────────────────
 step "Configuring Limine"
@@ -423,7 +494,12 @@ echo "  After reboot:"
 echo "  • Open WebUI  → http://localhost:8080"
 echo "  • Jellyfin    → http://localhost:8096"
 echo "  • Log in and set up Jellyfin media libraries manually"
+echo "  • Steam is installed — launch it and log in"
+echo "  • Proton-GE is installed — select it in Steam → Settings → Compatibility"
 echo ""
 echo "  GPU detected: $GPU — drivers installed accordingly"
+if [[ "$GPU" == "amd" ]]; then
+    echo "  AMD GPU: update eww.yuck GPU widgets (see README → Porting to a new machine)"
+fi
 echo "  If something looks wrong with graphics, check: sudo dmesg | grep -i drm"
 echo ""

@@ -289,6 +289,23 @@ Things that were tested and intentionally removed:
 
 ---
 
+## Documentation
+
+`docs/ai-system-tools/` contains reference markdown files for the full setup. These are AI-readable and kept up to date via `dotfiles-sync`:
+
+| File | What it covers |
+|------|---------------|
+| `system-reference.md` | Full system overview — hardware, software stack, key paths, important commands, ml4w, Waybar modules, everything. Start here. |
+| `windows-to-linux-guide.md` | Step-by-step guide for installing CachyOS on the AMD desktop (coming from Windows). Covers partitioning, install.sh, ml4w, AMD eww fixes, Jellyfin setup, gaming. |
+| `jellyfin-osd-timeout-fix.md` | How the Jellyfin OSD 0.5s fix works, the pacman hook automation, manual fallback steps. |
+| `media-rename-prompt.md` | Prompt/workflow for renaming media files to Jellyfin naming convention. |
+| `opera-to-zen-migration.md` | Notes from switching browsers. |
+| `Shortcuts.md` | Keybinding and shortcut reference. |
+
+New docs added to `~/AI - System Tools/` on the laptop are automatically pushed to this directory on every `dotfiles-sync` run.
+
+---
+
 ## Keeping dotfiles updated
 
 Run `dotfiles-sync` from anywhere to copy the latest config files and push to GitHub:

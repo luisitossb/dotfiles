@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = jellyfin
+
+[Action]
+Description = Applying Jellyfin OSD timeout fix (0.5s hide delay)
+When = PostTransaction
+Exec = /usr/local/bin/jellyfin-osd-fix.sh
