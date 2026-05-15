@@ -43,7 +43,7 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 **Hyprland**
 | File | What it controls |
 |------|-----------------|
-| `config/hypr/conf/autostart.conf` | eww daemon, hypridle, wallpaper, ml4w listeners |
+| `config/hypr/conf/autostart.conf` | eww daemon, hypridle, wallpaper, ml4w listeners, kitty on workspace 1 |
 | `config/hypr/conf/keybindings/default.conf` | All keybindings (Super+S for eww, etc.) |
 | `config/hypr/conf/windowrules/default.conf` | Window rules |
 | `config/hypr/conf/windows/default.conf` | Gaps (5px in/out), borders, layout |
@@ -86,6 +86,19 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 | `config/swaync/themes/glass/control_center.css` | Notification center styles — fully dynamic via matugen |
 | `config/swaync/themes/glass/notifications.css` | Floating notification styles — fully dynamic via matugen |
 | `config/rofi/config-cliphist-img.rasi` | Rofi clipboard history UI |
+
+**Quickshell**
+| File | What it controls |
+|------|-----------------|
+| `config/quickshell/shell.qml` | Shell root — loads all quickshell app windows |
+| `config/quickshell/PowerApp/` | Power menu (shutdown, reboot, suspend, lock) |
+| `config/quickshell/SidebarApp/` | Side panel |
+| `config/quickshell/CalendarApp/` | Calendar popup |
+| `config/quickshell/WallpaperApp/` | Wallpaper picker |
+| `config/quickshell/WelcomeApp/` | Welcome/greeting screen |
+| `config/quickshell/overview/` | Window overview — toggled via Super+Tab (qs IPC) |
+| `config/quickshell/CustomTheme/` | Quickshell color/theme config |
+| `config/quickshell/shared/` | Shared components and utilities |
 
 **Scripts** (deployed to `~/.local/bin/`)
 | File | What it does |
@@ -259,6 +272,20 @@ All `.conf` files in `config/hypr/`:
 The actual settings (gap values, keybinds, rules, timeouts) all stay the same — only the syntax changes. The `.conf` files in this repo serve as the source of truth for what values to carry over.
 
 When Hyprland publishes a migration guide, follow that. The `.conf` files here make it easy to see exactly what was customized vs defaults.
+
+---
+
+## What's NOT in the setup (tried and removed)
+
+Things that were tested and intentionally removed:
+
+| What | Why removed |
+|------|-------------|
+| Quick-search terminal (Super+\\) | Was causing Hyprland windowrule errors, not worth the complexity |
+| Session save/restore scripts | Caused eww widget duplication on reboot |
+| Scroll speed overrides (Opera GX/Discord) | Broke Opera GX settings menu, reverted |
+| Super+Alt+W wallpaper automation keybind | Cluttered keybindings, not useful in practice |
+| Zen Browser + Discord on Hyprland autostart | Annoying to have them auto-open; launch manually instead |
 
 ---
 
