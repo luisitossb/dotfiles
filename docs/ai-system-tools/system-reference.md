@@ -84,6 +84,10 @@ Full reference document for AI assistants. Read this to understand the system wi
   - After any Jellyfin update, clear browser cache or test in incognito to confirm fix persisted
 - **Media library naming:** Standard Jellyfin convention (Movie Name (Year)/Movie Name (Year).mkv)
 
+### Self-hosted Services
+- **SearXNG:** Self-hosted private search engine running in Docker. Access at `http://localhost:8888`. Container: `searxng/searxng:latest`, auto-starts with Docker on boot.
+- **Docker:** Installed and enabled at boot — used for SearXNG container. Manage with `docker ps -a` / `docker start searxng` / `docker stop searxng`
+
 ### Gaming
 - **Steam:** Installed (multilib required — enabled by default on CachyOS)
 - **Proton-GE:** `proton-ge-custom-bin` (AUR) — use in Steam → Settings → Compatibility
