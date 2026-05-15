@@ -90,17 +90,24 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Gamemode:** Installed — launch games with `gamemoderun %command%` in Steam options
 - **Wine/Winetricks:** Installed for non-Steam Windows apps
 
+### Remote Access (Tailscale + Sunshine + Moonlight)
+
+- **Tailscale:** Installed — creates private WireGuard mesh network between devices. Daemon: `tailscaled.service` (system). Laptop Tailscale IP: `100.87.199.5`
+- **Sunshine:** Installed — self-hosted game stream host (remote desktop server). User service: `sunshine.service`. Web UI: `https://localhost:47990`
+- **Moonlight:** Client app installed on other devices — connects to Sunshine via Tailscale IP
+- **Capture config:** `wlr` capture + `vaapi` encoder on `/dev/dri/renderD129` (Intel iGPU). NVENC unusable because Intel drives the display and DMABUF cross-GPU import fails. VAAPI uses Intel's hardware encoder instead.
+- **Headless monitor:** `HEADLESS-1` (1920x1080@60) defined in `~/.config/hypr/monitors.conf` — virtual display so Hyprland always has something to render to when lid is closed. Created on each Hyprland start via `exec-once = hyprctl output create headless` in autostart.conf.
+- **DRM layout:** `card1`/`renderD128` = NVIDIA, `card2`/`renderD129` = Intel (eDP-1 laptop screen)
+- **No port forwarding needed** — Tailscale handles NAT traversal automatically
+
 ### AI / Local LLMs
 - **Ollama:** Running as system service, max 1 model loaded, 5s keep-alive
 - **GPU backend:** ollama-cuda (NVIDIA laptop) / ollama-rocm (AMD desktop, if ROCm works)
-- **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (+ qwen2.5-coder:14b on NVIDIA)
+- **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
 - **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
 - **Aliases in zshrc_custom:**
   - `oc` — openclaude with qwen2.5-coder:7b (Ollama)
-  - `oc-big` — openclaude with qwen2.5-coder:14b
   - `ai` — aider with qwen2.5-coder:7b
-  - `ai-big` — aider with qwen2.5-coder:14b
-  - `ai-loop` — aider architect mode (14b coder + 7b editor)
 
 ### Theming
 - **Theme engine:** matugen (Material You — wallpaper-driven palette)
@@ -141,6 +148,7 @@ Full reference document for AI assistants. Read this to understand the system wi
 ~/.config/rofi/                     — launcher configs
 ~/.config/kitty/kitty.conf          — terminal config
 ~/.config/quickshell/               — Quickshell widgets (power menu, sidebar, etc.)
+~/.config/sunshine/sunshine.conf    — Sunshine capture/encoder config (wlr + vaapi + renderD129)
 ~/.zshrc_custom                     — personal zsh additions (sourced by .zshrc)
 ~/.local/bin/                       — personal scripts
 ```
@@ -204,6 +212,18 @@ ollama run qwen2.5-coder:7b         # interactive chat
 ollama pull <model>                 # download a model
 systemctl status ollama             # service status
 journalctl -u ollama -f             # live logs
+```
+
+### Remote Access
+```bash
+tailscale status                        # show connected devices and IPs
+tailscale ip                            # show this machine's Tailscale IP (100.87.199.5)
+systemctl --user status sunshine        # check Sunshine service
+systemctl --user restart sunshine       # restart Sunshine
+journalctl --user -u sunshine -f        # live Sunshine logs
+hyprctl output create headless          # manually create headless monitor (auto-runs on boot)
+# Sunshine web UI: https://localhost:47990
+# Sunshine config: ~/.config/sunshine/sunshine.conf
 ```
 
 ### Open WebUI
