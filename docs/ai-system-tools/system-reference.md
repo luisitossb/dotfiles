@@ -101,6 +101,8 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Headless monitor:** `HEADLESS-1` (1920x1080@60) defined in `~/.config/hypr/monitors.conf` — virtual display so Hyprland always has something to render to when lid is closed. Created on each Hyprland start via `exec-once = hyprctl output create headless` in autostart.conf. **Do not run `hyprctl output create headless` manually after boot** — it creates a duplicate `HEADLESS-2` which shows up as an empty workspace 6. Fix if it happens: `hyprctl output remove HEADLESS-2`.
 - **DRM layout:** `card1`/`renderD128` = NVIDIA, `card2`/`renderD129` = Intel (eDP-1 laptop screen)
 - **No port forwarding needed** — Tailscale handles NAT traversal automatically
+- **Moonlight recommended settings:** Video decoder → Hardware, Video codec → HEVC (H.265). Sunshine already encodes HEVC via `hevc_vaapi`. Fall back to H.264 only if a device has compatibility issues.
+- **Disconnecting from a session:** Press Ctrl+Alt+Shift+Q on the client device (Windows/Mac/phone) while Moonlight is focused, or Alt+Tab out and close the Moonlight window.
 
 #### Tailscale Mac auth workaround (macOS Sequoia)
 macOS Sequoia has a bug where Tailscale never opens the login browser. Bypass it entirely using an auth key:
