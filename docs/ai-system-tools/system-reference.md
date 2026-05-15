@@ -82,6 +82,8 @@ Full reference document for AI assistants. Read this to understand the system wi
   - Pacman hook auto-reapplies on every Jellyfin update: `/etc/pacman.d/hooks/jellyfin-osd-fix.hook`
   - Script: `/usr/local/bin/jellyfin-osd-fix.sh`
   - After any Jellyfin update, clear browser cache or test in incognito to confirm fix persisted
+  - **Resilience:** Script finds the chunk via `grep -rl "osdHeader-hidden"` (survives filename hash changes), uses flexible regex for minifier variable renames, and fails silently if pattern not found (Jellyfin still works, just reverts to 3s delay)
+  - **Break risk:** Low on minor updates. Moderate on major versions if Jellyfin renames `osdHeader-hidden`, changes the 3s timeout value, or refactors the OSD mechanism. Worst case is always safe — fix just doesn't apply.
 - **Media library naming:** Standard Jellyfin convention (Movie Name (Year)/Movie Name (Year).mkv)
 
 ### Self-hosted Services
