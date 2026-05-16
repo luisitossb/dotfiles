@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-"""
-Parse .desktop files and output JSON list for the Quickshell launcher.
-Searches standard XDG app dirs. Resolves icon paths.
-"""
-import os, json, subprocess, sys
+#!/usr/bin/env bash
+# Outputs JSON array of installed .desktop apps for the Quickshell launcher
+python3 << 'PYEOF'
+import os, json
 
 XDG_DIRS = [
     os.path.expanduser("~/.local/share/applications"),
@@ -18,10 +16,8 @@ PIXMAPS_DIR = "/usr/share/pixmaps"
 def find_icon(name):
     if not name:
         return ""
-    # Absolute path
     if os.path.isabs(name) and os.path.exists(name):
         return name
-    # Try hicolor + common themes
     for theme in ["hicolor", "breeze", "Adwaita", "Papirus", "Papirus-Dark"]:
         theme_dir = os.path.join(ICON_THEMES_DIR, theme)
         if not os.path.isdir(theme_dir):
@@ -32,11 +28,10 @@ def find_icon(name):
                     p = os.path.join(theme_dir, size + "x" + size, cat, name + "." + ext)
                     if os.path.exists(p):
                         return p
-                # scalable
-                p = os.path.join(theme_dir, "scalable", cat, name + ".svg")
-                if os.path.exists(p):
-                    return p
-    # pixmaps fallback
+        for cat in ["apps", "devices", "places", "status", "mimetypes"]:
+            p = os.path.join(theme_dir, "scalable", cat, name + ".svg")
+            if os.path.exists(p):
+                return p
     for ext in ["png", "svg", "xpm"]:
         p = os.path.join(PIXMAPS_DIR, name + "." + ext)
         if os.path.exists(p):
@@ -62,7 +57,6 @@ def parse_desktop(path):
                 entry[k.strip()] = v.strip()
     except Exception:
         return None
-    # Must have Name and Exec, must be Application, must not be hidden/nodisplay
     if entry.get("Type") != "Application":
         return None
     if entry.get("NoDisplay", "false").lower() == "true":
@@ -73,7 +67,6 @@ def parse_desktop(path):
     exec_raw = entry.get("Exec", "")
     if not name or not exec_raw:
         return None
-    # Strip field codes
     exec_clean = " ".join(p for p in exec_raw.split() if not p.startswith("%"))
     icon_name = entry.get("Icon", "")
     return {
@@ -101,3 +94,4 @@ for d in XDG_DIRS:
 
 apps.sort(key=lambda a: a["name"].lower())
 print(json.dumps(apps))
+PYEOF

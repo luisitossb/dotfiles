@@ -212,9 +212,9 @@ if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
     info "Linked .zshrc_custom in .zshrc"
 fi
 
-# Fix hardcoded /home/luisito paths (waybar CSS, waypaper config, wallpaper-folder)
+# Fix hardcoded /home/luisito paths (waypaper config, wallpaper-folder)
+# Note: waybar style.css uses a relative @import so no fix needed there
 for f in \
-    ~/.config/waybar/themes/ml4w-glass-center/default/style.css \
     ~/.config/waypaper/config.ini \
     ~/.config/ml4w/settings/wallpaper-folder; do
     [[ -f "$f" ]] && sed -i "s|/home/luisito|$HOME|g" "$f" && info "Fixed paths in: $f"

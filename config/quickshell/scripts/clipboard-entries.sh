@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
-"""Output cliphist entries as JSON for the Quickshell clipboard picker."""
-import subprocess, json, os, hashlib, sys
+#!/usr/bin/env bash
+# Outputs JSON array of cliphist entries; decodes PNG images to /tmp/qs-clipboard-cache/
+python3 << 'PYEOF'
+import subprocess, json, os, hashlib
 
 CACHE_DIR = "/tmp/qs-clipboard-cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -20,13 +21,10 @@ for line in list_out.splitlines():
     entry_id = line[:tab_idx]
     preview  = line[tab_idx+1:]
 
-    # Check if binary (image)
     is_image = False
     img_path = ""
     if preview.strip().startswith("[[ binary") or preview.strip().startswith("[[binary"):
-        # Try to decode and cache as PNG
         raw = run(["cliphist", "decode", entry_id])
-        # PNG magic bytes
         if raw[:8] == b'\x89PNG\r\n\x1a\n':
             h = hashlib.md5(entry_id.encode()).hexdigest()
             img_path = os.path.join(CACHE_DIR, h + ".png")
@@ -37,10 +35,11 @@ for line in list_out.splitlines():
             preview  = "[Image]"
 
     entries.append({
-        "id":      entry_id,
-        "preview": preview[:120],
+        "id":       entry_id,
+        "preview":  preview[:120],
         "is_image": is_image,
         "img_path": img_path,
     })
 
-print(json.dumps(entries[:80]))  # cap at 80 entries
+print(json.dumps(entries[:80]))
+PYEOF
