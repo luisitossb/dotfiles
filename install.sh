@@ -80,12 +80,13 @@ fi
 
 info "GPU: $GPU  |  CPU: $CPU  |  Hybrid iGPU: $HYBRID  |  Laptop: $IS_LAPTOP"
 
-# ── Base packages ─────────────────────────────────────────────────────────────
+# ── All packages (paru handles repos + AUR) ───────────────────────────────────
+# paru ships with CachyOS by default — no bootstrap needed
 if [[ "$DOTFILES_ONLY" == "false" ]]; then
 
-step "Installing base packages"
+step "Installing packages"
 
-BASE_PKGS=(
+ALL_PKGS=(
     # System base
     base base-devel git wget curl sudo nano vim
 
@@ -171,22 +172,36 @@ BASE_PKGS=(
     # Python extras
     matugen
 
-    # Gaming (multilib must be enabled — CachyOS enables it by default)
+    # Gaming
     steam gamemode lib32-gamemode
 
     # Misc
     wine winetricks unrar unzip
     openssh nss-mdns avahi
+
+    # AUR
+    apple_cursor
+    sddm-astronaut-theme
+    sddm-theme-sugar-candy-git
+    sddm-nordic-theme-git
+    grimblast-git
+    pokemon-colorscripts-git
+    python-pywalfox
+    localsend-bin
+    opera-gx
+    waypaper
+    spotify
+    proton-ge-custom-bin
 )
 
-sudo pacman -S --needed --noconfirm "${BASE_PKGS[@]}" || warn "Some base packages failed — check output above"
+paru -S --needed --noconfirm "${ALL_PKGS[@]}" || warn "Some packages failed — check output above"
 
 # ── CPU microcode ─────────────────────────────────────────────────────────────
 step "Installing CPU microcode ($CPU)"
 if [[ "$CPU" == "intel" ]]; then
-    sudo pacman -S --needed --noconfirm intel-ucode && info "Intel microcode installed"
+    paru -S --needed --noconfirm intel-ucode && info "Intel microcode installed"
 else
-    sudo pacman -S --needed --noconfirm amd-ucode && info "AMD microcode installed"
+    paru -S --needed --noconfirm amd-ucode && info "AMD microcode installed"
 fi
 
 # ── GPU drivers ───────────────────────────────────────────────────────────────
@@ -204,43 +219,14 @@ fi
 # ── Ollama GPU backend ────────────────────────────────────────────────────────
 step "Installing Ollama GPU backend"
 if [[ "$GPU" == "nvidia" ]]; then
-    sudo pacman -S --needed --noconfirm ollama-cuda && info "CUDA backend installed"
+    paru -S --needed --noconfirm ollama-cuda && info "CUDA backend installed"
 elif [[ "$GPU" == "amd" ]]; then
-    sudo pacman -S --needed --noconfirm ollama-rocm 2>/dev/null \
+    paru -S --needed --noconfirm ollama-rocm 2>/dev/null \
         && info "ROCm backend installed" \
         || warn "ollama-rocm not found — Ollama will run CPU-only"
 else
     warn "No GPU acceleration for Ollama — CPU only"
 fi
-
-# ── AUR packages ──────────────────────────────────────────────────────────────
-step "Installing AUR packages"
-
-# Ensure paru is available
-if ! command -v paru &>/dev/null; then
-    info "Installing paru..."
-    git clone https://aur.archlinux.org/paru.git /tmp/paru-build
-    (cd /tmp/paru-build && makepkg -si --noconfirm)
-fi
-
-AUR_PKGS=(
-    apple_cursor
-    sddm-astronaut-theme
-    sddm-theme-sugar-candy-git
-    sddm-nordic-theme-git
-    grimblast-git
-    pokemon-colorscripts-git
-    python-pywalfox
-    localsend-bin
-    opera-gx
-    waypaper
-
-    # Gaming
-    spotify
-    proton-ge-custom-bin
-)
-
-paru -S --needed --noconfirm "${AUR_PKGS[@]}" || warn "Some AUR packages failed — check output above"
 
 # ── Open WebUI ────────────────────────────────────────────────────────────────
 step "Installing Open WebUI"
