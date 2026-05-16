@@ -29,9 +29,9 @@ confirm() {
 
 # ── Parse flags ───────────────────────────────────────────────────────────────
 DOTFILES_ONLY=false
-if [[ "${1:-}" == "--dotfiles-only" ]]; then
-    DOTFILES_ONLY=true
-fi
+for arg in "$@"; do
+    [[ "$arg" == "--dotfiles-only" ]] && DOTFILES_ONLY=true
+done
 
 # ── Sanity checks ─────────────────────────────────────────────────────────────
 if [[ "$EUID" -eq 0 ]]; then
@@ -233,6 +233,7 @@ AUR_PKGS=(
     python-pywalfox
     localsend-bin
     opera-gx
+    waypaper
 
     # Gaming
     spotify
@@ -284,6 +285,9 @@ if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
     echo '[[ -f ~/.zshrc_custom ]] && source ~/.zshrc_custom' >> ~/.zshrc
     info "Linked .zshrc_custom in .zshrc"
 fi
+
+# Fix hardcoded /home/luisito paths in deployed configs
+sed -i "s|/home/luisito|$HOME|g" ~/.config/waybar/themes/ml4w-glass-center/default/style.css 2>/dev/null && info "Fixed waybar CSS path"
 
 # ── Jellyfin OSD fix ──────────────────────────────────────────────────────────
 step "Installing Jellyfin OSD fix"

@@ -122,6 +122,11 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 **1. Install CachyOS**
 https://cachyos.org
 
+**Prerequisites before running install.sh:**
+- Connected to internet (WiFi or ethernet)
+- ~15GB free disk space (packages + Ollama models)
+- Running as your regular user (not root)
+
 **2. Clone this repo and run install.sh**
 ```
 git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles

@@ -42,9 +42,19 @@ if ! uname -m | grep -q "aarch64"; then
     confirm "Continue anyway?" || exit 1
 fi
 
+# ── Parse flags ───────────────────────────────────────────────────────────────
+DOTFILES_ONLY=false
+for arg in "$@"; do
+    [[ "$arg" == "--dotfiles-only" ]] && DOTFILES_ONLY=true
+done
+
 step "Starting LuiNux setup for Asahi Linux (Apple Silicon)"
 echo "  Dotfiles: $DOTFILES_DIR"
 echo "  User:     $USER"
+if [[ "$DOTFILES_ONLY" == "true" ]]; then
+    echo ""
+    warn "Dotfiles-only mode — skipping package installs, services, and system config."
+fi
 echo ""
 warn "NOTE: GPU drivers are managed by Asahi — do NOT install mesa/vulkan manually."
 warn "NOTE: No Ollama GPU acceleration on Apple Silicon — CPU inference only."
@@ -136,18 +146,6 @@ BASE_PKGS=(
 
 sudo pacman -S --needed --noconfirm "${BASE_PKGS[@]}" || warn "Some base packages failed — check output above"
 
-# eww — build from AUR (no prebuilt ARM binary in most repos)
-step "Installing eww (building from source for ARM)"
-if ! command -v eww &>/dev/null; then
-    if command -v paru &>/dev/null; then
-        paru -S --needed --noconfirm eww || warn "eww AUR build failed — try manually: paru -S eww"
-    else
-        warn "paru not yet installed — eww will be installed in the AUR step below"
-    fi
-else
-    info "eww already installed"
-fi
-
 # ── No CPU microcode needed ───────────────────────────────────────────────────
 # Apple Silicon uses ARM — intel-ucode and amd-ucode don't apply here.
 
@@ -171,6 +169,7 @@ AUR_PKGS=(
     pokemon-colorscripts-git
     python-pywalfox
     localsend-bin
+    waypaper
     eww
     # opera-gx        — no ARM build, skipped
     # zen-browser-bin — check https://github.com/zen-browser/desktop for ARM releases
@@ -224,6 +223,9 @@ if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
     echo '[[ -f ~/.zshrc_custom ]] && source ~/.zshrc_custom' >> ~/.zshrc
     info "Linked .zshrc_custom in .zshrc"
 fi
+
+# Fix hardcoded /home/luisito paths in deployed configs
+sed -i "s|/home/luisito|$HOME|g" ~/.config/waybar/themes/ml4w-glass-center/default/style.css 2>/dev/null && info "Fixed waybar CSS path"
 
 # ── Bluetooth: off by default ─────────────────────────────────────────────────
 step "Configuring Bluetooth"
@@ -304,7 +306,7 @@ echo "  ml4w needs to be installed separately after reboot."
 echo "  It provides scripts in ~/.config/ml4w/ that waybar and autostart depend on."
 echo ""
 echo "  Install via yay:"
-echo "    yay -S ml4w-hyprland"
+echo "    paru -S ml4w-hyprland"
 echo ""
 echo "  Then re-run dotfiles deployment to overlay your configs on top of ml4w defaults:"
 echo "    cd ~/dotfiles && bash install-asahi.sh --dotfiles-only"
@@ -335,7 +337,7 @@ echo -e "${GREEN}  Done! Reboot to finish.${NC}"
 echo -e "${GREEN}══════════════════════════════════════════════════${NC}"
 echo ""
 echo "  After reboot:"
-echo "  • Install ml4w (yay -S ml4w-hyprland), then reboot again"
+echo "  • Install ml4w (paru -S ml4w-hyprland), then reboot again"
 echo "  • Re-run install-asahi.sh to overlay dotfiles over ml4w defaults"
 echo "  • Set your default browser in ~/.config/ml4w/settings/browser.sh"
 echo "  • Remove eww GPU widgets from ~/.config/eww/eww.yuck"
