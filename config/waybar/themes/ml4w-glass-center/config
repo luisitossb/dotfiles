@@ -15,6 +15,7 @@
     "modules-left": [
         "custom/appmenu",
         "hyprland/workspaces",
+        "custom/new-workspace",
         //"wlr/taskbar",
         //"group/quicklinks",
         //"custom/nowplaying",

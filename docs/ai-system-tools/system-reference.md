@@ -326,7 +326,7 @@ ip addr                             # show IP addresses
 ## Waybar module key details
 
 The bar uses the `ml4w-glass-center` theme. Layout:
-- **Left:** App menu (Gengar icon), workspace numbers
+- **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
 - **Center:** Network status, clock (12-hour), now-playing
 - **Right:** Volume, battery (laptop only), mode toggle, kbd backlight (laptop only), clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
 
@@ -341,6 +341,7 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 - `custom/appmenu` — Gengar icon launcher button
 - `custom/cliphist` — clipboard history picker
 - `custom/hyprshade` — screen shader toggle
+- `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty` (creates and switches to first empty workspace). Added for Moonlight streaming sessions where Super key is captured by Windows.
 
 ---
 

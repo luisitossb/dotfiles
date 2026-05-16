@@ -71,6 +71,12 @@
   "custom/empty": {
     "format": ""
   },
+  // New workspace
+  "custom/new-workspace": {
+    "format": "+",
+    "on-click": "hyprctl dispatch workspace empty",
+    "tooltip": false
+  },
   // Tools
   "custom/tools": {
     "format": "",
