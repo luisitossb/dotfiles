@@ -14,24 +14,18 @@ Full reference document for AI assistants. Read this to understand the system wi
 
 ## Hardware inventory
 
-### ASUS laptop (primary daily driver — CachyOS)
+### Laptop (current daily driver — CachyOS)
+- **Model:** ASUS laptop
 - **CPU:** Intel i7-8750H
 - **RAM:** 32GB
 - **GPU:** NVIDIA (discrete)
 - **Storage:** 1TB NVMe (btrfs with snapshots via snapper)
-- **Form factor:** Laptop — has battery (`BAT0`), lid
+- **Form factor:** Laptop — has keyboard backlight (`asus::kbd_backlight`), battery (`BAT0`), lid
 
-### Acer Predator (secondary machine — CachyOS, same rice)
-- **CPU:** Intel i7-7700HQ
-- **GPU:** NVIDIA GTX 1060 (Pascal — requires `linux-cachyos-nvidia`, NOT `linux-cachyos-nvidia-open` which only supports Turing+)
-- **Storage:** 256GB NVMe + 1TB HDD
-- **Form factor:** Laptop
-- **Status:** CachyOS installed, rice deployed
-
-### AMD desktop
+### Desktop (Windows → CachyOS migration target)
 - **GPU:** AMD discrete GPU
-- **Form factor:** Desktop — no battery, no lid
-- **Status:** Pending CachyOS install
+- **Form factor:** Desktop — no keyboard backlight, no battery, no lid
+- **Status:** Currently runs Windows; plan is to install CachyOS
 
 ### External storage
 - **Device:** 2TB WD Elements Portable
@@ -51,7 +45,7 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **OS:** CachyOS (Arch-based, rolling release)
 - **AUR helper:** paru
 - **Window Manager:** Hyprland 0.55 (deprecation note: .conf format deprecated in favor of Lua in 0.55 — still works, not broken yet)
-- **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `paru -S ml4w-hyprland`)
+- **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `yay -S ml4w-hyprland`)
 - **Session manager:** uwsm
 - **Login manager:** SDDM (Nordic-darker theme)
 
@@ -125,9 +119,15 @@ macOS Sequoia has a bug where Tailscale never opens the login browser. Bypass it
 ```
 No browser needed. Works every time.
 
-### AI
+### AI / Local LLMs
+- **Ollama:** Running as system service, max 1 model loaded, 5s keep-alive
+- **GPU backend:** ollama-cuda (NVIDIA laptop) / ollama-rocm (AMD desktop, if ROCm works)
+- **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
+- **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
 - **Aliases in zshrc_custom:**
   - `claude` — wrapper function: `command claude --dangerously-skip-permissions --max-turns 20 "$@"` (skip permission prompts, cap turns to prevent runaway loops)
+  - `oc` — openclaude with qwen2.5-coder:7b
+  - `ai` — aider with qwen2.5-coder:7b
 
 ### Theming
 - **Theme engine:** matugen (Material You — wallpaper-driven palette)
@@ -148,11 +148,7 @@ No browser needed. Works every time.
 ~/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
 ~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/AI - System Tools/)
 ~/dotfiles/wallpapers/              — wallpaper collection
-~/dotfiles/install.sh               — full CachyOS bootstrap script (paru for all packages, chwd for GPU)
-~/dotfiles/scripts/apps/install.sh       — user apps (Discord, Steam, Spotify, etc.)
-~/dotfiles/scripts/dev/install.sh        — dev tools (Neovim, Node, Python, Rust, Docker, gh)
-~/dotfiles/scripts/server/install.sh     — self-hosted services (Jellyfin, Sunshine, Docker)
-~/dotfiles/scripts/server/install-ai.sh  — local AI stack (Ollama + Open WebUI)
+~/dotfiles/install.sh               — full CachyOS bootstrap script
 ~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
 ```
 
@@ -181,6 +177,7 @@ No browser needed. Works every time.
 ```
 /usr/local/bin/jellyfin-osd-fix.sh     — OSD fix script (tracked in system/ in repo)
 /etc/pacman.d/hooks/jellyfin-osd-fix.hook — pacman hook (tracked in system/ in repo)
+/etc/systemd/system/ollama.service.d/override.conf — Ollama tuning
 /etc/systemd/system/battery-charge-limit.service   — 80% battery cap (laptop only)
 /etc/sddm.conf.d/theme.conf            — SDDM theme
 /etc/bluetooth/main.conf               — AutoEnable=false
@@ -193,12 +190,8 @@ No browser needed. Works every time.
 ### Dotfiles
 ```bash
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
-cd ~/dotfiles && bash install.sh               # full bootstrap on fresh machine
+cd ~/dotfiles && bash install.sh    # full bootstrap on fresh machine
 cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
-cd ~/dotfiles && bash scripts/apps/install.sh       # user apps (Discord, Steam, Spotify, Obsidian, etc.)
-cd ~/dotfiles && bash scripts/dev/install.sh        # dev tools (Neovim, Node, Python, Rust, Docker, gh)
-cd ~/dotfiles && bash scripts/server/install.sh     # self-hosted services (Jellyfin, Sunshine, Docker)
-cd ~/dotfiles && bash scripts/server/install-ai.sh  # local AI stack (Ollama + Open WebUI)
 ```
 
 ### Hyprland
@@ -232,17 +225,13 @@ sudo /usr/local/bin/jellyfin-osd-fix.sh  # manually apply OSD fix
 grep -rl "osdHeader-hidden" /usr/share/jellyfin/web/*.chunk.js  # find the right chunk
 ```
 
-### Ollama / Open WebUI
+### Ollama
 ```bash
 ollama list                         # installed models
+ollama run qwen2.5-coder:7b         # interactive chat
 ollama pull <model>                 # download a model
-ollama run <model>                  # interactive chat
 systemctl status ollama             # service status
 journalctl -u ollama -f             # live logs
-systemctl --user status open-webui  # Open WebUI status
-systemctl --user restart open-webui # restart Open WebUI
-journalctl --user -u open-webui -f  # Open WebUI live logs
-# Access at: http://localhost:8080
 ```
 
 ### Remote Access
@@ -255,6 +244,14 @@ journalctl --user -u sunshine -f        # live Sunshine logs
 hyprctl output create headless          # manually create headless monitor (auto-runs on boot)
 # Sunshine web UI: https://localhost:47990
 # Sunshine config: ~/.config/sunshine/sunshine.conf
+```
+
+### Open WebUI
+```bash
+systemctl --user status open-webui  # check if running
+systemctl --user restart open-webui # restart
+journalctl --user -u open-webui -f  # live logs
+# Access at: http://localhost:8080
 ```
 
 ### Matugen / theming
@@ -315,7 +312,7 @@ ip addr                             # show IP addresses
 The bar uses the `ml4w-glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers
 - **Center:** Network status, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
+- **Right:** Volume, battery (laptop only), mode toggle, kbd backlight (laptop only), clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
 
 **Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
 
@@ -323,6 +320,7 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 
 **Custom modules defined in modules.json:**
 - `custom/mode-toggle` — laptop vs server mode (affects hypridle suspend behavior)
+- `custom/kbd-backlight` — ASUS keyboard backlight level (0–3), cycles on click
 - `custom/nowplaying` — media player info via playerctl
 - `custom/appmenu` — Gengar icon launcher button
 - `custom/cliphist` — clipboard history picker
@@ -332,7 +330,7 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 
 ## ml4w framework — what it provides
 
-ml4w is installed separately (`paru -S ml4w-hyprland`) and lives at `~/.config/ml4w/`. It is NOT tracked in the dotfiles repo. Key things ml4w provides:
+ml4w is installed separately (`yay -S ml4w-hyprland`) and lives at `~/.config/ml4w/`. It is NOT tracked in the dotfiles repo. Key things ml4w provides:
 
 - Scripts called by Waybar: network launcher, bluetooth launcher, system update, hyprsunset toggle, wallpaper restore
 - `~/.config/ml4w/settings/` — stores user preferences: browser, wallpaper path, color theme
