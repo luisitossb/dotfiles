@@ -96,7 +96,7 @@ SYS_PKGS=(
     waybar swaync
 
     # Launchers
-    rofi wofi quickshell
+    rofi quickshell
 
     # Terminal + shell
     kitty zsh bash-completion
@@ -133,7 +133,7 @@ SYS_PKGS=(
     matugen
 
     # System tools
-    htop fastfetch duf pv rsync
+    fastfetch duf pv rsync
     playerctl udiskie ufw inotify-tools
     ripgrep fd bat
 

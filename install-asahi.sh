@@ -78,7 +78,7 @@ BASE_PKGS=(
     waybar swaync
 
     # Launchers
-    rofi wofi quickshell
+    rofi quickshell
 
     # Terminal + shell
     kitty zsh bash-completion
@@ -113,7 +113,7 @@ BASE_PKGS=(
     gnome-themes-extra breeze
 
     # System tools
-    btop htop fastfetch duf pv rsync
+    btop fastfetch duf pv rsync
     playerctl udiskie ufw inotify-tools
     ripgrep fd bat
 
