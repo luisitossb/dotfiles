@@ -47,7 +47,6 @@
 | `Super + Shift + H` | Toggle night mode (hyprsunset) |
 | `Super + Shift + W` | Random wallpaper |
 | `Super + Ctrl + W` | Wallpaper selector |
-| `Super + Alt + W` | Auto wallpaper rotation |
 | `Super + Ctrl + Enter` | App launcher |
 | `Super + Ctrl + K` | Show keybindings |
 | `Super + Shift + B` | Reload waybar |
