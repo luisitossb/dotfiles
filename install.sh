@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — Bootstrap a fresh CachyOS install to match luisito's setup
+# install.sh — Bootstrap a fresh CachyOS install with the LuiNux rice
 # Run as your user (NOT root) after a fresh CachyOS base install
 #
 # Usage:
@@ -8,12 +8,16 @@
 #
 # Flags:
 #   --dotfiles-only   Skip all package installs; only deploy configs + system files.
-#                     Use after a second ml4w install to overlay dotfiles on top.
+#                     Use after ml4w install to overlay dotfiles on top.
+#
+# After this script, optionally run:
+#   bash scripts/apps/install.sh    — user applications (Discord, Steam, Spotify, etc.)
+#   bash scripts/dev/install.sh     — dev tools (Neovim, Node, Python, Rust, etc.)
+#   bash scripts/server/install.sh  — self-hosted services (Jellyfin, Sunshine, Docker)
 
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_REPO="https://github.com/luisitossb/dotfiles.git"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; RED='\033[0;31m'; NC='\033[0m'
@@ -21,11 +25,6 @@ step() { echo -e "\n${CYAN}══════ $1 ══════${NC}"; }
 info() { echo -e "${GREEN}  ✓${NC} $1"; }
 warn() { echo -e "${YELLOW}  !${NC} $1"; }
 err()  { echo -e "${RED}  ✗${NC} $1"; }
-
-confirm() {
-    read -rp "$(echo -e "${YELLOW}  ?${NC} $1 [y/N] ")" yn
-    [[ "$yn" =~ ^[Yy]$ ]]
-}
 
 # ── Parse flags ───────────────────────────────────────────────────────────────
 DOTFILES_ONLY=false
@@ -44,49 +43,36 @@ if ! command -v pacman &>/dev/null; then
     exit 1
 fi
 
-step "Starting luisito setup"
+step "Starting LuiNux setup"
 echo "  Dotfiles: $DOTFILES_DIR"
 echo "  User:     $USER"
-if [[ "$DOTFILES_ONLY" == "true" ]]; then
-    echo ""
-    warn "Dotfiles-only mode — skipping package installs, services, and system config."
-    warn "Only deploying configs, scripts, and system files (Jellyfin hook, etc.)"
-fi
+[[ "$DOTFILES_ONLY" == "true" ]] && warn "Dotfiles-only mode — skipping package installs and system config."
 
 # ── Hardware detection ────────────────────────────────────────────────────────
 step "Detecting hardware"
 
 GPU="intel"
-if lspci 2>/dev/null | grep -qi "nvidia"; then
-    GPU="nvidia"
-elif lspci 2>/dev/null | grep -Eqi "amd|radeon"; then
-    GPU="amd"
-fi
+lspci 2>/dev/null | grep -qi "nvidia"            && GPU="nvidia"
+lspci 2>/dev/null | grep -Eqi "amd|radeon"       && GPU="amd"
 
 CPU="intel"
-if grep -qi "amd" /proc/cpuinfo; then
-    CPU="amd"
-fi
+grep -qi "amd" /proc/cpuinfo                     && CPU="amd"
 
 HYBRID=false
-if lspci 2>/dev/null | grep -Eqi "intel.*(vga|graphics|display)" && [[ "$GPU" != "intel" ]]; then
-    HYBRID=true
-fi
+lspci 2>/dev/null | grep -Eqi "intel.*(vga|graphics|display)" && [[ "$GPU" != "intel" ]] && HYBRID=true
 
 IS_LAPTOP=false
-if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
-    IS_LAPTOP=true
-fi
+{ [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; } && IS_LAPTOP=true
 
 info "GPU: $GPU  |  CPU: $CPU  |  Hybrid iGPU: $HYBRID  |  Laptop: $IS_LAPTOP"
 
-# ── All packages (paru handles repos + AUR) ───────────────────────────────────
-# paru ships with CachyOS by default — no bootstrap needed
+# ── System + UI packages ──────────────────────────────────────────────────────
+# paru ships with CachyOS — no bootstrap needed
 if [[ "$DOTFILES_ONLY" == "false" ]]; then
 
-step "Installing packages"
+step "Installing system and UI packages"
 
-ALL_PKGS=(
+SYS_PKGS=(
     # System base
     base base-devel git wget curl sudo nano vim
 
@@ -143,43 +129,27 @@ ALL_PKGS=(
     # Theming
     nwg-look nwg-displays qt6ct qt6-virtualkeyboard
     gnome-themes-extra breeze
+    matugen
 
     # System tools
-    btop htop fastfetch duf pv rsync
+    htop fastfetch duf pv rsync
     playerctl udiskie ufw inotify-tools
     ripgrep fd bat
 
     # Widgets / visualizers
     eww cava
 
-    # Media / files
+    # File managers / media backends
     nautilus dolphin gvfs gvfs-mtp tumbler
-    ffmpegthumbnailer loupe vlc
+    ffmpegthumbnailer loupe
     gst-libav gst-plugin-pipewire gst-plugins-bad gst-plugins-ugly
 
-    # Apps
-    discord obsidian qbittorrent flatpak
+    # System essentials
     polkit-gnome polkit-kde-agent
-
-    # Dev tools
-    neovim zed nodejs npm rustup
-    python python-pip python-packaging python-pipx
-    docker docker-compose github-cli
-
-    # AI / media services
-    ollama jellyfin-server jellyfin-web
-
-    # Python extras
-    matugen
-
-    # Gaming
-    steam gamemode lib32-gamemode
-
-    # Misc
-    wine winetricks unrar unzip
+    flatpak unrar unzip
     openssh nss-mdns avahi
 
-    # AUR
+    # AUR — theming / UI
     apple_cursor
     sddm-astronaut-theme
     sddm-theme-sugar-candy-git
@@ -187,13 +157,10 @@ ALL_PKGS=(
     grimblast-git
     pokemon-colorscripts-git
     python-pywalfox
-    localsend-bin
     waypaper
-    spotify
-    proton-ge-custom-bin
 )
 
-paru -S --needed --noconfirm "${ALL_PKGS[@]}" || warn "Some packages failed — check output above"
+paru -S --needed --noconfirm "${SYS_PKGS[@]}" || warn "Some packages failed — check output above"
 
 # ── CPU microcode ─────────────────────────────────────────────────────────────
 step "Installing CPU microcode ($CPU)"
@@ -204,33 +171,12 @@ else
 fi
 
 # ── GPU drivers ───────────────────────────────────────────────────────────────
-# Use chwd (CachyOS Hardware Detection) — auto-selects the correct driver for
-# the detected GPU, including open vs proprietary NVIDIA and hybrid setups.
+# chwd auto-selects the correct driver (open vs proprietary NVIDIA, hybrid, etc.)
 step "Installing GPU drivers via chwd ($GPU)"
-
-sudo chwd -a pci nonfree 0300 2>/dev/null || sudo chwd -a pci free 0300 2>/dev/null || warn "chwd driver install failed — check: sudo chwd -l"
+sudo chwd -a pci nonfree 0300 2>/dev/null || sudo chwd -a pci free 0300 2>/dev/null \
+    || warn "chwd driver install failed — check: sudo chwd -l"
 info "GPU drivers installed via chwd"
-
-if [[ "$GPU" == "nvidia" ]]; then
-    sudo systemctl enable nvidia-powerd 2>/dev/null || true
-fi
-
-# ── Ollama GPU backend ────────────────────────────────────────────────────────
-step "Installing Ollama GPU backend"
-if [[ "$GPU" == "nvidia" ]]; then
-    paru -S --needed --noconfirm ollama-cuda && info "CUDA backend installed"
-elif [[ "$GPU" == "amd" ]]; then
-    paru -S --needed --noconfirm ollama-rocm 2>/dev/null \
-        && info "ROCm backend installed" \
-        || warn "ollama-rocm not found — Ollama will run CPU-only"
-else
-    warn "No GPU acceleration for Ollama — CPU only"
-fi
-
-# ── Open WebUI ────────────────────────────────────────────────────────────────
-step "Installing Open WebUI"
-pipx install open-webui && info "Open WebUI installed via pipx" \
-    || pip install --user open-webui && info "Open WebUI installed via pip"
+[[ "$GPU" == "nvidia" ]] && sudo systemctl enable nvidia-powerd 2>/dev/null || true
 
 fi  # end DOTFILES_ONLY==false block
 
@@ -239,7 +185,7 @@ step "Deploying dotfiles"
 
 mkdir -p ~/.config ~/.local/bin ~/.config/systemd/user
 
-# Config directories — deploy everything in config/ automatically
+# Deploy all config directories
 for dir_path in "$DOTFILES_DIR/config/"/*/; do
     dir_name=$(basename "$dir_path")
     cp -r "$dir_path" ~/.config/
@@ -257,52 +203,24 @@ if [[ -d "$DOTFILES_DIR/home/.local/bin" ]]; then
     info "Deployed: ~/.local/bin scripts"
 fi
 
-# Open WebUI systemd user service
-if [[ -f "$DOTFILES_DIR/home/.config/systemd/user/open-webui.service" ]]; then
-    cp "$DOTFILES_DIR/home/.config/systemd/user/open-webui.service" ~/.config/systemd/user/
-    # Update ExecStart path for this user
-    sed -i "s|/home/luisito|$HOME|g" ~/.config/systemd/user/open-webui.service
-    info "Deployed: open-webui.service"
-fi
-
-# Add zshrc_custom source to .zshrc if not already there
+# Source zshrc_custom from .zshrc
 if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
     echo '[[ -f ~/.zshrc_custom ]] && source ~/.zshrc_custom' >> ~/.zshrc
     info "Linked .zshrc_custom in .zshrc"
 fi
 
-# Fix hardcoded /home/luisito paths in deployed configs
-sed -i "s|/home/luisito|$HOME|g" ~/.config/waybar/themes/ml4w-glass-center/default/style.css 2>/dev/null && info "Fixed waybar CSS path"
-
-# ── Jellyfin OSD fix ──────────────────────────────────────────────────────────
-step "Installing Jellyfin OSD fix"
-if [[ -f "$DOTFILES_DIR/system/jellyfin-osd-fix.sh" ]]; then
-    sudo cp "$DOTFILES_DIR/system/jellyfin-osd-fix.sh" /usr/local/bin/
-    sudo chmod +x /usr/local/bin/jellyfin-osd-fix.sh
-    sudo mkdir -p /etc/pacman.d/hooks
-    sudo cp "$DOTFILES_DIR/system/jellyfin-osd-fix.hook" /etc/pacman.d/hooks/
-    info "Installed pacman hook → auto-applies fix on every Jellyfin update"
-    if [[ -d /usr/share/jellyfin/web ]]; then
-        sudo /usr/local/bin/jellyfin-osd-fix.sh
-    fi
-else
-    warn "system/jellyfin-osd-fix.sh not found in dotfiles — skipping"
-fi
-
-# ── Desktop-specific adjustments ─────────────────────────────────────────────
-if [[ "$IS_LAPTOP" == "false" ]]; then
-    step "Desktop machine detected"
-    warn "No keyboard backlight — kbd-backlight waybar module will be absent (harmless)"
-    warn "No battery — battery-charge-limit service will be skipped"
-    warn "eww GPU widgets use nvidia-smi by default — if GPU is AMD, update eww.yuck:"
-    warn "  See README.md → 'Porting to a new machine' for AMD eww replacements"
-fi
+# Fix hardcoded /home/luisito paths (waybar CSS, waypaper config, wallpaper-folder)
+for f in \
+    ~/.config/waybar/themes/ml4w-glass-center/default/style.css \
+    ~/.config/waypaper/config.ini \
+    ~/.config/ml4w/settings/wallpaper-folder; do
+    [[ -f "$f" ]] && sed -i "s|/home/luisito|$HOME|g" "$f" && info "Fixed paths in: $f"
+done
 
 if [[ "$DOTFILES_ONLY" == "true" ]]; then
     step "Manual step required: ml4w"
-    echo "  ml4w needs to be installed separately if not already done."
-    echo "  Install via: paru -S ml4w-hyprland"
-    echo "  Then re-run: cd ~/dotfiles && bash install.sh --dotfiles-only"
+    echo "  paru -S ml4w-hyprland"
+    echo "  Then: cd ~/dotfiles && bash install.sh --dotfiles-only"
     echo ""
     echo -e "${GREEN}  Dotfiles deployed. Done!${NC}"
     exit 0
@@ -316,34 +234,16 @@ info "Bluetooth auto-enable disabled"
 
 # ── Services ──────────────────────────────────────────────────────────────────
 step "Enabling system services"
-
-SYSTEM_SVCS=(
-    NetworkManager
-    bluetooth
-    jellyfin
-    ollama
-    sddm
-    docker
-    ufw
-    avahi-daemon
-    power-profiles-daemon
-    switcheroo-control
-)
-for svc in "${SYSTEM_SVCS[@]}"; do
+for svc in NetworkManager bluetooth sddm ufw avahi-daemon power-profiles-daemon switcheroo-control; do
     sudo systemctl enable "$svc" 2>/dev/null \
         && info "Enabled: $svc" \
-        || warn "Could not enable: $svc (may not exist on this hardware)"
+        || warn "Could not enable: $svc"
 done
-
-# NVIDIA power daemon only on NVIDIA
-if [[ "$GPU" == "nvidia" ]]; then
-    sudo systemctl enable nvidia-powerd 2>/dev/null && info "Enabled: nvidia-powerd"
-fi
+[[ "$GPU" == "nvidia" ]] && sudo systemctl enable nvidia-powerd 2>/dev/null && info "Enabled: nvidia-powerd"
 
 step "Enabling user services"
 systemctl --user daemon-reload
-USER_SVCS=(open-webui wireplumber pipewire pipewire-pulse)
-for svc in "${USER_SVCS[@]}"; do
+for svc in wireplumber pipewire pipewire-pulse; do
     systemctl --user enable "$svc" 2>/dev/null \
         && info "Enabled (user): $svc" \
         || warn "Could not enable (user): $svc"
@@ -358,20 +258,7 @@ sudo ufw allow ssh
 info "UFW enabled (deny incoming, allow SSH)"
 
 # ── Groups ────────────────────────────────────────────────────────────────────
-sudo usermod -aG docker "$USER" && info "Added $USER to docker group"
-sudo usermod -aG games  "$USER" && info "Added $USER to games group"
-
-# ── Ollama tuning ─────────────────────────────────────────────────────────────
-step "Configuring Ollama"
-sudo mkdir -p /etc/systemd/system/ollama.service.d
-sudo tee /etc/systemd/system/ollama.service.d/override.conf > /dev/null << 'EOF'
-[Service]
-Environment="OLLAMA_MAX_LOADED_MODELS=1"
-Environment="OLLAMA_NUM_PARALLEL=1"
-Environment="OLLAMA_KEEP_ALIVE=5s"
-EOF
-sudo systemctl daemon-reload
-info "Ollama: max 1 model loaded, 5s keep-alive"
+sudo usermod -aG games "$USER" && info "Added $USER to games group"
 
 # ── SDDM theme ────────────────────────────────────────────────────────────────
 step "Configuring SDDM"
@@ -402,7 +289,7 @@ EOF
         && info "Battery charge limit set to 80%" \
         || warn "Battery charge limit service failed — may not have BAT0"
 else
-    info "Desktop detected — skipping battery charge limit service"
+    info "Desktop detected — skipping battery charge limit"
 fi
 
 # ── Limine bootloader ─────────────────────────────────────────────────────────
@@ -414,46 +301,26 @@ else
     warn "Limine config not found at /boot/limine.conf — skipping"
 fi
 
-# ── Ollama models ─────────────────────────────────────────────────────────────
-step "Pulling Ollama models"
-warn "This will download several GB — make sure you're on a good connection"
-
-# Start ollama if not running
-sudo systemctl start ollama 2>/dev/null
-sleep 3
-
-ollama pull nomic-embed-text && info "Pulled: nomic-embed-text"
-ollama pull llama3.1:8b      && info "Pulled: llama3.1:8b (general)"
-ollama pull qwen2.5-coder:7b && info "Pulled: qwen2.5-coder:7b (coding, fast)"
-
 # ── ml4w note ─────────────────────────────────────────────────────────────────
 step "Manual step required: ml4w"
-echo "  ml4w (the Hyprland dotfiles framework) needs to be installed separately."
-echo "  It provides scripts in ~/.config/ml4w/ that the configs depend on."
+echo "  ml4w must be installed separately — it provides scripts the configs depend on."
 echo ""
-echo "  After reboot, install via CachyOS Package Installer (cachyos-packageinstaller)"
-echo "  and search for 'ml4w', or run:"
+echo "  After reboot:"
 echo "    paru -S ml4w-hyprland"
-echo ""
-echo "  Then re-run dotfiles deployment to override ml4w defaults:"
 echo "    cd ~/dotfiles && bash install.sh --dotfiles-only"
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}══════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}  All done! Reboot to finish.${NC}"
+echo -e "${GREEN}  System setup done! Reboot to finish.${NC}"
 echo -e "${GREEN}══════════════════════════════════════════════════${NC}"
 echo ""
-echo "  After reboot:"
-echo "  • Open WebUI  → http://localhost:8080"
-echo "  • Jellyfin    → http://localhost:8096"
-echo "  • Log in and set up Jellyfin media libraries manually"
-echo "  • Steam is installed — launch it and log in"
-echo "  • Proton-GE is installed — select it in Steam → Settings → Compatibility"
+echo "  After reboot, optionally run:"
+echo "    bash scripts/apps/install.sh    — Discord, Steam, Spotify, etc."
+echo "    bash scripts/dev/install.sh     — Neovim, Node, Python, Rust, etc."
+echo "    bash scripts/server/install.sh  — Jellyfin, Sunshine, Docker"
 echo ""
-echo "  GPU detected: $GPU — drivers installed accordingly"
-if [[ "$GPU" == "amd" ]]; then
-    echo "  AMD GPU: update eww.yuck GPU widgets (see README → Porting to a new machine)"
-fi
-echo "  If something looks wrong with graphics, check: sudo dmesg | grep -i drm"
+echo "  GPU detected: $GPU — drivers installed via chwd"
+[[ "$GPU" == "amd" ]] && echo "  AMD GPU: update eww.yuck GPU widgets (see README → Porting to a new machine)"
+echo "  If graphics look wrong: sudo dmesg | grep -i drm"
 echo ""

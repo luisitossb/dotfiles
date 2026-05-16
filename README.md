@@ -145,15 +145,17 @@ Then re-deploy dotfiles to override ml4w defaults:
 cd ~/dotfiles && bash install.sh --dotfiles-only
 ```
 
-**4. Install applications (optional — separate script)**
+**4. Install optional components (run any or all)**
 
-`install.sh` sets up the full system (Hyprland, fonts, audio, dev tools, services, etc.). For user-facing apps run the apps script separately:
-```
-bash install-apps.sh
-```
-This installs: Mission Center, btop++, nvtop, Zen Browser, Discord, Telegram, Spotify, VLC, Obsidian, qBittorrent, Open Video Downloader, Steam + Proton-GE, Sunshine, Moonlight, Wine + Winetricks, Zed, LocalSend.
+After the rice is set up, install whatever you need:
 
-This is also useful on an existing setup to install apps without re-running the full install.
+```bash
+bash scripts/apps/install.sh    # Discord, Steam, Spotify, Obsidian, Zen Browser, etc.
+bash scripts/dev/install.sh     # Neovim, Zed, Node, Python, Rust, Docker, GitHub CLI
+bash scripts/server/install.sh  # Jellyfin, Sunshine, Docker (hosting/streaming machine only)
+```
+
+Each script has its own `README.md` with a full list of what it installs.
 
 **6. Set Zen as default browser**
 ```
