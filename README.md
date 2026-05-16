@@ -55,7 +55,7 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 **Waybar**
 | File | What it controls |
 |------|-----------------|
-| `config/waybar/modules.json` | All module definitions — clock (12hr), drawers, mode toggle, kbd backlight |
+| `config/waybar/modules.json` | All module definitions — clock (12hr), drawers, mode toggle, now-playing, cliphist |
 | `config/waybar/themes/ml4w-glass-center/config` | Bar layout, margins flush to top |
 | `config/waybar/themes/ml4w-glass-center/default/style.css` | Bar styles — dynamic matugen theming, "luis" label, compact pill sizing |
 
@@ -106,8 +106,6 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 | `home/.local/bin/mode-status.sh` | Reads current laptop/server mode for waybar |
 | `home/.local/bin/toggle-mode.sh` | Switches laptop↔server mode, updates logind + hypridle |
 | `home/.local/bin/start-hypridle.sh` | Launches correct hypridle config based on current mode |
-| `home/.local/bin/kbd-backlight-status.sh` | Reads ASUS keyboard backlight level for waybar — sun icon with increasing rays per level, dynamic color |
-| `home/.local/bin/toggle-kbd-backlight.sh` | Cycles backlight off→1→2→3→off |
 | `home/.local/bin/cliphist-rofi-img.sh` | Clipboard history picker with image preview |
 
 **Services**
@@ -132,7 +130,7 @@ https://cachyos.org
 git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles
 cd ~/dotfiles && bash install.sh
 ```
-`install.sh` handles packages, GPU drivers (auto-detected), AUR packages, all dotfile deployment, services, Ollama tuning, firewall, and more. After it finishes, reboot.
+`install.sh` uses paru (ships with CachyOS) to install all packages from repos and AUR in one pass, auto-detects GPU and installs the correct driver via `chwd`, deploys all dotfiles, enables services, tunes Ollama, configures the firewall, and more. After it finishes, reboot.
 
 **3. Install ml4w (manual step — after reboot)**
 
@@ -140,14 +138,22 @@ ml4w is a required runtime dependency. Several waybar modules and autostart entr
 
 Install via CachyOS Package Installer (search "ml4w") or:
 ```
-yay -S ml4w-hyprland
+paru -S ml4w-hyprland
 ```
 Then re-deploy dotfiles to override ml4w defaults:
 ```
-cd ~/dotfiles && bash install.sh
+cd ~/dotfiles && bash install.sh --dotfiles-only
 ```
 
-**4. Set Zen as default browser**
+**4. Install applications (optional — separate script)**
+
+`install.sh` sets up the full system (Hyprland, fonts, audio, dev tools, services, etc.). For user-facing apps — Discord, Spotify, Opera GX, Steam, Obsidian, etc. — run the apps script separately:
+```
+bash install-apps.sh
+```
+This is also useful for installing apps on an existing setup without re-running the full install.
+
+**6. Set Zen as default browser**
 ```
 echo "zen-browser" > ~/.config/ml4w/settings/browser.sh
 ```
@@ -173,7 +179,7 @@ The script handles packages (ARM-compatible), eww built from AUR for ARM, all do
 
 **3. Install ml4w (same as CachyOS — after reboot)**
 ```
-yay -S ml4w-hyprland
+paru -S ml4w-hyprland
 ```
 Then re-deploy dotfiles:
 ```
@@ -198,17 +204,22 @@ The eww dashboard polls `nvidia-smi` for VRAM and GPU temp — these don't work 
 
 ## Hardware reference
 
-### Source machine (current laptop)
-- **Model:** ASUS laptop
+### ASUS laptop (primary daily driver)
 - **CPU:** Intel i7-8750H
 - **RAM:** 32GB
 - **GPU:** NVIDIA (discrete)
 - **Storage:** 1TB NVMe (btrfs)
-- **Form factor:** Laptop — has keyboard backlight (asus::kbd_backlight), battery, lid
+- **Form factor:** Laptop — has battery, lid
 
-### Target machine (AMD desktop)
+### Acer Predator (secondary machine — also running this rice)
+- **CPU:** Intel i7-7700HQ
+- **GPU:** NVIDIA GTX 1060 (Pascal — requires `linux-cachyos-nvidia`, NOT the open module)
+- **Storage:** 256GB NVMe + 1TB HDD
+- **Form factor:** Laptop
+
+### AMD desktop
 - **GPU:** AMD (discrete)
-- **Form factor:** Desktop — no keyboard backlight, no battery, no lid
+- **Form factor:** Desktop — no battery, no lid
 
 ---
 
@@ -252,8 +263,7 @@ There are two `defpoll` blocks that call `nvidia-smi`. On AMD these return nothi
 > **Note:** `card1` is typical for a desktop with one GPU but verify first: `ls /sys/class/drm/` — look for `card0` or `card1` that has a `device/` subdirectory with `mem_info_vram_*` files.
 
 ### What's irrelevant on a desktop (skip or remove)
-- **Keyboard backlight** — waybar `kbd-backlight` module and scripts (`~/.local/bin/kbd-backlight-status.sh`, `toggle-kbd-backlight.sh`) — desktop has no backlight, module will just be absent from bar
-- **Battery service** — `/etc/systemd/system/battery-charge-limit.service` — no battery on desktop, skip entirely
+- **Battery service** — `/etc/systemd/system/battery-charge-limit.service` — no battery on desktop, install.sh detects this and skips it automatically
 - **Hypridle suspend** — `~/.config/hypr/hypridle.conf` has a 1800s suspend listener — fine to keep but won't do much on a desktop that's always on
 - **Server/laptop mode toggle** — lid-close behavior toggle is irrelevant without a lid; the mode-toggle waybar module can be removed from `modules.json` if desired
 

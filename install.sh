@@ -188,7 +188,6 @@ ALL_PKGS=(
     pokemon-colorscripts-git
     python-pywalfox
     localsend-bin
-    opera-gx
     waypaper
     spotify
     proton-ge-custom-bin

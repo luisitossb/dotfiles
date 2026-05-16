@@ -20,9 +20,6 @@ fi
 step "Installing applications"
 
 APPS=(
-    # Browser
-    opera-gx
-
     # Communication
     discord
     telegram-desktop

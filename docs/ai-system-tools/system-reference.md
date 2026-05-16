@@ -14,18 +14,24 @@ Full reference document for AI assistants. Read this to understand the system wi
 
 ## Hardware inventory
 
-### Laptop (current daily driver — CachyOS)
-- **Model:** ASUS laptop
+### ASUS laptop (primary daily driver — CachyOS)
 - **CPU:** Intel i7-8750H
 - **RAM:** 32GB
 - **GPU:** NVIDIA (discrete)
 - **Storage:** 1TB NVMe (btrfs with snapshots via snapper)
-- **Form factor:** Laptop — has keyboard backlight (`asus::kbd_backlight`), battery (`BAT0`), lid
+- **Form factor:** Laptop — has battery (`BAT0`), lid
 
-### Desktop (Windows → CachyOS migration target)
+### Acer Predator (secondary machine — CachyOS, same rice)
+- **CPU:** Intel i7-7700HQ
+- **GPU:** NVIDIA GTX 1060 (Pascal — requires `linux-cachyos-nvidia`, NOT `linux-cachyos-nvidia-open` which only supports Turing+)
+- **Storage:** 256GB NVMe + 1TB HDD
+- **Form factor:** Laptop
+- **Status:** CachyOS installed, rice deployed
+
+### AMD desktop
 - **GPU:** AMD discrete GPU
-- **Form factor:** Desktop — no keyboard backlight, no battery, no lid
-- **Status:** Currently runs Windows; plan is to install CachyOS
+- **Form factor:** Desktop — no battery, no lid
+- **Status:** Pending CachyOS install
 
 ### External storage
 - **Device:** 2TB WD Elements Portable
@@ -45,7 +51,7 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **OS:** CachyOS (Arch-based, rolling release)
 - **AUR helper:** paru
 - **Window Manager:** Hyprland 0.55 (deprecation note: .conf format deprecated in favor of Lua in 0.55 — still works, not broken yet)
-- **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `yay -S ml4w-hyprland`)
+- **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `paru -S ml4w-hyprland`)
 - **Session manager:** uwsm
 - **Login manager:** SDDM (Nordic-darker theme)
 
@@ -148,7 +154,8 @@ No browser needed. Works every time.
 ~/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
 ~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/AI - System Tools/)
 ~/dotfiles/wallpapers/              — wallpaper collection
-~/dotfiles/install.sh               — full CachyOS bootstrap script
+~/dotfiles/install.sh               — full CachyOS bootstrap script (paru for all packages, chwd for GPU)
+~/dotfiles/install-apps.sh          — standalone app installer (Discord, Spotify, Steam, etc.)
 ~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
 ```
 
@@ -190,8 +197,9 @@ No browser needed. Works every time.
 ### Dotfiles
 ```bash
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
-cd ~/dotfiles && bash install.sh    # full bootstrap on fresh machine
+cd ~/dotfiles && bash install.sh               # full bootstrap on fresh machine
 cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
+cd ~/dotfiles && bash install-apps.sh          # install user apps only (Discord, Spotify, Steam, etc.)
 ```
 
 ### Hyprland
@@ -312,7 +320,7 @@ ip addr                             # show IP addresses
 The bar uses the `ml4w-glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers
 - **Center:** Network status, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, kbd backlight (laptop only), clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
+- **Right:** Volume, battery (laptop only), mode toggle, clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
 
 **Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
 
@@ -320,7 +328,6 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 
 **Custom modules defined in modules.json:**
 - `custom/mode-toggle` — laptop vs server mode (affects hypridle suspend behavior)
-- `custom/kbd-backlight` — ASUS keyboard backlight level (0–3), cycles on click
 - `custom/nowplaying` — media player info via playerctl
 - `custom/appmenu` — Gengar icon launcher button
 - `custom/cliphist` — clipboard history picker
@@ -330,7 +337,7 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 
 ## ml4w framework — what it provides
 
-ml4w is installed separately (`yay -S ml4w-hyprland`) and lives at `~/.config/ml4w/`. It is NOT tracked in the dotfiles repo. Key things ml4w provides:
+ml4w is installed separately (`paru -S ml4w-hyprland`) and lives at `~/.config/ml4w/`. It is NOT tracked in the dotfiles repo. Key things ml4w provides:
 
 - Scripts called by Waybar: network launcher, bluetooth launcher, system update, hyprsunset toggle, wallpaper restore
 - `~/.config/ml4w/settings/` — stores user preferences: browser, wallpaper path, color theme
