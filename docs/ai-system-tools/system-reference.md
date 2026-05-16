@@ -98,11 +98,11 @@ Full reference document for AI assistants. Read this to understand the system wi
 
 ### Remote Access (Tailscale + Sunshine + Moonlight)
 
-- **Tailscale:** Installed — creates private WireGuard mesh network between devices. Daemon: `tailscaled.service` (system). Laptop Tailscale IP: `100.87.199.5`
-- **Tailscale connected devices:** Linux laptop (`100.87.199.5`), Windows desktop, Mac, phone (iOS/Android)
-- **Adding a new device:** Install Tailscale + sign in (use auth key method on Mac/iOS — see below), install Moonlight, add PC → `100.87.199.5`
+- **Tailscale:** Installed — creates private WireGuard mesh network between devices. Daemon: `tailscaled.service` (system). Laptop Tailscale IP: run `tailscale ip` to get it
+- **Tailscale connected devices:** Linux laptop, Windows desktop, Mac, phone (iOS/Android)
+- **Adding a new device:** Install Tailscale + sign in (use auth key method on Mac/iOS — see below), install Moonlight, add PC → use the IP from `tailscale ip`
 - **Sunshine:** Installed — self-hosted game stream host (remote desktop server). User service: `sunshine.service`. Web UI: `https://localhost:47990`
-- **Moonlight:** Client available on Windows, Mac, iOS, Android — connects to Sunshine via Tailscale IP `100.87.199.5`, no port needed
+- **Moonlight:** Client available on Windows, Mac, iOS, Android — connects to Sunshine via your Tailscale IP (run `tailscale ip`), no port needed
 - **Capture config:** `wlr` capture + `vaapi` encoder on `/dev/dri/renderD129` (Intel iGPU). NVENC unusable because Intel drives the display and DMABUF cross-GPU import fails. VAAPI uses Intel's hardware encoder instead.
 - **Headless monitor:** `HEADLESS-1` (1920x1080@60) defined in `~/.config/hypr/monitors.conf` — virtual display so Hyprland always has something to render to when lid is closed. Created on each Hyprland start via `exec-once = hyprctl output create headless` in autostart.conf. **Do not run `hyprctl output create headless` manually after boot** — it creates a duplicate `HEADLESS-2` which shows up as an empty workspace 6. Fix if it happens: `hyprctl output remove HEADLESS-2`.
 - **DRM layout:** `card1`/`renderD128` = NVIDIA, `card2`/`renderD129` = Intel (eDP-1 laptop screen)
@@ -236,7 +236,7 @@ journalctl -u ollama -f             # live logs
 ### Remote Access
 ```bash
 tailscale status                        # show connected devices and IPs
-tailscale ip                            # show this machine's Tailscale IP (100.87.199.5)
+tailscale ip                            # show this machine's Tailscale IP
 systemctl --user status sunshine        # check Sunshine service
 systemctl --user restart sunshine       # restart Sunshine
 journalctl --user -u sunshine -f        # live Sunshine logs
