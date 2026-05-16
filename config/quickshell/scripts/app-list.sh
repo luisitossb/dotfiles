@@ -92,6 +92,15 @@ for d in XDG_DIRS:
             seen_names.add(app["name"])
             apps.append(app)
 
-apps.sort(key=lambda a: a["name"].lower())
+usage_file = os.path.expanduser("~/.local/share/qs-launcher/usage.json")
+try:
+    usage = json.loads(open(usage_file).read())
+except Exception:
+    usage = {}
+
+for app in apps:
+    app["count"] = usage.get(app["name"], 0)
+
+apps.sort(key=lambda a: (-a["count"], a["name"].lower()))
 print(json.dumps(apps))
 PYEOF

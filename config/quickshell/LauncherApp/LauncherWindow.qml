@@ -55,7 +55,7 @@ PanelWindow {
         if (isOpen) {
             query = ""
             highlighted = 0
-            if (allApps.length === 0) refresh()
+            refresh()
         }
     }
 
@@ -81,6 +81,9 @@ PanelWindow {
 
     function launch(app) {
         root.isOpen = false
+        Quickshell.execDetached(["bash",
+            Quickshell.env("HOME") + "/.config/quickshell/scripts/track-usage.sh",
+            app.name])
         if (app.terminal) {
             Quickshell.execDetached(["bash", "-c", "kitty -e " + app.exec])
         } else {
