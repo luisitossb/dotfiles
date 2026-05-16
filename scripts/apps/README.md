@@ -17,7 +17,6 @@ bash scripts/apps/install.sh
 | nvtop | GPU process monitor |
 | Zen Browser | Firefox-based browser |
 | Discord | Chat |
-| Telegram | Messaging |
 | Spotify | Music |
 | VLC | Media player |
 | Obsidian | Markdown notes |

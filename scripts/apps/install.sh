@@ -30,7 +30,6 @@ APPS=(
 
     # Communication
     discord
-    telegram-desktop
 
     # Music / media
     spotify
