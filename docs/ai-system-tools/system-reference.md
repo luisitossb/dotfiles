@@ -50,6 +50,8 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Login manager:** SDDM (sddm-astronaut-theme)
   - Config: `/etc/sddm.conf` — `[Theme] Current=sddm-astronaut-theme`
   - Theme config: `/usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf` — background, colors, blur, font, date/time format
+  - **Wallpaper:** Auto-syncs with current ml4w wallpaper — `Backgrounds/current.png` is a symlink to `~/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png`. Updates automatically on every wallpaper change, no scripts needed.
+  - **Permission setup (one-time):** `chmod o+x ~/ ~/.cache ~/.cache/ml4w ~/.cache/ml4w/hyprland-dotfiles` — allows sddm user to traverse the path to the file (file itself is 644). Already done; included in install.sh.
   - Preview without logging out: `sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/sddm-astronaut-theme`
   - **Nordic-darker was broken:** requires `org.kde.plasma.*` QML modules (KDE only) — incompatible with a pure Hyprland setup
 

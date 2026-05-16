@@ -263,12 +263,23 @@ sudo usermod -aG games "$USER" && info "Added $USER to games group"
 
 # ── SDDM theme ────────────────────────────────────────────────────────────────
 step "Configuring SDDM"
-sudo mkdir -p /etc/sddm.conf.d
-sudo tee /etc/sddm.conf.d/theme.conf > /dev/null <<EOF
+sudo tee /etc/sddm.conf > /dev/null <<EOF
+[Autologin]
+Session=hyprland
+
 [Theme]
-Current=Nordic-darker
+Current=sddm-astronaut-theme
 EOF
-info "SDDM theme set to Nordic-darker"
+info "SDDM theme set to sddm-astronaut-theme"
+
+# Point astronaut theme at the ml4w blurred wallpaper cache (auto-updates on wallpaper change)
+sudo sed -i 's|Background="Backgrounds/astronaut.png"|Background="Backgrounds/current.png"|' \
+    /usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf
+sudo ln -sf "$HOME/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png" \
+    /usr/share/sddm/themes/sddm-astronaut-theme/Backgrounds/current.png
+# Allow sddm user to traverse the cache path (file itself is already world-readable)
+chmod o+x "$HOME" "$HOME/.cache" "$HOME/.cache/ml4w" "$HOME/.cache/ml4w/hyprland-dotfiles"
+info "SDDM wallpaper symlinked to ml4w wallpaper cache"
 
 # ── Battery charge limit (laptop only) ───────────────────────────────────────
 if [[ "$IS_LAPTOP" == "true" ]]; then
