@@ -15,9 +15,8 @@ window {
 }
 
 #active {
-	/* This is to underline the button representing the currently active window */
-	border-bottom: solid 0px;
-	border-color: @primary;
+    background-color: alpha(@primary, 0.25);
+    border-radius: 10px;
 }
 
 button, image {
@@ -32,11 +31,12 @@ button {
 	margin-left: 4px;
 	margin-right: 4px;
 	color: @primary;
-	font-size: 12px
+	font-size: 12px;
+	transition: background-color 200ms ease, border-radius 200ms ease;
 }
 
 button:hover {
-	background-color: @primary_container;
+	background-color: alpha(@primary, 0.15);
 	border-radius: 10px;
 }
 
