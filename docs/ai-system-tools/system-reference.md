@@ -125,6 +125,7 @@ No browser needed. Works every time.
 - **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
 - **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
 - **Aliases in zshrc_custom:**
+  - `claude` — wrapper function: `command claude --dangerously-skip-permissions --max-turns 20 "$@"` (skip permission prompts, cap turns to prevent runaway loops)
   - `oc` — openclaude with qwen2.5-coder:7b
   - `ai` — aider with qwen2.5-coder:7b
 
@@ -366,6 +367,7 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 | Scroll speed overrides (Opera/Discord) | Removed | Broke Opera settings menu |
 | localsearch-3 (GNOME Tracker) | Masked | File indexer for GNOME search — not needed on Hyprland, was throwing constant D-Bus errors. Masked via `systemctl --user mask localsearch-3`. Tracked in dotfiles so mask persists on reinstall. |
 | Sunshine windowrule (hide workspace 6) | Removed | `windowrule = workspace special:sunshine silent, class:^(sunshine)$` caused Hyprland config errors — invalid field class syntax. Workspace 6 stays visible when Moonlight is connected, acceptable tradeoff. |
+| linux-cachyos-nvidia-open | Wrong package | Open NVIDIA kernel module only supports Turing (RTX 20xx+). GTX 1060 (Pascal) requires `linux-cachyos-nvidia` (proprietary). install.sh now uses `chwd` which auto-selects the correct driver. |
 
 ---
 
