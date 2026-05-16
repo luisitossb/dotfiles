@@ -60,6 +60,21 @@
 (defpoll player_status :interval "2s"
   `playerctl status 2>/dev/null || echo "Stopped"`)
 
+(defpoll claude_ctx_pct :interval "10s" :initial "0"
+  `~/.config/eww/scripts/claude-usage.sh | jq -r .ctx_pct`)
+
+(defpoll claude_ctx_tokens :interval "10s" :initial "0K"
+  `~/.config/eww/scripts/claude-usage.sh | jq -r .ctx_tokens`)
+
+(defpoll claude_ctx_max :interval "10s" :initial "200K"
+  `~/.config/eww/scripts/claude-usage.sh | jq -r .ctx_max`)
+
+(defpoll claude_today_out :interval "60s" :initial "0K"
+  `~/.config/eww/scripts/claude-usage.sh | jq -r .today_out`)
+
+(defpoll claude_today_sessions :interval "60s" :initial "0"
+  `~/.config/eww/scripts/claude-usage.sh | jq -r .today_sessions`)
+
 ; ── Widgets ───────────────────────────────────────────────────────────────────
 
 (defwidget stat-row [label value info icon color]
@@ -99,6 +114,24 @@
     (label :text "Battery" :class "stat-label" :halign "start" :hexpand true)
     (label :text {battery_status == "Charging" ? "${battery_pct}% + (${battery_health}%)" : "${battery_pct}% (${battery_health}%)"}
            :class {battery_pct <= 20 && battery_status != "Charging" ? "stat-value battery-low" : "stat-value"})))
+
+(defwidget claude-usage []
+  (box :class "stats" :orientation "v" :space-evenly false :spacing 8
+    (box :orientation "h" :space-evenly false :spacing 8
+      (label :text "󰧑" :class "stat-icon")
+      (label :text "Claude Code" :class "stat-label" :halign "start" :hexpand true)
+      (label :text "${claude_today_out}" :class "stat-info")
+      (label :text "${claude_ctx_pct}%" :class "stat-value"))
+    (scale :min 0 :max 100 :value claude_ctx_pct :active false
+           :class {claude_ctx_pct >= 80 ? "bar claude-high" : claude_ctx_pct >= 50 ? "bar claude-mid" : "bar claude-ok"})
+    (box :orientation "h" :space-evenly false :spacing 4
+      (label :text "${claude_ctx_tokens} / ${claude_ctx_max} ctx · ${claude_today_sessions} sessions"
+             :class "stat-info"
+             :halign "start"
+             :hexpand true)
+      (button :class "claude-usage-btn"
+              :onclick "xdg-open 'https://claude.ai/settings/usage'"
+              (label :text "weekly →" :class "claude-usage-link")))))
 
 (defwidget now-playing []
   (box :class "now-playing"
@@ -144,6 +177,11 @@
       (bat-row)
       (sys-row :icon "󰓅" :label "Network" :value net_speed)
       (sys-row :icon "󰔟" :label "Uptime"  :value uptime_str))
+
+    (box :class "sep")
+
+    ; Claude Code usage
+    (claude-usage)
 
     (box :class "sep")
 

@@ -366,6 +366,8 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 - `custom/hyprshade` — screen shader toggle
 - `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty` (creates and switches to first empty workspace). Added for Moonlight streaming sessions where Super key is captured by Windows.
 
+**Network module (WiFi click):** Left-click opens `networkmanager_dmenu` — a Rofi-based network picker showing all visible networks, current connection, and options to connect/disconnect/disable WiFi/Bluetooth. Uses the existing Rofi color theme (`~/.config/rofi/colors.rasi`) so it matches the wallpaper. Config at `~/.config/networkmanager-dmenu/config.ini`. Right-click still toggles nm-applet. Replaces the old `nmtui` terminal popup.
+
 ---
 
 ## ml4w framework — what it provides

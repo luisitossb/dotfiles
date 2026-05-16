@@ -109,6 +109,20 @@ scale.vram trough highlight {
 
 .bat-value { font-size: 12px; color: $on_surface_variant; }
 
+// ── Claude Usage ──────────────────────────────────────────────────────────
+
+scale.claude-ok   trough highlight { background: $primary;   border-radius: 4px; }
+scale.claude-mid  trough highlight { background: $secondary; border-radius: 4px; }
+scale.claude-high trough highlight { background: $error;     border-radius: 4px; }
+
+.claude-usage-btn { all: unset; }
+.claude-usage-link {
+  font-size: 10px;
+  color: $primary;
+  opacity: 0.6;
+}
+.claude-usage-btn:hover .claude-usage-link { opacity: 1.0; }
+
 // ── Now Playing ───────────────────────────────────────────────────────────
 
 .music-btn { all: unset; }

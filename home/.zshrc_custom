@@ -41,13 +41,14 @@ dotfiles-sync() {
     "${R[@]}" ~/.config/nwg-dock-hyprland/ config/nwg-dock-hyprland/
 
     # Apps
-    "${R[@]}" ~/.config/fastfetch/  config/fastfetch/
-    "${R[@]}" ~/.config/kitty/      config/kitty/
-    "${R[@]}" ~/.config/ohmyposh/   config/ohmyposh/
-    "${R[@]}" ~/.config/rofi/       config/rofi/
-    "${R[@]}" ~/.config/btop/       config/btop/
-    "${R[@]}" ~/.config/swaync/     config/swaync/
-    "${R[@]}" ~/.config/quickshell/ config/quickshell/
+    "${R[@]}" ~/.config/fastfetch/            config/fastfetch/
+    "${R[@]}" ~/.config/kitty/                config/kitty/
+    "${R[@]}" ~/.config/ohmyposh/             config/ohmyposh/
+    "${R[@]}" ~/.config/rofi/                 config/rofi/
+    "${R[@]}" ~/.config/btop/                 config/btop/
+    "${R[@]}" ~/.config/swaync/               config/swaync/
+    "${R[@]}" ~/.config/quickshell/           config/quickshell/
+    "${R[@]}" ~/.config/networkmanager-dmenu/ config/networkmanager-dmenu/
 
     # Home files and scripts (only .sh scripts, skip installed binaries and symlinks)
     cp ~/.zshrc_custom home/
