@@ -19,10 +19,10 @@
   `df -h / | awk 'NR==2 {print $3 "/" $2}'`)
 
 (defpoll vram_usage :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
+  `which nvidia-smi >/dev/null 2>&1 && nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}' || echo "0"`)
 
 (defpoll gpu_temp :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null`)
+  `which nvidia-smi >/dev/null 2>&1 && nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null || echo "0"`)
 
 (defpoll volume_pct :interval "1s" :initial "0"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f", $2*100}'`)
@@ -37,7 +37,7 @@
   `cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1 || echo "Unknown"`)
 
 (defpoll battery_health :interval "300s" :initial "?"
-  `cat /sys/class/power_supply/BAT0/energy_full /sys/class/power_supply/BAT0/energy_full_design 2>/dev/null | awk 'NR==1{ef=$1} NR==2{printf "%.0f", ef/$1*100}'`)
+  `cat /sys/class/power_supply/BAT*/energy_full /sys/class/power_supply/BAT*/energy_full_design 2>/dev/null | awk 'NR==1{ef=$1} NR==2{printf "%.0f", ef/$1*100}' || echo "?"`)
 
 (defpoll net_speed :interval "2s" :initial "↑0K ↓0K"
   `~/.config/eww/scripts/net-speed.sh`)
