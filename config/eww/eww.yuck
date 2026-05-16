@@ -18,11 +18,6 @@
 (defpoll disk_info :interval "30s"
   `df -h / | awk 'NR==2 {print $3 "/" $2}'`)
 
-(defpoll vram_usage :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
-
-(defpoll gpu_temp :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null`)
 
 (defpoll volume_pct :interval "1s" :initial "0"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f", $2*100}'`)
@@ -134,7 +129,7 @@
       (stat-row :label "CPU"  :value cpu_usage  :info "${cpu_temp}°C" :icon "󰍛" :color "cpu")
       (stat-row :label "RAM"  :value ram_usage  :info ram_used        :icon ""  :color "ram")
       (stat-row :label "Disk" :value disk_usage :info disk_info       :icon "󰉉" :color "disk")
-      (stat-row :label "VRAM" :value vram_usage :info "${gpu_temp}°C" :icon "󰍹" :color "vram"))
+)
 
     (box :class "sep")
 

@@ -234,33 +234,19 @@ Everything visual and behavioral works on any machine:
 
 ### What needs changes on an AMD desktop
 
-**eww GPU widgets — file: `~/.config/eww/eww.yuck`**
+The eww VRAM and GPU temp widgets have been removed — the dashboard works on any GPU out of the box. If you want to add them back for AMD, use sysfs:
 
-There are two `defpoll` blocks that call `nvidia-smi`. On AMD these return nothing and the widgets show 0.
-
-**`vram_usage` poll (VRAM % used):**
 ```
-; CURRENT (NVIDIA):
-(defpoll vram_usage :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}'`)
-
-; REPLACE WITH (AMD — sysfs, no extra tools needed):
+; VRAM % used (AMD):
 (defpoll vram_usage :interval "2s" :initial "0"
   `awk 'BEGIN{u=0;t=0} FILENAME~"used"{u=$1} FILENAME~"total"{t=$1} END{if(t>0)printf "%.0f",u/t*100;else print 0}' /sys/class/drm/card1/device/mem_info_vram_used /sys/class/drm/card1/device/mem_info_vram_total`)
-```
 
-**`gpu_temp` poll (GPU temperature):**
-```
-; CURRENT (NVIDIA):
-(defpoll gpu_temp :interval "2s" :initial "0"
-  `nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null`)
-
-; REPLACE WITH (AMD — sysfs, no extra tools needed):
+; GPU temp (AMD):
 (defpoll gpu_temp :interval "2s" :initial "0"
   `cat /sys/class/drm/card1/device/hwmon/hwmon*/temp1_input 2>/dev/null | awk '{printf "%.0f", $1/1000}'`)
 ```
 
-> **Note:** `card1` is typical for a desktop with one GPU but verify first: `ls /sys/class/drm/` — look for `card0` or `card1` that has a `device/` subdirectory with `mem_info_vram_*` files.
+Verify `card1` first: `ls /sys/class/drm/` — find the card with a `device/mem_info_vram_*` subdirectory.
 
 ### What's irrelevant on a desktop (skip or remove)
 - **Battery service** — `/etc/systemd/system/battery-charge-limit.service` — no battery on desktop, install.sh detects this and skips it automatically
