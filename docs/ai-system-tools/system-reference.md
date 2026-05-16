@@ -350,7 +350,7 @@ ip addr                             # show IP addresses
 
 The bar uses the `ml4w-glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
-- **Center:** Network status, clock (12-hour), now-playing
+- **Center:** Network status (WiFi), Bluetooth, clock (12-hour), now-playing
 - **Right:** Volume, battery (laptop only), mode toggle, kbd backlight (laptop only), clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
 
 **Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
@@ -367,6 +367,8 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 - `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty` (creates and switches to first empty workspace). Added for Moonlight streaming sessions where Super key is captured by Windows.
 
 **Network module (WiFi click):** Left-click opens `networkmanager_dmenu` — a Rofi-based network picker showing all visible networks, current connection, and options to connect/disconnect/disable WiFi/Bluetooth. Uses the existing Rofi color theme (`~/.config/rofi/colors.rasi`) so it matches the wallpaper. Config at `~/.config/networkmanager-dmenu/config.ini`. Right-click still toggles nm-applet. Replaces the old `nmtui` terminal popup.
+
+**Bluetooth module (click):** Left-click opens `~/.local/bin/rofi-bluetooth.sh` — a custom Rofi-based Bluetooth manager using `bluetoothctl`. Shows paired devices with connection status, lets you connect/disconnect devices, scan for new ones, and toggle Bluetooth on/off. Icon changes: `󰂯` = on/idle, `󰂱` = device connected, `󰂲` = off. Positioned in center bar next to the WiFi module. No external dependency beyond `bluetoothctl` (part of `bluez`).
 
 ---
 

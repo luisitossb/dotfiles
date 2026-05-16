@@ -24,6 +24,7 @@
     // Modules Center
     "modules-center": [
         "network",
+        "bluetooth",
         "clock",
         "custom/nowplaying",
         "custom/empty"
