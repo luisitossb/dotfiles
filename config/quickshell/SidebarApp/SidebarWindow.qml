@@ -177,6 +177,102 @@ PanelWindow {
             anchors.margins: 20
             spacing: 20
 
+            // --- PROFILE HEADER ---
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 14
+
+                Rectangle {
+                    implicitWidth: 52
+                    implicitHeight: 52
+                    radius: 26
+                    color: Theme.primary_container
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰀄"
+                        font.family: "monospace"
+                        font.pixelSize: 28
+                        color: Theme.on_primary_container
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 3
+                    Text {
+                        text: Quickshell.env("USER")
+                        color: Theme.primary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 18
+                        font.bold: true
+                    }
+                    Text {
+                        id: uptimeText
+                        color: Theme.on_background
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 12
+                        opacity: 0.7
+                        text: "..."
+                        Process {
+                            command: ["bash", "-c", "uptime -p | sed 's/up //'"]
+                            running: root.isOpen
+                            stdout: StdioCollector {
+                                onStreamFinished: uptimeText.text = this.text.trim()
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3 }
+
+            // --- POWER BUTTONS ---
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                Item { Layout.fillWidth: true }
+
+                Repeater {
+                    model: [
+                        { icon: "󰐦", tip: "Shutdown",  cmd: ["systemctl", "poweroff"] },
+                        { icon: "󰜉", tip: "Reboot",    cmd: ["systemctl", "reboot"] },
+                        { icon: "󰌾", tip: "Lock",       cmd: ["bash", "-c", "sleep 0.2 && hyprlock"] },
+                        { icon: "󰒲", tip: "Sleep",      cmd: ["systemctl", "suspend"] },
+                        { icon: "󰈆", tip: "Logout",     cmd: ["bash", "-c", "hyprctl dispatch exit"] }
+                    ]
+                    delegate: Button {
+                        required property var modelData
+                        implicitWidth: 44
+                        implicitHeight: 44
+                        ToolTip.visible: hovered
+                        ToolTip.text: modelData.tip
+                        background: Rectangle {
+                            radius: 8
+                            color: parent.pressed ? Theme.primary_container
+                                 : parent.hovered  ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
+                                 : "transparent"
+                            Behavior on color { ColorAnimation { duration: 100 } }
+                        }
+                        contentItem: Text {
+                            text: parent.modelData.icon
+                            font.family: "monospace"
+                            font.pixelSize: 22
+                            color: Theme.primary
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        onClicked: {
+                            root.isOpen = false
+                            Quickshell.execDetached(parent.modelData.cmd)
+                        }
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+            }
+
+            Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3 }
+
             // --- TOP BAR (Light/Dark, Screenshot & Color Picker) ---
             RowLayout {
                 Layout.fillWidth: true
@@ -523,6 +619,109 @@ PanelWindow {
                         Layout.bottomMargin: 5;
                         visible: Mpris.players.values.length > 0 
                     }
+
+                    // --- QUICK TOGGLES ---
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "Bluetooth"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                        Item { Layout.fillWidth: true }
+                        ML4WSwitch {
+                            id: btSwitch
+                            property bool ready: false
+                            Process {
+                                command: ["bash", "-c", "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0"]
+                                running: root.isOpen
+                                stdout: StdioCollector {
+                                    onStreamFinished: {
+                                        btSwitch.checked = (this.text.trim() === "1")
+                                        btSwitch.ready = true
+                                    }
+                                }
+                            }
+                            onClicked: {
+                                if (!ready) return
+                                Quickshell.execDetached(["bash", "-c", checked ? "bluetoothctl power on" : "bluetoothctl power off"])
+                            }
+                        }
+                        Item { implicitWidth: 28 }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "WiFi"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                        Item { Layout.fillWidth: true }
+                        ML4WSwitch {
+                            id: wifiSwitch
+                            property bool ready: false
+                            Process {
+                                command: ["bash", "-c", "nmcli radio wifi | grep -q enabled && echo 1 || echo 0"]
+                                running: root.isOpen
+                                stdout: StdioCollector {
+                                    onStreamFinished: {
+                                        wifiSwitch.checked = (this.text.trim() === "1")
+                                        wifiSwitch.ready = true
+                                    }
+                                }
+                            }
+                            onClicked: {
+                                if (!ready) return
+                                Quickshell.execDetached(["bash", "-c", checked ? "nmcli radio wifi on" : "nmcli radio wifi off"])
+                            }
+                        }
+                        Item { implicitWidth: 28 }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "Night Mode"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                        Item { Layout.fillWidth: true }
+                        ML4WSwitch {
+                            id: nightSwitch
+                            property bool ready: false
+                            Process {
+                                command: ["bash", "-c", "pgrep -x hyprsunset > /dev/null && echo 1 || echo 0"]
+                                running: root.isOpen
+                                stdout: StdioCollector {
+                                    onStreamFinished: {
+                                        nightSwitch.checked = (this.text.trim() === "1")
+                                        nightSwitch.ready = true
+                                    }
+                                }
+                            }
+                            onClicked: {
+                                if (!ready) return
+                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"])
+                            }
+                        }
+                        Item { implicitWidth: 28 }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "Do Not Disturb"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
+                        Item { Layout.fillWidth: true }
+                        ML4WSwitch {
+                            id: dndSwitch
+                            property bool ready: false
+                            Process {
+                                command: ["bash", "-c", "swaync-client --get-dnd 2>/dev/null | grep -qi true && echo 1 || echo 0"]
+                                running: root.isOpen
+                                stdout: StdioCollector {
+                                    onStreamFinished: {
+                                        dndSwitch.checked = (this.text.trim() === "1")
+                                        dndSwitch.ready = true
+                                    }
+                                }
+                            }
+                            onClicked: {
+                                if (!ready) return
+                                Quickshell.execDetached(["bash", "-c", "swaync-client --toggle-dnd"])
+                            }
+                        }
+                        Item { implicitWidth: 28 }
+                    }
+
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3; Layout.topMargin: 5; Layout.bottomMargin: 5 }
 
                     // --- WAYBAR ---
                     RowLayout {
