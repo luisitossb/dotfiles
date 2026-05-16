@@ -156,6 +156,27 @@ No browser needed. Works every time.
 
 ---
 
+## Script error handling
+
+All scripts use `set -euo pipefail` + an ERR trap so failures produce a clear error message with line number instead of silently continuing or crashing mid-run.
+
+### Pattern used in install scripts
+```bash
+err() { echo -e "${RED}  ✗${NC} $1"; }
+trap 'err "scriptname.sh failed at line $LINENO (exit code: $?). Check output above."; exit 1' ERR
+```
+
+### Pattern used in bin scripts (mode-status, toggle-mode, start-hypridle)
+```bash
+set -euo pipefail
+trap 'echo "[ERROR] scriptname.sh failed at line $LINENO (exit code: $?)" >&2' ERR
+```
+
+### Scripts intentionally excluded
+- `cliphist-rofi-img.sh` — interactive script; rofi cancellation returns non-zero, which `set -e` would treat as a fatal error. Left as-is.
+
+---
+
 ## Key file paths
 
 ### Dotfiles repo

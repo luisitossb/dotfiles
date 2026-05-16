@@ -21,8 +21,8 @@
 (defpoll vram_usage :interval "2s" :initial "0"
   `which nvidia-smi >/dev/null 2>&1 && nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%.0f", $1/$2*100}' || echo "0"`)
 
-(defpoll gpu_temp :interval "2s" :initial "0"
-  `which nvidia-smi >/dev/null 2>&1 && nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null || echo "0"`)
+(defpoll gpu_temp :interval "2s" :initial "N/A"
+  `which nvidia-smi >/dev/null 2>&1 && nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null || echo "N/A"`)
 
 (defpoll volume_pct :interval "1s" :initial "0"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f", $2*100}'`)

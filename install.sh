@@ -26,6 +26,7 @@ step() { echo -e "\n${CYAN}══════ $1 ══════${NC}"; }
 info() { echo -e "${GREEN}  ✓${NC} $1"; }
 warn() { echo -e "${YELLOW}  !${NC} $1"; }
 err()  { echo -e "${RED}  ✗${NC} $1"; }
+trap 'err "install.sh failed at line $LINENO (exit code: $?). Check output above."; exit 1' ERR
 
 # ── Parse flags ───────────────────────────────────────────────────────────────
 DOTFILES_ONLY=false

@@ -3,7 +3,7 @@ Description=Open WebUI
 After=network.target ollama.service
 
 [Service]
-ExecStart=%h/.local/bin/open-webui serve
+ExecStart=/home/luisito/.local/bin/open-webui serve
 Restart=always
 Environment=OLLAMA_BASE_URL=http://127.0.0.1:11434
 Environment=DEFAULT_MODELS=llama3.1:8b
