@@ -1,27 +1,33 @@
 #!/usr/bin/env bash
 # Outputs JSON: {enabled, networks: [{name, connected}]}
 python3 << 'PYEOF'
-import json, subprocess
+import json, subprocess, sys
 
-enabled = 'enabled' in subprocess.run(
-    ['nmcli', 'radio', 'wifi'], capture_output=True, text=True).stdout
+def run(cmd):
+    return subprocess.run(cmd, capture_output=True, text=True)
 
-active = ''
-for line in subprocess.run(
-        ['nmcli', '-t', '-f', 'NAME,TYPE', 'con', 'show', '--active'],
-        capture_output=True, text=True).stdout.strip().split('\n'):
-    if ':wifi' in line or ':802-11-wireless' in line:
-        active = line.rsplit(':', 1)[0]
-        break
+try:
+    radio = run(['nmcli', 'radio', 'wifi'])
+    if radio.returncode != 0:
+        raise RuntimeError("nmcli not available: %s" % radio.stderr.strip())
+    enabled = 'enabled' in radio.stdout
 
-networks = []
-for line in subprocess.run(
-        ['nmcli', '-t', '-f', 'NAME,TYPE', 'con', 'show'],
-        capture_output=True, text=True).stdout.strip().split('\n'):
-    if ':wifi' in line or ':802-11-wireless' in line:
-        name = line.rsplit(':', 1)[0]
-        networks.append({'name': name, 'connected': name == active})
+    active = ''
+    for line in run(['nmcli', '-t', '-f', 'NAME,TYPE', 'con', 'show', '--active']).stdout.strip().split('\n'):
+        if ':wifi' in line or ':802-11-wireless' in line:
+            active = line.rsplit(':', 1)[0]
+            break
 
-networks.sort(key=lambda x: (not x['connected'], x['name'].lower()))
-print(json.dumps({'enabled': enabled, 'networks': networks}))
+    networks = []
+    for line in run(['nmcli', '-t', '-f', 'NAME,TYPE', 'con', 'show']).stdout.strip().split('\n'):
+        if ':wifi' in line or ':802-11-wireless' in line:
+            name = line.rsplit(':', 1)[0]
+            networks.append({'name': name, 'connected': name == active})
+
+    networks.sort(key=lambda x: (not x['connected'], x['name'].lower()))
+    print(json.dumps({'enabled': enabled, 'networks': networks}))
+
+except Exception as e:
+    print("wifi-networks: %s" % e, file=sys.stderr)
+    print(json.dumps({'enabled': False, 'networks': []}))
 PYEOF

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Outputs JSON array of installed .desktop apps for the Quickshell launcher
 python3 << 'PYEOF'
-import os, json
+import os, json, sys
 
 XDG_DIRS = [
     os.path.expanduser("~/.local/share/applications"),
@@ -55,7 +55,8 @@ def parse_desktop(path):
                     continue
                 k, _, v = line.partition("=")
                 entry[k.strip()] = v.strip()
-    except Exception:
+    except Exception as e:
+        print("app-list: failed to parse %s: %s" % (path, e), file=sys.stderr)
         return None
     if entry.get("Type") != "Application":
         return None
@@ -70,37 +71,40 @@ def parse_desktop(path):
     exec_clean = " ".join(p for p in exec_raw.split() if not p.startswith("%"))
     icon_name = entry.get("Icon", "")
     return {
-        "name":     name,
-        "exec":     exec_clean,
-        "icon":     find_icon(icon_name),
+        "name":      name,
+        "exec":      exec_clean,
+        "icon":      find_icon(icon_name),
         "icon_name": icon_name,
-        "comment":  entry.get("Comment", ""),
-        "terminal": entry.get("Terminal", "false").lower() == "true",
+        "comment":   entry.get("Comment", ""),
+        "terminal":  entry.get("Terminal", "false").lower() == "true",
     }
 
-seen_names = set()
-apps = []
-
-for d in XDG_DIRS:
-    if not os.path.isdir(d):
-        continue
-    for fname in sorted(os.listdir(d)):
-        if not fname.endswith(".desktop"):
-            continue
-        app = parse_desktop(os.path.join(d, fname))
-        if app and app["name"] not in seen_names:
-            seen_names.add(app["name"])
-            apps.append(app)
-
-usage_file = os.path.expanduser("~/.local/share/qs-launcher/usage.json")
 try:
-    usage = json.loads(open(usage_file).read())
-except Exception:
-    usage = {}
+    usage_file = os.path.expanduser("~/.local/share/qs-launcher/usage.json")
+    try:
+        usage = json.loads(open(usage_file).read())
+    except Exception:
+        usage = {}
 
-for app in apps:
-    app["count"] = usage.get(app["name"], 0)
+    seen_names = set()
+    apps = []
 
-apps.sort(key=lambda a: (-a["count"], a["name"].lower()))
-print(json.dumps(apps))
+    for d in XDG_DIRS:
+        if not os.path.isdir(d):
+            continue
+        for fname in sorted(os.listdir(d)):
+            if not fname.endswith(".desktop"):
+                continue
+            app = parse_desktop(os.path.join(d, fname))
+            if app and app["name"] not in seen_names:
+                seen_names.add(app["name"])
+                app["count"] = usage.get(app["name"], 0)
+                apps.append(app)
+
+    apps.sort(key=lambda a: (-a["count"], a["name"].lower()))
+    print(json.dumps(apps))
+
+except Exception as e:
+    print("app-list: %s" % e, file=sys.stderr)
+    print("[]")
 PYEOF

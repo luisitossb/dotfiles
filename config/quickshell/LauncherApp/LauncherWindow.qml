@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
@@ -40,10 +41,11 @@ PanelWindow {
 
     // ── State ─────────────────────────────────────────────────────────────────
 
-    property var    allApps:    []
-    property string query:      ""
-    property bool   loading:    false
+    property var    allApps:     []
+    property string query:       ""
+    property bool   loading:     false
     property int    highlighted: 0
+    property string errorMsg:    ""
 
     function refresh() {
         root.loading = true
@@ -63,8 +65,20 @@ PanelWindow {
         id: appProc
         command: ["bash", Quickshell.env("HOME") + "/.config/quickshell/scripts/app-list.sh"]
         stdout: StdioCollector { onStreamFinished: {
-            try { root.allApps = JSON.parse(this.text.trim()) } catch(e) { root.allApps = [] }
+            try {
+                root.allApps  = JSON.parse(this.text.trim())
+                root.errorMsg = ""
+            } catch(e) {
+                let msg = "Failed to parse app list: " + e
+                console.warn("launcher: " + msg)
+                root.errorMsg = msg
+                root.allApps  = []
+            }
             root.loading = false
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) { console.warn("launcher: " + e); root.errorMsg = e; root.loading = false }
         }}
     }
 
@@ -208,6 +222,8 @@ PanelWindow {
                     Layout.fillWidth: true; implicitHeight: 1
                     color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.15)
                 }
+
+                ErrorBanner { message: root.errorMsg }
 
                 // App list
                 ListView {

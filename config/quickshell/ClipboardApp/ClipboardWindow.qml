@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
@@ -42,6 +43,7 @@ PanelWindow {
     property var    entries:    []
     property string filterText: ""
     property bool   loading:    false
+    property string errorMsg:   ""
 
     function refresh() {
         root.loading = true
@@ -61,9 +63,19 @@ PanelWindow {
         command: ["bash", Quickshell.env("HOME") + "/.config/quickshell/scripts/clipboard-entries.sh"]
         stdout: StdioCollector { onStreamFinished: {
             try {
-                root.entries = JSON.parse(this.text.trim())
-            } catch(e) { root.entries = [] }
+                root.entries  = JSON.parse(this.text.trim())
+                root.errorMsg = ""
+            } catch(e) {
+                let msg = "Failed to parse clipboard: " + e
+                console.warn("clipboard: " + msg)
+                root.errorMsg = msg
+                root.entries  = []
+            }
             root.loading = false
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) { console.warn("clipboard: " + e); root.errorMsg = e; root.loading = false }
         }}
     }
 
@@ -195,6 +207,8 @@ PanelWindow {
                         color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.15)
                     }
                 }
+
+                ErrorBanner { message: root.errorMsg }
 
                 // Entry list
                 ListView {

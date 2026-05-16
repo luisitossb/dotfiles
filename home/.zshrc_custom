@@ -19,46 +19,36 @@ dotfiles-sync() {
 
     cd "$DOTS" || return 1
 
-    # Hyprland — full sync, skip the 'hypr' symlink (points to ml4w source)
+    # NOTE: quickshell, waybar, kitty, rofi, btop, swaync, fastfetch, ohmyposh,
+    # and networkmanager-dmenu are SYMLINKED to the repo — no sync needed for those.
+    # Only sync configs that are still copy-deployed (ml4w-managed or machine-specific).
+
+    # Hyprland — ml4w writes environments/default.conf at login, so keep as copy
     mkdir -p config/hypr
-    "${R[@]}" --exclude='hypr' ~/.config/hypr/ config/hypr/
+    "${R[@]}" ~/.config/hypr/ config/hypr/
 
     # ml4w user settings and color theme
     mkdir -p config/ml4w/settings config/ml4w/colors
     "${R[@]}" ~/.config/ml4w/settings/ config/ml4w/settings/
     "${R[@]}" ~/.config/ml4w/colors/   config/ml4w/colors/
 
-    # Waybar — full theme tree
-    mkdir -p config/waybar
-    "${R[@]}" ~/.config/waybar/ config/waybar/
-
-    # eww dashboard
+    # eww scripts still used by Quickshell dashboard (net-speed.sh, claude-usage.sh)
     mkdir -p config/eww
     "${R[@]}" ~/.config/eww/ config/eww/
 
-    # Dock
+    # Dock (symlinked to ml4w internally, but sync the launch config)
     mkdir -p config/nwg-dock-hyprland
     "${R[@]}" ~/.config/nwg-dock-hyprland/ config/nwg-dock-hyprland/
-
-    # Apps
-    "${R[@]}" ~/.config/fastfetch/            config/fastfetch/
-    "${R[@]}" ~/.config/kitty/                config/kitty/
-    "${R[@]}" ~/.config/ohmyposh/             config/ohmyposh/
-    "${R[@]}" ~/.config/rofi/                 config/rofi/
-    "${R[@]}" ~/.config/btop/                 config/btop/
-    "${R[@]}" ~/.config/swaync/               config/swaync/
-    "${R[@]}" ~/.config/quickshell/           config/quickshell/
-    "${R[@]}" ~/.config/networkmanager-dmenu/ config/networkmanager-dmenu/
-
-    # Home files and scripts (only .sh scripts, skip installed binaries and symlinks)
-    cp ~/.zshrc_custom home/
-    mkdir -p home/.local/bin home/.config/systemd/user
-    "${R[@]}" --exclude='*' --include='*.sh' ~/.local/bin/ home/.local/bin/
-    "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
     # Sunshine remote desktop config (credentials excluded)
     mkdir -p config/sunshine
     cp ~/.config/sunshine/sunshine.conf config/sunshine/
+
+    # Home files and scripts
+    cp ~/.zshrc_custom home/
+    mkdir -p home/.local/bin home/.config/systemd/user
+    "${R[@]}" --exclude='*' --include='*.sh' ~/.local/bin/ home/.local/bin/
+    "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
     # AI - System Tools documentation (markdown only)
     mkdir -p docs/ai-system-tools
@@ -69,3 +59,7 @@ dotfiles-sync() {
     git push
     cd - >/dev/null
 }
+
+# View the current Quickshell log (errors, warnings, debug output)
+alias qs-log='cat "$(ls -t /run/user/1000/quickshell/by-id/*/log.qslog 2>/dev/null | head -1)"'
+alias qs-errors='grep -E "WARN|ERROR" "$(ls -t /run/user/1000/quickshell/by-id/*/log.qslog 2>/dev/null | head -1)"'

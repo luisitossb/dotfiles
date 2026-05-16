@@ -7,6 +7,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
@@ -66,6 +67,13 @@ PanelWindow {
     property int    claudeSess: 0
     property string clockTime:  Qt.formatTime(new Date(), "HH:mm")
     property string clockDate:  Qt.formatDate(new Date(), "dddd, MMMM d")
+    property string lastError:  ""
+
+    function logErr(source, msg) {
+        let e = msg.split('\n')[0]   // first line only in UI
+        console.warn("dashboard [" + source + "]: " + msg)
+        root.lastError = source + ": " + e
+    }
 
     // ── Timers ────────────────────────────────────────────────────────────────
 
@@ -186,8 +194,13 @@ PanelWindow {
         id: netProc
         command: ["bash", Quickshell.env("HOME") + "/.config/eww/scripts/net-speed.sh"]
         stdout: StdioCollector { onStreamFinished: {
-            root.netSpeed = this.text.trim()
+            let s = this.text.trim()
+            if (s) root.netSpeed = s
             netProc.running = false
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) root.logErr("net-speed", e)
         }}
     }
 
@@ -207,7 +220,13 @@ PanelWindow {
                 root.claudeCtx  = (d.ctx_tokens || "0K") + " / " + (d.ctx_max || "200K")
                 root.claudeOut  = d.today_out || "0K"
                 root.claudeSess = d.today_sessions || 0
-            } catch(e) {}
+            } catch(e) {
+                root.logErr("claude-usage", "parse error: " + e)
+            }
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) root.logErr("claude-usage", e)
         }}
     }
 
@@ -530,7 +549,9 @@ PanelWindow {
                     }
                 }
 
-                Item { implicitHeight: 22 }
+                Item { implicitHeight: 8 }
+                ErrorBanner { message: root.lastError }
+                Item { implicitHeight: 14 }
             }
         }
     }

@@ -5,6 +5,7 @@ import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
@@ -45,6 +46,7 @@ PanelWindow {
     property bool    btPowered: false
     property var     btDevices: []
     property bool    scanning:  false
+    property string  errorMsg:  ""
 
     function refresh() {
         btStateProc.running = false; btStateProc.running = true
@@ -61,13 +63,29 @@ PanelWindow {
         id: btStateProc
         command: ["bash", "-c", "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0"]
         stdout: StdioCollector { onStreamFinished: root.btPowered = (this.text.trim() === "1") }
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) { console.warn("bluetooth-state: " + e); root.errorMsg = e }
+        }}
     }
 
     Process {
         id: btDevicesProc
         command: ["bash", Quickshell.env("HOME") + "/.config/quickshell/scripts/bt-devices.sh"]
         stdout: StdioCollector { onStreamFinished: {
-            try { root.btDevices = JSON.parse(this.text.trim()) } catch(e) { root.btDevices = [] }
+            try {
+                root.btDevices = JSON.parse(this.text.trim())
+                root.errorMsg = ""
+            } catch(e) {
+                let msg = "Failed to parse device list: " + e
+                console.warn("bt-devices: " + msg)
+                root.errorMsg = msg
+                root.btDevices = []
+            }
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) { console.warn("bt-devices: " + e); root.errorMsg = e }
         }}
     }
 
@@ -126,6 +144,8 @@ PanelWindow {
                     }
                 }
             }
+
+            ErrorBanner { message: root.errorMsg }
 
             Rectangle {
                 Layout.fillWidth: true; implicitHeight: 1

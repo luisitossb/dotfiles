@@ -5,6 +5,7 @@ import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
@@ -46,6 +47,7 @@ PanelWindow {
     property var    networks:    []
     property bool   connecting:  false
     property string statusMsg:   ""
+    property string errorMsg:    ""
 
     function refresh() {
         wifiProc.running = false; wifiProc.running = true
@@ -64,7 +66,16 @@ PanelWindow {
                 let d = JSON.parse(this.text.trim())
                 root.wifiEnabled = d.enabled
                 root.networks    = d.networks || []
-            } catch(e) {}
+                root.errorMsg    = ""
+            } catch(e) {
+                let msg = "Failed to parse network list: " + e
+                console.warn("wifi-networks: " + msg)
+                root.errorMsg = msg
+            }
+        }}
+        stderr: StdioCollector { onStreamFinished: {
+            let e = this.text.trim()
+            if (e) { console.warn("wifi-networks: " + e); root.errorMsg = e }
         }}
     }
 
@@ -132,6 +143,8 @@ PanelWindow {
                 horizontalAlignment: Text.AlignHCenter
                 visible: root.statusMsg !== ""
             }
+
+            ErrorBanner { message: root.errorMsg }
 
             Rectangle {
                 Layout.fillWidth: true; implicitHeight: 1
