@@ -125,15 +125,9 @@ macOS Sequoia has a bug where Tailscale never opens the login browser. Bypass it
 ```
 No browser needed. Works every time.
 
-### AI / Local LLMs
-- **Ollama:** Running as system service, max 1 model loaded, 5s keep-alive
-- **GPU backend:** ollama-cuda (NVIDIA laptop) / ollama-rocm (AMD desktop, if ROCm works)
-- **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
-- **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
+### AI
 - **Aliases in zshrc_custom:**
   - `claude` — wrapper function: `command claude --dangerously-skip-permissions --max-turns 20 "$@"` (skip permission prompts, cap turns to prevent runaway loops)
-  - `oc` — openclaude with qwen2.5-coder:7b
-  - `ai` — aider with qwen2.5-coder:7b
 
 ### Theming
 - **Theme engine:** matugen (Material You — wallpaper-driven palette)
@@ -155,7 +149,9 @@ No browser needed. Works every time.
 ~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/AI - System Tools/)
 ~/dotfiles/wallpapers/              — wallpaper collection
 ~/dotfiles/install.sh               — full CachyOS bootstrap script (paru for all packages, chwd for GPU)
-~/dotfiles/install-apps.sh          — standalone app installer (Discord, Spotify, Steam, etc.)
+~/dotfiles/scripts/apps/install.sh  — user apps (Discord, Steam, Spotify, etc.)
+~/dotfiles/scripts/dev/install.sh   — dev tools (Neovim, Node, Python, Rust, Docker, gh)
+~/dotfiles/scripts/server/install.sh — self-hosted services (Jellyfin, Sunshine, Docker)
 ~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
 ```
 
@@ -184,7 +180,6 @@ No browser needed. Works every time.
 ```
 /usr/local/bin/jellyfin-osd-fix.sh     — OSD fix script (tracked in system/ in repo)
 /etc/pacman.d/hooks/jellyfin-osd-fix.hook — pacman hook (tracked in system/ in repo)
-/etc/systemd/system/ollama.service.d/override.conf — Ollama tuning
 /etc/systemd/system/battery-charge-limit.service   — 80% battery cap (laptop only)
 /etc/sddm.conf.d/theme.conf            — SDDM theme
 /etc/bluetooth/main.conf               — AutoEnable=false
@@ -199,7 +194,9 @@ No browser needed. Works every time.
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
 cd ~/dotfiles && bash install.sh               # full bootstrap on fresh machine
 cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
-cd ~/dotfiles && bash install-apps.sh          # install user apps (Mission Center, btop++, nvtop, Zen Browser, Discord, Telegram, Spotify, VLC, Obsidian, qBittorrent, Open Video Downloader, Steam, Proton-GE, Sunshine, Moonlight, Wine, Winetricks, Zed, LocalSend)
+cd ~/dotfiles && bash scripts/apps/install.sh  # user apps (Discord, Steam, Spotify, Obsidian, etc.)
+cd ~/dotfiles && bash scripts/dev/install.sh   # dev tools (Neovim, Node, Python, Rust, Docker, gh)
+cd ~/dotfiles && bash scripts/server/install.sh # self-hosted services (Jellyfin, Sunshine, Docker)
 ```
 
 ### Hyprland
@@ -233,15 +230,6 @@ sudo /usr/local/bin/jellyfin-osd-fix.sh  # manually apply OSD fix
 grep -rl "osdHeader-hidden" /usr/share/jellyfin/web/*.chunk.js  # find the right chunk
 ```
 
-### Ollama
-```bash
-ollama list                         # installed models
-ollama run qwen2.5-coder:7b         # interactive chat
-ollama pull <model>                 # download a model
-systemctl status ollama             # service status
-journalctl -u ollama -f             # live logs
-```
-
 ### Remote Access
 ```bash
 tailscale status                        # show connected devices and IPs
@@ -252,14 +240,6 @@ journalctl --user -u sunshine -f        # live Sunshine logs
 hyprctl output create headless          # manually create headless monitor (auto-runs on boot)
 # Sunshine web UI: https://localhost:47990
 # Sunshine config: ~/.config/sunshine/sunshine.conf
-```
-
-### Open WebUI
-```bash
-systemctl --user status open-webui  # check if running
-systemctl --user restart open-webui # restart
-journalctl --user -u open-webui -f  # live logs
-# Access at: http://localhost:8080
 ```
 
 ### Matugen / theming

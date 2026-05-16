@@ -15,7 +15,6 @@ AI reference document for helping luisito set up CachyOS on the Windows desktop.
 **The desktop is an AMD GPU machine.** This matters for:
 - GPU driver section in install.sh (picks AMD branch automatically via lspci)
 - eww dashboard GPU widgets (nvidia-smi won't work — needs AMD replacements, see below)
-- Ollama will use ROCm if available, CPU-only as fallback
 
 ---
 

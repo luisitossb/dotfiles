@@ -108,11 +108,6 @@ Custom configs and scripts organized by category. `install.sh` deploys everythin
 | `home/.local/bin/start-hypridle.sh` | Launches correct hypridle config based on current mode |
 | `home/.local/bin/cliphist-rofi-img.sh` | Clipboard history picker with image preview |
 
-**Services**
-| File | What it does |
-|------|-------------|
-| `home/.config/systemd/user/open-webui.service` | User systemd service for Open WebUI (Ollama frontend) |
-
 ## Setting up on a new machine
 
 ### CachyOS (primary / x86_64)
@@ -122,7 +117,7 @@ https://cachyos.org
 
 **Prerequisites before running install.sh:**
 - Connected to internet (WiFi or ethernet)
-- ~15GB free disk space (packages + Ollama models)
+- ~8GB free disk space
 - Running as your regular user (not root)
 
 **2. Clone this repo and run install.sh**
@@ -130,7 +125,7 @@ https://cachyos.org
 git clone https://github.com/luisitossb/dotfiles.git ~/dotfiles
 cd ~/dotfiles && bash install.sh
 ```
-`install.sh` uses paru (ships with CachyOS) to install all packages from repos and AUR in one pass, auto-detects GPU and installs the correct driver via `chwd`, deploys all dotfiles, enables services, tunes Ollama, configures the firewall, and more. After it finishes, reboot.
+`install.sh` uses paru (ships with CachyOS) to install all packages from repos and AUR in one pass, auto-detects GPU and installs the correct driver via `chwd`, deploys all dotfiles, enables services, configures the firewall, and more. After it finishes, reboot.
 
 **3. Install ml4w (manual step — after reboot)**
 
