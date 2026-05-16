@@ -47,7 +47,11 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Window Manager:** Hyprland 0.55 (deprecation note: .conf format deprecated in favor of Lua in 0.55 — still works, not broken yet)
 - **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `yay -S ml4w-hyprland`)
 - **Session manager:** uwsm
-- **Login manager:** SDDM (Nordic-darker theme)
+- **Login manager:** SDDM (sddm-astronaut-theme)
+  - Config: `/etc/sddm.conf` — `[Theme] Current=sddm-astronaut-theme`
+  - Theme config: `/usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf` — background, colors, blur, font, date/time format
+  - Preview without logging out: `sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/sddm-astronaut-theme`
+  - **Nordic-darker was broken:** requires `org.kde.plasma.*` QML modules (KDE only) — incompatible with a pure Hyprland setup
 
 ### Bar / Notifications / Launcher
 - **Bar:** Waybar, theme: `ml4w-glass-center`
@@ -191,7 +195,7 @@ No browser needed. Works every time.
 /etc/pacman.d/hooks/jellyfin-osd-fix.hook — pacman hook (tracked in system/ in repo)
 /etc/systemd/system/ollama.service.d/override.conf — Ollama tuning
 /etc/systemd/system/battery-charge-limit.service   — 80% battery cap (laptop only)
-/etc/sddm.conf.d/theme.conf            — SDDM theme
+/etc/sddm.conf                         — SDDM config (theme + autologin session)
 /etc/bluetooth/main.conf               — AutoEnable=false
 ```
 
