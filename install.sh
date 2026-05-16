@@ -190,40 +190,15 @@ else
 fi
 
 # ── GPU drivers ───────────────────────────────────────────────────────────────
-step "Installing GPU drivers ($GPU)"
+# Use chwd (CachyOS Hardware Detection) — auto-selects the correct driver for
+# the detected GPU, including open vs proprietary NVIDIA and hybrid setups.
+step "Installing GPU drivers via chwd ($GPU)"
+
+sudo chwd -a pci nonfree 0300 2>/dev/null || sudo chwd -a pci free 0300 2>/dev/null || warn "chwd driver install failed — check: sudo chwd -l"
+info "GPU drivers installed via chwd"
 
 if [[ "$GPU" == "nvidia" ]]; then
-    sudo pacman -S --needed --noconfirm \
-        nvidia-utils lib32-nvidia-utils \
-        opencl-nvidia lib32-opencl-nvidia \
-        libva-nvidia-driver nvidia-prime \
-        nvidia-settings \
-        linux-cachyos-nvidia-open
     sudo systemctl enable nvidia-powerd 2>/dev/null || true
-    info "NVIDIA drivers installed"
-
-elif [[ "$GPU" == "amd" ]]; then
-    sudo pacman -S --needed --noconfirm \
-        mesa lib32-mesa \
-        vulkan-radeon lib32-vulkan-radeon \
-        libva-mesa-driver mesa-vdpau \
-        xf86-video-amdgpu \
-        vulkan-icd-loader lib32-vulkan-icd-loader
-    info "AMD drivers installed"
-
-else
-    sudo pacman -S --needed --noconfirm \
-        mesa lib32-mesa \
-        vulkan-intel lib32-vulkan-intel \
-        intel-media-driver intel-media-sdk
-    info "Intel drivers installed"
-fi
-
-# Hybrid Intel iGPU alongside discrete GPU
-if [[ "$HYBRID" == "true" ]]; then
-    info "Hybrid GPU — adding Intel iGPU packages"
-    sudo pacman -S --needed --noconfirm \
-        intel-media-driver vulkan-intel lib32-vulkan-intel
 fi
 
 # ── Ollama GPU backend ────────────────────────────────────────────────────────
@@ -337,7 +312,7 @@ fi
 if [[ "$DOTFILES_ONLY" == "true" ]]; then
     step "Manual step required: ml4w"
     echo "  ml4w needs to be installed separately if not already done."
-    echo "  Install via: yay -S ml4w-hyprland"
+    echo "  Install via: paru -S ml4w-hyprland"
     echo "  Then re-run: cd ~/dotfiles && bash install.sh --dotfiles-only"
     echo ""
     echo -e "${GREEN}  Dotfiles deployed. Done!${NC}"
@@ -462,16 +437,6 @@ ollama pull nomic-embed-text && info "Pulled: nomic-embed-text"
 ollama pull llama3.1:8b      && info "Pulled: llama3.1:8b (general)"
 ollama pull qwen2.5-coder:7b && info "Pulled: qwen2.5-coder:7b (coding, fast)"
 
-if [[ "$GPU" == "nvidia" ]]; then
-    info "NVIDIA detected — pulling 14b model too"
-    ollama pull qwen2.5-coder:14b && info "Pulled: qwen2.5-coder:14b (coding, best quality)"
-else
-    warn "Non-NVIDIA GPU — qwen2.5-coder:14b (9GB) may be slow without CUDA"
-    if confirm "Pull qwen2.5-coder:14b anyway?"; then
-        ollama pull qwen2.5-coder:14b && info "Pulled: qwen2.5-coder:14b"
-    fi
-fi
-
 # ── ml4w note ─────────────────────────────────────────────────────────────────
 step "Manual step required: ml4w"
 echo "  ml4w (the Hyprland dotfiles framework) needs to be installed separately."
@@ -479,7 +444,7 @@ echo "  It provides scripts in ~/.config/ml4w/ that the configs depend on."
 echo ""
 echo "  After reboot, install via CachyOS Package Installer (cachyos-packageinstaller)"
 echo "  and search for 'ml4w', or run:"
-echo "    yay -S ml4w-hyprland"
+echo "    paru -S ml4w-hyprland"
 echo ""
 echo "  Then re-run dotfiles deployment to override ml4w defaults:"
 echo "    cd ~/dotfiles && bash install.sh --dotfiles-only"
