@@ -36,6 +36,10 @@ dotfiles-sync() {
     mkdir -p config/eww
     "${R[@]}" ~/.config/eww/ config/eww/
 
+    # Dock
+    mkdir -p config/nwg-dock-hyprland
+    "${R[@]}" ~/.config/nwg-dock-hyprland/ config/nwg-dock-hyprland/
+
     # Apps
     "${R[@]}" ~/.config/fastfetch/  config/fastfetch/
     "${R[@]}" ~/.config/kitty/      config/kitty/
