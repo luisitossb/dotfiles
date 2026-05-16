@@ -114,6 +114,7 @@ SYS_PKGS=(
 
     # Network
     networkmanager networkmanager-openvpn network-manager-applet iwd
+    networkmanager-dmenu-git
 
     # Bluetooth
     bluez bluez-utils bluez-libs blueman
