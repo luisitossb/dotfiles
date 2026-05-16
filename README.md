@@ -145,9 +145,10 @@ cd ~/dotfiles && bash install.sh --dotfiles-only
 After the rice is set up, install whatever you need:
 
 ```bash
-bash scripts/apps/install.sh    # Discord, Steam, Spotify, Obsidian, Zen Browser, etc.
-bash scripts/dev/install.sh     # Neovim, Zed, Node, Python, Rust, Docker, GitHub CLI
-bash scripts/server/install.sh  # Jellyfin, Sunshine, Docker (hosting/streaming machine only)
+bash scripts/apps/install.sh       # Discord, Steam, Spotify, Obsidian, Zen Browser, etc.
+bash scripts/dev/install.sh        # Neovim, Zed, Node, Python, Rust, Docker, GitHub CLI
+bash scripts/server/install.sh     # Jellyfin, Sunshine, Docker (hosting/streaming machine only)
+bash scripts/server/install-ai.sh  # Ollama + Open WebUI (local LLM stack, hosting machine only)
 ```
 
 Each script has its own `README.md` with a full list of what it installs.

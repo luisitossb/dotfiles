@@ -149,9 +149,10 @@ No browser needed. Works every time.
 ~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/AI - System Tools/)
 ~/dotfiles/wallpapers/              — wallpaper collection
 ~/dotfiles/install.sh               — full CachyOS bootstrap script (paru for all packages, chwd for GPU)
-~/dotfiles/scripts/apps/install.sh  — user apps (Discord, Steam, Spotify, etc.)
-~/dotfiles/scripts/dev/install.sh   — dev tools (Neovim, Node, Python, Rust, Docker, gh)
-~/dotfiles/scripts/server/install.sh — self-hosted services (Jellyfin, Sunshine, Docker)
+~/dotfiles/scripts/apps/install.sh       — user apps (Discord, Steam, Spotify, etc.)
+~/dotfiles/scripts/dev/install.sh        — dev tools (Neovim, Node, Python, Rust, Docker, gh)
+~/dotfiles/scripts/server/install.sh     — self-hosted services (Jellyfin, Sunshine, Docker)
+~/dotfiles/scripts/server/install-ai.sh  — local AI stack (Ollama + Open WebUI)
 ~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
 ```
 
@@ -194,9 +195,10 @@ No browser needed. Works every time.
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
 cd ~/dotfiles && bash install.sh               # full bootstrap on fresh machine
 cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
-cd ~/dotfiles && bash scripts/apps/install.sh  # user apps (Discord, Steam, Spotify, Obsidian, etc.)
-cd ~/dotfiles && bash scripts/dev/install.sh   # dev tools (Neovim, Node, Python, Rust, Docker, gh)
-cd ~/dotfiles && bash scripts/server/install.sh # self-hosted services (Jellyfin, Sunshine, Docker)
+cd ~/dotfiles && bash scripts/apps/install.sh       # user apps (Discord, Steam, Spotify, Obsidian, etc.)
+cd ~/dotfiles && bash scripts/dev/install.sh        # dev tools (Neovim, Node, Python, Rust, Docker, gh)
+cd ~/dotfiles && bash scripts/server/install.sh     # self-hosted services (Jellyfin, Sunshine, Docker)
+cd ~/dotfiles && bash scripts/server/install-ai.sh  # local AI stack (Ollama + Open WebUI)
 ```
 
 ### Hyprland
@@ -228,6 +230,19 @@ sudo systemctl restart jellyfin     # restart server
 journalctl -u jellyfin -f          # live logs
 sudo /usr/local/bin/jellyfin-osd-fix.sh  # manually apply OSD fix
 grep -rl "osdHeader-hidden" /usr/share/jellyfin/web/*.chunk.js  # find the right chunk
+```
+
+### Ollama / Open WebUI
+```bash
+ollama list                         # installed models
+ollama pull <model>                 # download a model
+ollama run <model>                  # interactive chat
+systemctl status ollama             # service status
+journalctl -u ollama -f             # live logs
+systemctl --user status open-webui  # Open WebUI status
+systemctl --user restart open-webui # restart Open WebUI
+journalctl --user -u open-webui -f  # Open WebUI live logs
+# Access at: http://localhost:8080
 ```
 
 ### Remote Access
