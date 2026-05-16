@@ -147,11 +147,13 @@ cd ~/dotfiles && bash install.sh --dotfiles-only
 
 **4. Install applications (optional — separate script)**
 
-`install.sh` sets up the full system (Hyprland, fonts, audio, dev tools, services, etc.). For user-facing apps — Discord, Spotify, Opera GX, Steam, Obsidian, etc. — run the apps script separately:
+`install.sh` sets up the full system (Hyprland, fonts, audio, dev tools, services, etc.). For user-facing apps run the apps script separately:
 ```
 bash install-apps.sh
 ```
-This is also useful for installing apps on an existing setup without re-running the full install.
+This installs: Mission Center, btop++, nvtop, Zen Browser, Discord, Telegram, Spotify, VLC, Obsidian, qBittorrent, Open Video Downloader, Steam + Proton-GE, Sunshine, Moonlight, Wine + Winetricks, Zed, LocalSend.
+
+This is also useful on an existing setup to install apps without re-running the full install.
 
 **6. Set Zen as default browser**
 ```

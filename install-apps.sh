@@ -20,34 +20,48 @@ fi
 step "Installing applications"
 
 APPS=(
+    # System monitoring
+    mission-center      # GUI system monitor (CPU, RAM, GPU, disk, network)
+    btop                # Terminal resource monitor (btop++)
+    nvtop               # GPU process monitor
+
+    # Browser
+    zen-browser-bin     # Zen Browser (Firefox-based, performance-focused)
+
     # Communication
     discord
     telegram-desktop
 
     # Music / media
     spotify
-    vlc
+    vlc                 # Media player
 
     # Notes / productivity
-    obsidian
+    obsidian            # Markdown knowledge base
 
-    # Torrents
-    qbittorrent
+    # Downloads
+    qbittorrent                     # Torrent client
+    open-video-downloader-bin       # GUI for yt-dlp (YouTube / video downloads)
 
     # Gaming
     steam
     gamemode
     lib32-gamemode
-    proton-ge-custom-bin
+    proton-ge-custom-bin            # Improved Proton for Steam — enable in Settings → Compatibility
 
-    # Dev
-    neovim
-    zed
+    # Remote access / game streaming
+    sunshine                        # Game stream host (run on this machine, connect via Moonlight)
+    moonlight-qt                    # Game stream client (connect to another Sunshine host)
 
-    # Utilities
-    localsend-bin
+    # Windows compatibility
     wine
     winetricks
+
+    # Dev
+    zed                             # Zed code editor
+
+    # Utilities
+    localsend-bin                   # Local file sharing across devices
 )
 
 paru -S --needed --noconfirm "${APPS[@]}" || warn "Some packages failed — check output above"
@@ -56,5 +70,7 @@ info "All apps installed"
 echo ""
 echo "  Notes:"
 echo "  • Steam: launch and log in, then enable Proton-GE in Settings → Compatibility"
-echo "  • Spotify / Opera GX: log in after first launch"
+echo "  • Spotify / Discord: log in after first launch"
+echo "  • Sunshine: web UI at https://localhost:47990 — set up credentials on first run"
+echo "  • Moonlight: add host → use the Tailscale IP of the machine running Sunshine"
 echo ""

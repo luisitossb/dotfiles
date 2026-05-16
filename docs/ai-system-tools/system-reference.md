@@ -199,7 +199,7 @@ No browser needed. Works every time.
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
 cd ~/dotfiles && bash install.sh               # full bootstrap on fresh machine
 cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
-cd ~/dotfiles && bash install-apps.sh          # install user apps only (Discord, Spotify, Steam, etc.)
+cd ~/dotfiles && bash install-apps.sh          # install user apps (Mission Center, btop++, nvtop, Zen Browser, Discord, Telegram, Spotify, VLC, Obsidian, qBittorrent, Open Video Downloader, Steam, Proton-GE, Sunshine, Moonlight, Wine, Winetricks, Zed, LocalSend)
 ```
 
 ### Hyprland
