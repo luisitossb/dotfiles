@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = sunshine
+
+[Action]
+Description = Reapplying cap_sys_admin to Sunshine for KMS capture...
+When = PostTransaction
+Exec = /bin/sh -c 'setcap cap_sys_admin+p $(readlink -f /usr/bin/sunshine)'

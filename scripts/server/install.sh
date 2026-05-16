@@ -57,6 +57,14 @@ else
     warn "system/jellyfin-osd-fix.sh not found — skipping"
 fi
 
+# ── Sunshine: KMS capture capability + pacman hook ───────────────────────────
+sudo mkdir -p /etc/pacman.d/hooks
+sudo cp "$DOTFILES_DIR/system/sunshine-setcap.hook" /etc/pacman.d/hooks/
+info "Sunshine setcap hook installed (auto-reapplies on every Sunshine update)"
+sudo setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)" \
+    && info "cap_sys_admin set on Sunshine binary (required for KMS display capture)" \
+    || warn "setcap failed — Sunshine may not be installed yet"
+
 # ── Sunshine user service ─────────────────────────────────────────────────────
 systemctl --user enable sunshine 2>/dev/null && info "Sunshine user service enabled" \
     || warn "Sunshine service not found — may need a re-login"

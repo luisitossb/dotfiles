@@ -34,6 +34,8 @@ bash scripts/server/install-ai.sh    # local AI stack (optional)
 
 **Sunshine:** Open https://localhost:47990, create credentials, then on the client device open Moonlight → Add PC → enter the Tailscale IP of this machine (`tailscale ip`).
 
+Sunshine uses KMS capture (`capture = kms`) which requires `cap_sys_admin` on the binary. `install.sh` sets this and installs a pacman hook (`system/sunshine-setcap.hook`) that reapplies it automatically on every Sunshine update.
+
 **SearXNG (optional):**
 ```bash
 docker run -d --name searxng -p 8888:8080 --restart unless-stopped searxng/searxng:latest
