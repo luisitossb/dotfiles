@@ -32,7 +32,6 @@
         "pulseaudio",
         "battery",
         "custom/mode-toggle",
-        "custom/kbd-backlight",
         "custom/cliphist",
         "custom/hyprshade",
         "power-profiles-daemon",

@@ -206,17 +206,6 @@
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
-  // Keyboard backlight toggle
-  "custom/kbd-backlight": {
-    "exec": "~/.local/bin/kbd-backlight-status.sh",
-    "return-type": "json",
-    "interval": 60,
-    "signal": 9,
-    "exec-on-event": true,
-    "on-click": "~/.local/bin/toggle-kbd-backlight.sh",
-    "on-scroll-up": "true",
-    "on-scroll-down": "true"
-  },
   // Hypridle inhibitor
   "custom/hypridle": {
     "format": "",

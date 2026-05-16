@@ -143,31 +143,6 @@ window#waybar.empty #window {
     color: @secondary;
 }
 
-/* -----------------------------------------------------
- * Keyboard Backlight
- * ----------------------------------------------------- */
-
-#custom-kbd-backlight {
-    padding: 0 6px;
-    color: @primary;
-}
-
-#custom-kbd-backlight.off {
-    color: @outline;
-    opacity: 0.4;
-}
-
-#custom-kbd-backlight.kbd-1 {
-    opacity: 0.5;
-}
-
-#custom-kbd-backlight.kbd-2 {
-    opacity: 0.75;
-}
-
-#custom-kbd-backlight.kbd-3 {
-    opacity: 1.0;
-}
 
 /* -----------------------------------------------------
  * Idle Inhibitor
