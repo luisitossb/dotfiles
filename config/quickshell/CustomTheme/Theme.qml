@@ -95,5 +95,5 @@ QtObject {
     }
 
     // Load the JSON colors automatically when Quickshell starts
-    // Component.onCompleted: reloadTheme()
+    Component.onCompleted: reloadTheme()
 }
