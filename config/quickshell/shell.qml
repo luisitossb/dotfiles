@@ -5,13 +5,16 @@ import "PowerApp"
 import "SidebarApp"
 import "CalendarApp"
 import "WallpaperApp"
+import "DashboardApp"
+import "BluetoothApp"
+import "WiFiApp"
 import "CustomTheme"
 
 ShellRoot {
     // Test IPC tools: qs ipc show
 
     IpcHandler {
-        target: "theme-manager" 
+        target: "theme-manager"
         function reload(): void {
             Theme.reloadTheme()
         }
@@ -22,4 +25,7 @@ ShellRoot {
     SidebarWindow {}
     CalendarWindow {}
     WallpaperWindow {}
+    DashboardWindow {}
+    BluetoothWindow {}
+    WiFiWindow {}
 }

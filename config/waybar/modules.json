@@ -347,7 +347,7 @@
     "tooltip-format-ethernet": " {ifname}\nIP: {ipaddr}\n up: {bandwidthUpBits} down: {bandwidthDownBits}",
     "tooltip-format-disconnected": "Disconnected",
     "max-length": 50,
-    "on-click": "networkmanager_dmenu",
+    "on-click": "qs ipc call wifi-panel toggle",
     "on-click-right": "~/.config/ml4w/scripts/nm-applet.sh toggle",
   },
   // Battery
@@ -418,7 +418,7 @@
     "format-off": "󰊲",
     "format-no-controller": "",
     "interval": 30,
-    "on-click": "~/.local/bin/rofi-bluetooth.sh",
+    "on-click": "qs ipc call bluetooth-panel toggle",
     "tooltip-format-connected": "{num_connections} connected: {device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias}",
     "tooltip-format-enumerate-connected-battery": "{device_alias} ({device_battery_percentage}%)"
