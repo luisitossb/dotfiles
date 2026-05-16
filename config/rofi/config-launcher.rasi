@@ -1,4 +1,4 @@
-@import "/home/luisito/.config/rofi/colors.rasi"
+@import "colors.rasi"
 
 window {
     location:         west;

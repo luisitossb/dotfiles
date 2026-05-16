@@ -261,7 +261,7 @@ sudo ufw allow ssh
 info "UFW enabled (deny incoming, allow SSH)"
 
 # ── Groups ────────────────────────────────────────────────────────────────────
-sudo usermod -aG games "$USER" && info "Added $USER to games group"
+sudo usermod -aG games "$USER" 2>/dev/null && info "Added $USER to games group" || warn "games group not found — run again after apps/install.sh"
 
 # ── SDDM theme ────────────────────────────────────────────────────────────────
 step "Configuring SDDM"
