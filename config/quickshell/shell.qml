@@ -8,6 +8,9 @@ import "WallpaperApp"
 import "DashboardApp"
 import "BluetoothApp"
 import "WiFiApp"
+import "ScreenshotApp"
+import "ClipboardApp"
+import "LauncherApp"
 import "CustomTheme"
 
 ShellRoot {
@@ -28,4 +31,7 @@ ShellRoot {
     DashboardWindow {}
     BluetoothWindow {}
     WiFiWindow {}
+    ScreenshotWindow {}
+    ClipboardWindow {}
+    LauncherWindow {}
 }
