@@ -62,7 +62,9 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Icon size:** 32px (`-i 32` flag in launch.sh)
 - **Background:** `rgba(18, 20, 14, 0.75)` — matches Kitty terminal background color and opacity exactly
 - **Border:** `alpha(@primary, 0.5)` — subtle matugen primary color at 50% opacity
-- **Transparency note:** Background must be a single `rgba()` layer with no opaque base layer beneath it. The original dual-layer `padding-box` / `border-box` gradient trick blocks compositor transparency. The original `opacity: 0.8` on the window element was also removed — CSS `opacity` makes icons transparent too, not just the background.
+- **Active indicator:** `alpha(@primary, 0.25)` background highlight with 200ms ease transition — auto-matches wallpaper color scheme via matugen. Hover is `alpha(@primary, 0.15)` so active is always visually brighter.
+- **Known limitation:** Active window detection can lag slightly — this is nwg-dock-hyprland's IPC event handling, not fixable via CSS or config flags. No "force refresh" signal exists.
+- **Transparency note:** Background must be a single `rgba()` layer with no opaque base layer beneath it. The original dual-layer `padding-box` / `border-box` gradient trick blocks compositor transparency. CSS `opacity` on the window element also affects icons — never use it for background-only transparency.
 - Restart dock: `~/.config/nwg-dock-hyprland/launch.sh`
 
 ### eww dashboard
