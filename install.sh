@@ -188,11 +188,39 @@ step "Deploying dotfiles"
 
 mkdir -p ~/.config ~/.local/bin ~/.config/systemd/user
 
-# Deploy all config directories
-for dir_path in "$DOTFILES_DIR/config/"/*/; do
-    dir_name=$(basename "$dir_path")
-    cp -r "$dir_path" ~/.config/
-    info "Deployed: ~/.config/$dir_name"
+# Configs we fully own — symlink so edits are immediately tracked in the repo.
+# matugen-generated color files (colors.css, colors.conf, colors.rasi) land in
+# some of these dirs but are listed in .gitignore so they don't pollute the repo.
+SYMLINK_CONFIGS=(
+    quickshell   # Quickshell panels — we write all of this
+    waybar       # Waybar config + themes (matugen writes colors.css → gitignored)
+    kitty        # Terminal config (matugen writes colors.conf → gitignored)
+    rofi         # Rofi theme (matugen writes colors.rasi → gitignored)
+    btop         # Resource monitor config
+    swaync       # Notification daemon config
+    fastfetch    # Neofetch replacement config
+    ohmyposh     # Shell prompt config
+    networkmanager-dmenu  # nm-dmenu config
+)
+
+for name in "${SYMLINK_CONFIGS[@]}"; do
+    src="$DOTFILES_DIR/config/$name"
+    [[ ! -d "$src" ]] && continue
+    # Remove whatever is there (symlink or dir) and create fresh symlink
+    rm -rf ~/.config/"$name"
+    ln -sf "$src" ~/.config/"$name"
+    info "Symlinked: ~/.config/$name"
+done
+
+# Configs managed by ml4w or with machine-specific data written into them —
+# copy these so the repo stays clean.
+COPY_CONFIGS=(hypr ml4w waypaper sunshine eww nwg-dock-hyprland)
+
+for name in "${COPY_CONFIGS[@]}"; do
+    src="$DOTFILES_DIR/config/$name"
+    [[ ! -d "$src" ]] && continue
+    cp -r "$src" ~/.config/
+    info "Deployed: ~/.config/$name"
 done
 
 # Home files
