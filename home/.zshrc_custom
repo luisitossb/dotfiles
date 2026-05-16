@@ -3,6 +3,9 @@
 # npm user prefix
 export PATH="$HOME/.local/share/npm/bin:$PATH"
 
+# Claude Code — skip permission prompts, cap at 20 turns to prevent runaway loops
+claude() { command claude --dangerously-skip-permissions --max-turns 20 "$@"; }
+
 # openclaude with local Ollama (native provider — better tool calling)
 alias oc='openclaude --provider ollama --model qwen2.5-coder:7b --dangerously-skip-permissions'
 
