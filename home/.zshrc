@@ -61,7 +61,7 @@ alias gcheck="git checkout"
 alias gcredential="git config credential.helper store"
 
 # Fastfetch on new terminal
-if [[ $(tty) == *"pts"* ]]; then
+if [[ $(tty) == *"pts"* ]] && [[ ! -f ~/.config/quickshell/state/hide-fastfetch ]]; then
     fastfetch
 fi
 
