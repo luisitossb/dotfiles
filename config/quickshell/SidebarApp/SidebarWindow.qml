@@ -427,15 +427,6 @@ PanelWindow {
                                 checked = !checked
                             }
                         }
-                        // Settings gear → reload waybar
-                        Text {
-                            text: ""; font.family: "monospace"; font.pixelSize: 15
-                            color: Theme.on_surface_variant; leftPadding: 6
-                            MouseArea { anchors.fill: parent; onClicked:
-                                Quickshell.execDetached(["bash", "-c",
-                                    Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
-                            }
-                        }
                     }
 
                     RowLayout {
