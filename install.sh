@@ -203,6 +203,8 @@ SYMLINK_CONFIGS=(
     networkmanager-dmenu  # nm-dmenu config
     Kvantum      # Qt theme engine config
     qt6ct        # Qt6 platform theme config
+    cava         # Audio visualizer config + themes
+    nwg-look     # GTK appearance settings
 )
 
 for name in "${SYMLINK_CONFIGS[@]}"; do
