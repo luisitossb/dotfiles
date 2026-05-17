@@ -412,7 +412,7 @@
   "bluetooth": {
     "format": "󰊯",
     "format-connected": "󰊳",
-    "format-disabled": "",
+    "format-disabled": "󰂲",
     "format-off": "󰊲",
     "format-no-controller": "",
     "interval": 30,
