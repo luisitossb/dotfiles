@@ -201,6 +201,8 @@ SYMLINK_CONFIGS=(
     fastfetch    # Neofetch replacement config
     ohmyposh     # Shell prompt config
     networkmanager-dmenu  # nm-dmenu config
+    Kvantum      # Qt theme engine config
+    qt6ct        # Qt6 platform theme config
 )
 
 for name in "${SYMLINK_CONFIGS[@]}"; do
