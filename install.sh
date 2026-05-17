@@ -127,7 +127,7 @@ SYS_PKGS=(
     switcheroo-control
 
     # Screenshot / clipboard
-    cliphist wl-clipboard grim slurp
+    cliphist wl-clipboard grim slurp flameshot
 
     # Theming
     nwg-look nwg-displays qt6ct qt6-virtualkeyboard
