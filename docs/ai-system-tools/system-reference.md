@@ -80,8 +80,8 @@ Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays
 
 | Target | Keybind / trigger | What it is |
 |--------|-------------------|-----------|
-| `dashboard` | **Super+S** | Full stats panel — clock, quick toggles (mode/clipboard/shader/power/DND), CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing |
-| `sidebar` | **Super+Ctrl+S** | ml4w sidebar (volume/brightness sliders, MPRIS, quick toggles, BT/WiFi/Night Mode/DND) |
+| `dashboard` | **Super+S** | **Dashboard** — clock, quick toggles (mode/clipboard/shader/power/DND), CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing |
+| `sidebar` | Click **"luis"** (top-right Waybar) or **Super+Ctrl+S** | **Widget Center** — ml4w sidebar with UI toggles (waybar, dock), BT/WiFi, battery, brightness sliders |
 | `bluetooth-panel` | Click BT Waybar icon | BT device list — paired devices, connect/disconnect, power toggle, scan |
 | `wifi-panel` | Click WiFi Waybar icon | WiFi saved networks, connect, radio toggle, "More networks" falls back to nmcli |
 | `screenshot` | **Super+PRINT** | Screenshot mode picker: Full/Window/Region/Display → Copy/Save/Copy+Save |
@@ -89,7 +89,6 @@ Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays
 | `launcher` | **Super+Ctrl+Return** | App launcher — all .desktop apps, icon lookup, search, keyboard navigation |
 | `power` | **Super+Ctrl+P** | Power menu |
 | `calendar` | **Super+Ctrl+C** | Calendar overlay |
-| `sidebar` | top-right "luis" Waybar button | Full sidebar |
 
 **Quick screenshot keybinds (no picker):**
 - **Super+Alt+F** → instant full screen copy to clipboard
@@ -425,7 +424,7 @@ ip addr                             # show IP addresses
 The bar uses the `ml4w-glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
 - **Center:** Network status (WiFi), Bluetooth, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, ml4w welcome ("luis")
+- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, ml4w welcome ("luis" → opens Widget Center)
 
 **Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
 
