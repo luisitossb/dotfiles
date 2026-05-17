@@ -80,7 +80,7 @@ Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays
 
 | Target | Keybind / trigger | What it is |
 |--------|-------------------|-----------|
-| `dashboard` | **Super+S** | Full stats panel (clock, CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing) |
+| `dashboard` | **Super+S** | Full stats panel — clock, quick toggles (mode/clipboard/shader/power/DND), CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing |
 | `sidebar` | **Super+Ctrl+S** | ml4w sidebar (volume/brightness sliders, MPRIS, quick toggles, BT/WiFi/Night Mode/DND) |
 | `bluetooth-panel` | Click BT Waybar icon | BT device list — paired devices, connect/disconnect, power toggle, scan |
 | `wifi-panel` | Click WiFi Waybar icon | WiFi saved networks, connect, radio toggle, "More networks" falls back to nmcli |
@@ -425,20 +425,20 @@ ip addr                             # show IP addresses
 The bar uses the `ml4w-glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
 - **Center:** Network status (WiFi), Bluetooth, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, kbd backlight (laptop only), clipboard, hyprshade, power profiles, notifications, exit, ml4w welcome
+- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, ml4w welcome ("luis")
 
 **Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
 
 **Colors:** Everything uses matugen palette variables (`@primary`, `@secondary`, `@tertiary`, etc.) defined in `~/.config/waybar/colors.css`. The only hardcoded color is the battery critical blink animation (red — intentional).
 
 **Custom modules defined in modules.json:**
-- `custom/mode-toggle` — laptop vs server mode (affects hypridle suspend behavior)
+- `custom/mode-toggle` — laptop vs server mode (affects hypridle suspend behavior) — **active in bar**
+- `power-profiles-daemon` — cycles balanced → performance → power-saver — **active in bar**
 - `custom/kbd-backlight` — ASUS keyboard backlight level (0–3), cycles on click
 - `custom/nowplaying` — media player info via playerctl
 - `custom/appmenu` — Gengar icon launcher button
-- `custom/cliphist` — clipboard history picker
-- `custom/hyprshade` — screen shader toggle
-- `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty` (creates and switches to first empty workspace). Added for Moonlight streaming sessions where Super key is captured by Windows.
+- `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty`
+- `custom/cliphist`, `custom/hyprshade`, `custom/notification` — defined but **removed from bar**; these functions now live in the Dashboard quick toggles row
 
 **Network module (WiFi click):** Left-click → `qs ipc call wifi-panel toggle` — Quickshell WiFi panel listing saved networks. Click any network to connect. Radio toggle switch at top. "More networks" button falls back to `networkmanager_dmenu` for new/unsaved networks. Right-click still toggles nm-applet.
 

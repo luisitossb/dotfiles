@@ -68,11 +68,45 @@ PanelWindow {
     property string clockTime:  Qt.formatTime(new Date(), "HH:mm")
     property string clockDate:  Qt.formatDate(new Date(), "dddd, MMMM d")
     property string lastError:  ""
+    property bool   modeServer:   false
+    property bool   shaderOn:     false
+    property string powerProfile: "balanced"
+    property bool   dndOn:        false
+
+    onIsOpenChanged: {
+        if (isOpen) {
+            modeProc.running   = false; modeProc.running   = true
+            shaderProc.running = false; shaderProc.running = true
+            powerProc.running  = false; powerProc.running  = true
+            dndProc.running    = false; dndProc.running    = true
+        }
+    }
 
     function logErr(source, msg) {
         let e = msg.split('\n')[0]   // first line only in UI
         console.warn("dashboard [" + source + "]: " + msg)
         root.lastError = source + ": " + e
+    }
+
+    function toggleMode() {
+        Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/toggle-mode.sh"])
+        root.modeServer = !root.modeServer
+        modeTimer.start()
+    }
+    function toggleShader() {
+        Quickshell.execDetached(["bash", "-c",
+            "sleep 0.5 && " + Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"])
+        shaderTimer.start()
+    }
+    function cycleProfile() {
+        let profiles = ["balanced", "performance", "power-saver"]
+        let next = profiles[(profiles.indexOf(root.powerProfile) + 1) % profiles.length]
+        Quickshell.execDetached(["bash", "-c", "powerprofilesctl set " + next])
+        root.powerProfile = next
+    }
+    function toggleDnd() {
+        Quickshell.execDetached(["bash", "-c", "swaync-client -d -sw"])
+        root.dndOn = !root.dndOn
     }
 
     // ── Timers ────────────────────────────────────────────────────────────────
@@ -113,6 +147,9 @@ PanelWindow {
         interval: 10000; running: root.isOpen; repeat: true; triggeredOnStart: true
         onTriggered: { claudeProc.running = false; claudeProc.running = true }
     }
+
+    Timer { id: modeTimer;   interval: 3000; repeat: false; onTriggered: { modeProc.running   = false; modeProc.running   = true } }
+    Timer { id: shaderTimer; interval: 900;  repeat: false; onTriggered: { shaderProc.running = false; shaderProc.running = true } }
 
     // ── Processes ─────────────────────────────────────────────────────────────
 
@@ -230,6 +267,27 @@ PanelWindow {
         }}
     }
 
+    Process {
+        id: modeProc
+        command: ["bash", "-c", "cat $HOME/.config/mode/current 2>/dev/null || echo laptop"]
+        stdout: StdioCollector { onStreamFinished: root.modeServer = this.text.trim() === "server" }
+    }
+    Process {
+        id: shaderProc
+        command: ["bash", "-c", "pgrep -x hyprsunset >/dev/null 2>&1 && echo 1 || echo 0"]
+        stdout: StdioCollector { onStreamFinished: root.shaderOn = this.text.trim() === "1" }
+    }
+    Process {
+        id: powerProc
+        command: ["bash", "-c", "powerprofilesctl get 2>/dev/null || echo balanced"]
+        stdout: StdioCollector { onStreamFinished: root.powerProfile = this.text.trim() }
+    }
+    Process {
+        id: dndProc
+        command: ["bash", "-c", "swaync-client -D 2>/dev/null || echo false"]
+        stdout: StdioCollector { onStreamFinished: root.dndOn = this.text.trim() === "true" }
+    }
+
     // ── Reusable components ───────────────────────────────────────────────────
 
     component StatBar: Item {
@@ -303,6 +361,60 @@ PanelWindow {
         }
     }
 
+    component TogglePill: Item {
+        id: pill
+        property string iconText:    ""
+        property string tipText:     ""
+        property bool   active:      false
+        property color  activeColor: Theme.primary
+        signal clicked()
+
+        Layout.fillWidth: true
+        implicitHeight: 52
+
+        property bool hov: false
+
+        Rectangle {
+            anchors.fill: parent; radius: 10
+            color: pill.active
+                   ? Qt.rgba(pill.activeColor.r, pill.activeColor.g, pill.activeColor.b, 0.18)
+                   : pill.hov
+                   ? Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.06)
+                   : Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 0.50)
+            border.color: pill.active
+                          ? Qt.rgba(pill.activeColor.r, pill.activeColor.g, pill.activeColor.b, 0.35)
+                          : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.10)
+            border.width: 1
+            Behavior on color { ColorAnimation { duration: 100 } }
+        }
+
+        ColumnLayout {
+            anchors.centerIn: parent; spacing: 3
+            Text {
+                text: pill.iconText
+                font.family: "monospace"; font.pixelSize: 18
+                color: pill.active ? pill.activeColor : Theme.on_surface_variant
+                Layout.alignment: Qt.AlignHCenter
+                Behavior on color { ColorAnimation { duration: 100 } }
+            }
+            Text {
+                text: pill.tipText
+                visible: pill.tipText !== ""
+                font.family: Theme.fontFamily; font.pixelSize: 9
+                color: pill.active ? pill.activeColor : Theme.on_surface_variant
+                Layout.alignment: Qt.AlignHCenter
+                opacity: 0.8
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent; hoverEnabled: true
+            onEntered: pill.hov = true
+            onExited:  pill.hov = false
+            onClicked: pill.clicked()
+        }
+    }
+
     // ── UI ────────────────────────────────────────────────────────────────────
 
     Item {
@@ -352,7 +464,56 @@ PanelWindow {
                     }
                 }
 
-                Item { implicitHeight: 16 }
+                Item { implicitHeight: 12 }
+
+                // ── Quick toggles ─────────────────────────────────────────────
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 22; Layout.rightMargin: 22
+                    spacing: 6
+
+                    TogglePill {
+                        iconText: root.modeServer ? "" : ""
+                        tipText:  root.modeServer ? "Server" : "Laptop"
+                        active:   root.modeServer
+                        activeColor: Theme.tertiary
+                        onClicked: root.toggleMode()
+                    }
+                    TogglePill {
+                        iconText: "󰅌"
+                        tipText:  "Clipboard"
+                        active:   false
+                        onClicked: {
+                            root.isOpen = false
+                            Qt.callLater(() => Quickshell.execDetached(["bash", "-c", "qs ipc call clipboard toggle"]))
+                        }
+                    }
+                    TogglePill {
+                        iconText: root.shaderOn ? "" : ""
+                        tipText:  root.shaderOn ? "Warm" : "Shader"
+                        active:   root.shaderOn
+                        activeColor: Theme.secondary
+                        onClicked: root.toggleShader()
+                    }
+                    TogglePill {
+                        iconText: root.powerProfile === "performance" ? "󰓅"
+                                : root.powerProfile === "power-saver"  ? ""  : "󰾅"
+                        tipText:  root.powerProfile === "performance" ? "Perf"
+                                : root.powerProfile === "power-saver"  ? "Saver" : "Balanced"
+                        active:   root.powerProfile !== "balanced"
+                        activeColor: root.powerProfile === "performance" ? Theme.error : Theme.primary
+                        onClicked: root.cycleProfile()
+                    }
+                    TogglePill {
+                        iconText: root.dndOn ? "󰂛" : ""
+                        tipText:  root.dndOn ? "DND" : "Notifs"
+                        active:   !root.dndOn
+                        activeColor: Theme.primary
+                        onClicked: root.toggleDnd()
+                    }
+                }
+
+                Item { implicitHeight: 12 }
                 Divider { Layout.leftMargin: 22; Layout.rightMargin: 22 }
                 Item { implicitHeight: 14 }
 

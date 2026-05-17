@@ -34,10 +34,7 @@
         "pulseaudio",
         "battery",
         "custom/mode-toggle",
-        "custom/cliphist",
-        "custom/hyprshade",
         "power-profiles-daemon",
-        "custom/notification",
         "custom/exit",
         "custom/ml4w-welcome"
     ]
