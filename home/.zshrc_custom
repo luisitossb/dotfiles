@@ -16,6 +16,7 @@ dotfiles-sync() {
     local DOTS=~/"Ricing Hub"/dotfiles
     local -a R
     R=(rsync -a --delete)
+    local msg="${1:-}"
 
     cd "$DOTS" || return 1
 
@@ -46,7 +47,24 @@ dotfiles-sync() {
     rsync -a --delete --include='*.md' --exclude='*' ~/'Ricing Hub'/'AI - System Tools'/ docs/ai-system-tools/
 
     git add .
-    git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
+
+    if git diff --cached --quiet; then
+        echo "dotfiles-sync: nothing changed, skipping commit"
+        cd - >/dev/null
+        return 0
+    fi
+
+    echo "dotfiles-sync: changes staged:"
+    git diff --cached --stat
+
+    local commit_msg
+    if [[ -n "$msg" ]]; then
+        commit_msg="$msg"
+    else
+        commit_msg="sync: $(date '+%Y-%m-%d %H:%M')"
+    fi
+
+    git commit -m "$commit_msg"
     git push
     cd - >/dev/null
 }
