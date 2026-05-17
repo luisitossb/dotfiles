@@ -2,9 +2,10 @@
 {
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
-        "source": "pokemon-colorscripts -n darkrai --no-title",
-        "type": "command-raw",
+        "source": "/home/luisito/.face",
+        "type": "kitty-direct",
         "width": 26,
+        "height": 22,
         "padding": {
             "top": 1,
             "right": 4,
