@@ -64,7 +64,6 @@ label.module {
     padding: 0 6px;
     margin: 0 2px;
     transition: all 0.3s ease-in-out;
-    cursor: pointer;
 }
 
 #workspaces button.active {
