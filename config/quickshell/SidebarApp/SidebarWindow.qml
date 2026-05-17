@@ -502,7 +502,7 @@ PanelWindow {
                     // ── Launch buttons ────────────────────────────────────────
                     Repeater {
                         model: [
-                            { label: "Wallpaper", icon: "", cmd: Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper-app" },
+                            { label: "Wallpaper", icon: "", cmd: "qs ipc call wallpaper toggle" },
                             { label: "Theme",     icon: "", cmd: Quickshell.env("HOME") + "/.config/ml4w/themes/themes.sh" }
                         ]
                         delegate: RowLayout {

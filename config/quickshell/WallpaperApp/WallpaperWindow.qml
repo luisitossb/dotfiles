@@ -199,7 +199,7 @@ PanelWindow {
                             text: "Random Wallpaper"
                             onClicked: {
                                 root.isOpen = false
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper --random"])
+                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/quickshell/scripts/qs-wallpaper.sh --random"])
                             } 
                         }
                         
@@ -361,7 +361,7 @@ PanelWindow {
                             cursorShape: Qt.PointingHandCursor
                             
                             onClicked: {
-                                let scriptPath = Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper";
+                                let scriptPath = Quickshell.env("HOME") + "/.config/quickshell/scripts/qs-wallpaper.sh";
                                 Quickshell.execDetached(["bash", "-c", scriptPath + " '" + model.filePath + "'"]);
                             }
                         }
