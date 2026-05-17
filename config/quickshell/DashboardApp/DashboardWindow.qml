@@ -482,56 +482,6 @@ PanelWindow {
                     Layout.leftMargin: 22; Layout.rightMargin: 22
                     spacing: 10
 
-                    // Volume (clickable to mute)
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 8
-                        Text {
-                            text: root.isMuted ? "󰝟" : root.volPct < 30 ? "󰕿" : root.volPct < 70 ? "󰖀" : "󰕾"
-                            font.family: "monospace"; font.pixelSize: 14
-                            color: root.isMuted ? Theme.surface_container_high : Theme.on_surface_variant
-                            Layout.minimumWidth: 22
-                        }
-                        Text {
-                            text: "Volume"; color: Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12; Layout.fillWidth: true
-                        }
-                        Text {
-                            text: root.isMuted ? "muted" : root.volPct + "%"
-                            color: root.isMuted ? Theme.surface_container_high : Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12
-                            horizontalAlignment: Text.AlignRight
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: Quickshell.execDetached(["bash", "-c", "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"])
-                            }
-                        }
-                    }
-
-                    // Battery
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 8
-                        Text {
-                            text: root.batStatus === "Charging" ? "󰂄" :
-                                  root.batPct > 80 ? "󰁹" : root.batPct > 60 ? "󰁾" :
-                                  root.batPct > 40 ? "󰁼" : root.batPct > 20 ? "󰁺" : "󰁻"
-                            font.family: "monospace"; font.pixelSize: 14
-                            color: root.batPct <= 20 && root.batStatus !== "Charging" ? Theme.error :
-                                   root.batStatus === "Charging" ? Theme.primary : Theme.on_surface_variant
-                            Layout.minimumWidth: 22
-                        }
-                        Text {
-                            text: "Battery"; color: Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12; Layout.fillWidth: true
-                        }
-                        Text {
-                            text: root.batStatus === "Charging"
-                                  ? root.batPct + "% + (" + root.batHealth + "%)"
-                                  : root.batPct + "% (" + root.batHealth + "%)"
-                            color: root.batPct <= 20 && root.batStatus !== "Charging" ? Theme.error : Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12; horizontalAlignment: Text.AlignRight
-                        }
-                    }
-
                     SysRow { rowIcon: "󰓅"; rowLabel: "Network"; rowValue: root.netSpeed }
                     SysRow { rowIcon: "󰔟"; rowLabel: "Uptime";  rowValue: root.uptimeStr }
                 }
