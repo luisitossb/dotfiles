@@ -14,12 +14,12 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
-    implicitWidth:  280
+    implicitWidth:  380
     implicitHeight: 680
     color: "transparent"
 
-    anchors { right: true; top: true }
-    margins { right: 16; top: 54 }
+    anchors { left: true; top: true }
+    margins { left: 8; top: 54 }
 
     // ── Open / close ──────────────────────────────────────────────────────────
 
