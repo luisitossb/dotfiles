@@ -45,28 +45,27 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **OS:** CachyOS (Arch-based, rolling release)
 - **AUR helper:** paru
 - **Window Manager:** Hyprland 0.55 (deprecation note: .conf format deprecated in favor of Lua in 0.55 — still works, not broken yet)
-- **Hyprland framework:** ml4w (separate package, NOT in dotfiles repo — must be installed via `yay -S ml4w-hyprland`)
 - **Session manager:** uwsm
 - **Login manager:** SDDM (sddm-astronaut-theme)
   - Config: `/etc/sddm.conf` — `[Theme] Current=sddm-astronaut-theme`
   - Theme config: `/usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf` — background, colors, blur, font, date/time format
-  - **Wallpaper:** Auto-syncs with current ml4w wallpaper — `Backgrounds/current.png` is a symlink to `~/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png`. Updates automatically on every wallpaper change, no scripts needed.
-  - **Permission setup (one-time):** `chmod o+x ~/ ~/.cache ~/.cache/ml4w ~/.cache/ml4w/hyprland-dotfiles` — allows sddm user to traverse the path to the file (file itself is 644). Already done; included in install.sh.
+  - **Wallpaper:** Auto-syncs with current wallpaper — background is a symlink to `~/.cache/qs-dotfiles/blurred_wallpaper.png`. Updates automatically on every wallpaper change, no scripts needed.
+  - **Permission setup (one-time):** `chmod o+x ~/ ~/.cache ~/.cache/qs-dotfiles` — allows sddm user to traverse the path to the file (file itself is 644). Already done; included in install.sh.
   - Preview without logging out: `sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/sddm-astronaut-theme`
   - **Nordic-darker was broken:** requires `org.kde.plasma.*` QML modules (KDE only) — incompatible with a pure Hyprland setup
 
 ### Bar / Notifications / Launcher
-- **Bar:** Waybar, theme: `ml4w-glass-center`
+- **Bar:** Waybar, theme: `glass-center`
 - **Notifications:** swaync
 - **Launcher:** Quickshell LauncherApp (Super+Ctrl+Return) — replaced Rofi drun
 - **Screenshot:** flameshot (Super+Print) — freeze frame, select region, copy to clipboard. Quickshell ScreenshotApp (Super+Shift+Print) for full picker
 - **Clipboard:** cliphist backend + Quickshell ClipboardApp (Super+V) — replaced cliphist-rofi-img.sh
-- **Rofi:** Still installed and used for some ml4w scripts; `config-launcher.rasi` is the main theme
+- **Rofi:** Still installed and used for keybindings viewer and theme switcher; `config-launcher.rasi` is the main theme
 
 ### Dock
 - **App:** nwg-dock-hyprland, glass theme
-- **Config:** `~/.config/nwg-dock-hyprland/` (symlink → ml4w dotfiles)
-- **Launch script:** `~/.config/nwg-dock-hyprland/launch.sh` — reads `~/.config/ml4w/settings/dock-theme` (set to `glass`)
+- **Config:** `~/.config/nwg-dock-hyprland/` (symlink → dotfiles repo)
+- **Launch script:** `~/.config/nwg-dock-hyprland/launch.sh` — reads `~/.config/quickshell/state/dock-disabled` flag
 - **Icon size:** 32px (`-i 32` flag in launch.sh)
 - **Background:** `rgba(18, 20, 14, 0.75)` — matches Kitty terminal background color and opacity exactly
 - **Border:** `alpha(@primary, 0.5)` — subtle matugen primary color at 50% opacity
@@ -76,12 +75,12 @@ Full reference document for AI assistants. Read this to understand the system wi
 - Restart dock: `~/.config/nwg-dock-hyprland/launch.sh`
 
 ### Quickshell widgets
-Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays run under a single `qs` daemon started by `~/.config/ml4w/scripts/ml4w-autostart`. Toggle any panel via `qs ipc call <target> toggle`.
+Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays run under a single `qs` daemon started by `~/.config/quickshell/scripts/qs-autostart.sh`. Toggle any panel via `qs ipc call <target> toggle`.
 
 | Target | Keybind / trigger | What it is |
 |--------|-------------------|-----------|
 | `dashboard` | **Super+S** | **Dashboard** — clock, quick toggles (mode/clipboard/shader/power/DND), CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing |
-| `sidebar` | Click **"luis"** (top-right Waybar) or **Super+Ctrl+S** | **Widget Center** — ml4w sidebar with UI toggles (waybar, dock), BT/WiFi, battery, brightness sliders |
+| `sidebar` | Click **"luis"** (top-right Waybar) or **Super+Ctrl+S** | **Widget Center** — UI toggles (waybar, dock), BT/WiFi panels, battery, brightness sliders, wallpaper/theme pickers |
 | `bluetooth-panel` | Click BT Waybar icon | BT device list — paired devices, connect/disconnect, power toggle, scan |
 | `wifi-panel` | Click WiFi Waybar icon | WiFi saved networks, connect, radio toggle, "More networks" falls back to nmcli |
 | `screenshot` | **Super+Shift+PRINT** | Screenshot mode picker: Full/Window/Region/Display → Copy/Save/Copy+Save |
@@ -96,7 +95,7 @@ Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays
 - **Super+Alt+F** → instant full-screen copy to clipboard (grimblast, no freeze)
 - **Super+Alt+S** → instant region copy to clipboard (grimblast, no freeze)
 
-**Theme colors:** All panels load from `~/.config/ml4w/colors/colors.json` (generated by matugen). `CustomTheme/Theme.qml` reads this on startup. Run `qs ipc call theme-manager reload` after a wallpaper change if colors don't update.
+**Theme colors:** All panels load from `~/.config/quickshell/colors/colors.json` (generated by matugen). `CustomTheme/Theme.qml` reads this on startup. Run `qs ipc call theme-manager reload` after a wallpaper change if colors don't update.
 
 **Helper scripts** (all wrap Python in try/except, always emit valid JSON, errors go to stderr):
 - `bt-devices.sh` → JSON array of paired BT devices with connection state
@@ -114,7 +113,7 @@ qs-errors   # grep only WARN/ERROR lines from the log
 ```
 The log path rotates each qs restart — the aliases find the latest one automatically via `ls -t /run/user/1000/quickshell/by-id/*/log.qslog`.
 
-**Startup:** Quickshell is started automatically by `~/.config/ml4w/scripts/ml4w-autostart` on every Hyprland login — `killall qs && sleep 0.5 && qs &`. No manual steps needed after reboot.
+**Startup:** Quickshell is started automatically by `~/.config/quickshell/scripts/qs-autostart.sh` on every Hyprland login via autostart.conf — `killall qs; sleep 0.5; qs &`. No manual steps needed after reboot.
 
 **eww is no longer used** — dashboard migrated to Quickshell. eww daemon was removed from autostart. The scripts in `~/.config/eww/scripts/` (claude-usage.sh, net-speed.sh) are still used by the Quickshell dashboard.
 
@@ -125,7 +124,6 @@ The log path rotates each qs restart — the aliases find the latest one automat
 
 ### Browser
 - **Primary:** Zen Browser (`zen-browser` AUR package)
-- **ml4w default browser setting:** `~/.config/ml4w/settings/browser.sh` — contains `zen-browser`
 
 ### File Manager
 - **Primary:** Nautilus (GNOME Files)
@@ -188,8 +186,10 @@ No browser needed. Works every time.
 
 ### Theming
 - **Theme engine:** matugen (Material You — wallpaper-driven palette)
-- **Wallpaper manager:** waypaper (integrated with ml4w)
-- **Color pipeline:** wallpaper change → matugen → regenerates color files for waybar, eww, kitty, hyprland, rofi, swaync, btop, ohmyposh, gtk3, gtk4
+- **Wallpaper manager:** waypaper (triggered via Quickshell WallpaperApp or keybind)
+- **Color pipeline:** wallpaper change → `qs-wallpaper.sh` → matugen → regenerates color files for waybar, kitty, hyprland, rofi, swaync, btop, ohmyposh, gtk3, gtk4 → reloads Quickshell theme-manager
+- **Color mode persistence:** `~/.config/quickshell/settings/color-mode` — contains `dark` or `light`. Read by `qs-wallpaper.sh` and written by `qs-themes.sh`. Defaults to `dark`.
+- **Light/dark switching:** `qs-themes.sh` — rofi picker, writes color-mode, re-runs matugen with selected mode, reloads waybar/dock/swaync
 - **Cursor:** Apple cursor (`apple_cursor` AUR)
 - **Icons:** Automatically tied to wallpaper via matugen
 
@@ -244,22 +244,24 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 ~/.config/swaync      → ~/dotfiles/config/swaync
 ~/.config/fastfetch   → ~/dotfiles/config/fastfetch
 ~/.config/ohmyposh    → ~/dotfiles/config/ohmyposh
+~/.config/matugen     → ~/dotfiles/config/matugen
+~/.config/nwg-dock-hyprland → ~/dotfiles/config/nwg-dock-hyprland
 ~/.config/networkmanager-dmenu → ~/dotfiles/config/networkmanager-dmenu
 ```
 
-**Copy-deployed** (ml4w or machine-specific data written here — NOT symlinked):
+**Copy-deployed** (machine-specific data written here — NOT symlinked):
 ```
-~/.config/hypr/       — Hyprland config (ml4w writes environments/default.conf at login)
-~/.config/ml4w/       — ml4w framework settings — ml4w fully owns this, not in repo
-~/.config/waypaper/   — wallpaper paths updated by ml4w continuously
+~/.config/hypr/       — Hyprland config (changes must be manually synced to ~/dotfiles/config/hypr/)
+~/.config/waypaper/   — wallpaper paths updated continuously
 ~/.config/sunshine/   — machine-specific GPU encoder config
 ```
 
-**ml4w managed** (symlinked to ml4w's internal dotfiles, not the repo):
+**Cache / generated state** (not tracked in repo):
 ```
-~/.config/nwg-dock-hyprland → ~/.mydotfiles/com.ml4w.dotfiles.stable/.config/nwg-dock-hyprland
-~/.config/ml4w             → ~/.mydotfiles/com.ml4w.dotfiles.stable/.config/ml4w
-~/.config/waypaper         → ~/.mydotfiles/com.ml4w.dotfiles.stable/.config/waypaper
+~/.cache/qs-dotfiles/current_wallpaper      — path of active wallpaper
+~/.cache/qs-dotfiles/blurred_wallpaper.png  — blurred version for hyprlock/SDDM
+~/.cache/qs-dotfiles/square_wallpaper.png   — square crop for hyprlock
+~/.cache/qs-dotfiles/current_wallpaper.rasi — wallpaper path for rofi
 ```
 
 **Gitignored generated files** (matugen writes these on wallpaper change, excluded from repo):
@@ -271,12 +273,13 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 
 ### Live config locations
 ```
-~/.config/quickshell/scripts/      — bt-devices.sh, wifi-networks.sh, app-list.sh, etc.
-~/.config/waybar/themes/ml4w-glass-center/default/style.css — bar styles
+~/.config/quickshell/scripts/      — bt-devices.sh, wifi-networks.sh, app-list.sh, qs-wallpaper.sh, qs-themes.sh, etc.
+~/.config/quickshell/settings/color-mode  — "dark" or "light" (persists color mode choice)
+~/.config/quickshell/colors/colors.json   — matugen-generated color palette for Quickshell
+~/.config/waybar/themes/glass-center/default/style.css — bar styles
 ~/.config/waybar/modules.json      — all module definitions
 ~/.config/waybar/colors.css        — auto-generated by matugen (gitignored, do not commit)
 ~/.config/eww/                     — eww scripts still used by Quickshell dashboard (claude-usage.sh, net-speed.sh)
-~/.config/ml4w/settings/browser.sh — contains: zen-browser
 ~/.config/sunshine/sunshine.conf   — Sunshine capture/encoder config (wlr + vaapi)
 ~/.zshrc_custom                    — personal zsh additions (sourced by .zshrc)
 ~/.local/bin/                      — personal scripts
@@ -301,7 +304,6 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 ```bash
 dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
 cd ~/dotfiles && bash install.sh    # full bootstrap on fresh machine
-cd ~/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only (after ml4w install)
 ```
 
 ### Hyprland
@@ -315,6 +317,7 @@ hyprctl activewindow               # info on focused window
 ### Waybar
 ```bash
 pkill waybar; waybar &              # kill and restart Waybar
+~/.config/waybar/launch.sh         # restart via the managed launch script (handles locking)
 waybar --log-level debug 2>&1 | head -50  # debug launch to see errors
 ```
 
@@ -371,8 +374,11 @@ journalctl --user -u open-webui -f  # live logs
 ### Matugen / theming
 ```bash
 # Force re-apply colors from current wallpaper:
-matugen image "$(cat ~/.config/ml4w/settings/wallpaper.sh)"
-# Or just change wallpaper via ml4w/waypaper — matugen runs automatically
+matugen image "$(cat ~/.cache/qs-dotfiles/current_wallpaper)" -m "$(cat ~/.config/quickshell/settings/color-mode)"
+# Or run the full wallpaper script which handles everything:
+~/.config/quickshell/scripts/qs-wallpaper.sh
+# Switch dark/light mode:
+~/.config/quickshell/scripts/qs-themes.sh
 ```
 
 ### Swap
@@ -423,12 +429,12 @@ ip addr                             # show IP addresses
 
 ## Waybar module key details
 
-The bar uses the `ml4w-glass-center` theme. Layout:
+The bar uses the `glass-center` theme. Layout:
 - **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
 - **Center:** Network status (WiFi), Bluetooth, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, ml4w welcome ("luis" → opens Widget Center)
+- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, "luis" button (→ opens Widget Center sidebar)
 
-**Important:** Waybar config at `~/.config/waybar/themes/ml4w-glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
+**Important:** Waybar config at `~/.config/waybar/themes/glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
 
 **Colors:** Everything uses matugen palette variables (`@primary`, `@secondary`, `@tertiary`, etc.) defined in `~/.config/waybar/colors.css`. The only hardcoded color is the battery critical blink animation (red — intentional).
 
@@ -441,22 +447,9 @@ The bar uses the `ml4w-glass-center` theme. Layout:
 - `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty`
 - `custom/cliphist`, `custom/hyprshade`, `custom/notification` — defined but **removed from bar**; these functions now live in the Dashboard quick toggles row
 
-**Network module (WiFi click):** Left-click → `qs ipc call wifi-panel toggle` — Quickshell WiFi panel listing saved networks. Click any network to connect. Radio toggle switch at top. "More networks" button falls back to `networkmanager_dmenu` for new/unsaved networks. Right-click still toggles nm-applet.
+**Network module (WiFi click):** Left-click → `qs ipc call wifi-panel toggle` — Quickshell WiFi panel listing saved networks. Click any network to connect. Radio toggle switch at top. "More networks" button falls back to `networkmanager_dmenu` for new/unsaved networks. Right-click → nmtui.
 
 **Bluetooth module (click):** Left-click → `qs ipc call bluetooth-panel toggle` — Quickshell BT panel. Lists paired devices with connection status (green = connected). Click to connect/disconnect. Power toggle switch at top. "Scan for devices" button runs a 5-second scan then refreshes. Icon: `󰂯` = on/idle, `󰂱` = connected, `󰂲` = off.
-
----
-
-## ml4w framework — what it provides
-
-ml4w is installed separately (`yay -S ml4w-hyprland`) and lives at `~/.config/ml4w/`. It is NOT tracked in the dotfiles repo. Key things ml4w provides:
-
-- Scripts called by Waybar: network launcher, bluetooth launcher, system update, hyprsunset toggle, wallpaper restore
-- `~/.config/ml4w/settings/` — stores user preferences: browser, wallpaper path, color theme
-- Autostart listener chain that runs on Hyprland start
-- The ml4w welcome app and settings GUI
-
-**Why dotfiles must be re-deployed after ml4w install:** ml4w overwrites some config files with its defaults. Running `install.sh --dotfiles-only` re-applies luisito's customizations on top.
 
 ---
 
@@ -481,7 +474,7 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 | Discord in autostart | Removed | Same reason |
 | Super+Alt+W wallpaper keybind | Removed | Not useful in practice |
 | Jellyfin CSS OSD override | Tried, didn't work | Custom CSS in Jellyfin branding/admin affects only styling, can't override JS-driven class toggling |
-| Session save/restore scripts | Removed | Caused eww widget duplication on reboot |
+| Session save/restore scripts | Removed | Caused widget duplication on reboot |
 | Quick-search terminal (Super+\\) | Removed | Caused Hyprland windowrule errors |
 | Scroll speed overrides (Opera/Discord) | Removed | Broke Opera settings menu |
 | localsearch-3 (GNOME Tracker) | Masked | File indexer for GNOME search — not needed on Hyprland, was throwing constant D-Bus errors. Masked via `systemctl --user mask localsearch-3`. Tracked in dotfiles so mask persists on reinstall. |
