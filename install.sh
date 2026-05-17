@@ -235,7 +235,7 @@ if [[ -d "$DOTFILES_DIR/home/.local/bin" ]]; then
 fi
 
 # Fix hardcoded /home/luisito paths (waypaper config)
-for f in ~/.config/waypaper/config.ini; do
+for f in ~/.config/waypaper/config.ini ~/.config/quickshell/settings/wallpaper-folder; do
     [[ -f "$f" ]] && sed -i "s|/home/luisito|$HOME|g" "$f" && info "Fixed paths in: $f"
 done
 
