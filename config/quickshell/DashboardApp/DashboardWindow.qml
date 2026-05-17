@@ -14,7 +14,7 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
-    implicitWidth:  380
+    implicitWidth:  420
     implicitHeight: 680
     color: "transparent"
 
@@ -433,6 +433,7 @@ PanelWindow {
             contentHeight: mainCol.implicitHeight
             clip: true
 
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
             ScrollBar.vertical: ScrollBar {
                 policy: ScrollBar.AsNeeded
                 contentItem: Rectangle {
