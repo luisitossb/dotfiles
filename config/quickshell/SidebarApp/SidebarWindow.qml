@@ -141,10 +141,18 @@ PanelWindow {
                     implicitWidth: 48; implicitHeight: 48; radius: 24
                     color: Qt.rgba(Theme.primary_container.r, Theme.primary_container.g,
                                    Theme.primary_container.b, 1.0)
+                    clip: true
+                    Image {
+                        anchors.fill: parent
+                        source: "file://" + Quickshell.env("HOME") + "/.face"
+                        fillMode: Image.PreserveAspectCrop
+                        visible: status === Image.Ready
+                    }
                     Text {
                         anchors.centerIn: parent; text: "󰀄"
                         font.family: "monospace"; font.pixelSize: 26
                         color: Theme.on_primary_container
+                        visible: parent.children[0].status !== Image.Ready
                     }
                 }
 
