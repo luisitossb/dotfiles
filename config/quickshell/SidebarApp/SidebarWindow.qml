@@ -1,924 +1,511 @@
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland 
+import Quickshell.Hyprland
 import Quickshell.Io
-import Quickshell.Services.Mpris 
+import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.CustomTheme
+import "../shared"
 
 PanelWindow {
     id: root
-    
-    // --- WAYLAND CONFIGURATION ---
+
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
-    
-    implicitWidth: 380
+    implicitWidth: 340
     color: "transparent"
 
-    anchors {
-        right: true
-        top: true
-        bottom: true
+    anchors { right: true; top: true; bottom: true }
+    margins { top: 54; bottom: 20; right: root.slideMargin }
+
+    property bool isOpen: false
+    visible: isOpen || slideAnim.running
+
+    property real slideMargin: isOpen ? 12 : -380
+    Behavior on slideMargin {
+        NumberAnimation { id: slideAnim; duration: 320; easing.type: Easing.OutQuint }
     }
 
-    margins { 
-        top: 87
-        bottom: 20
-    }
-
-    // --- CLICK OUTSIDE TO CLOSE (Native Hyprland) ---
     HyprlandFocusGrab {
         windows: [root]
         active: root.isOpen
-        onCleared: {
-            if (root.isOpen) {
-                root.isOpen = false
-            }
-        }
+        onCleared: root.isOpen = false
     }
 
-    // --- ESCAPE KEY LISTENER ---
     Shortcut {
         sequence: "Escape"
-        onActivated: {
-            if (root.isOpen) {
-                root.isOpen = false
-            }
-        }
-    }
-
-    // --- ANIMATION LOGIC ---
-    property bool isOpen: false
-    visible: isOpen || slideAnim.running
-    
-    margins { right: root.currentMargin }
-    property real currentMargin: isOpen ? 20 : -450 
-
-    Behavior on currentMargin {
-        NumberAnimation {
-            id: slideAnim
-            duration: 350
-            easing.type: Easing.OutQuint 
-        }
+        onActivated: if (root.isOpen) root.isOpen = false
     }
 
     IpcHandler {
         target: "sidebar"
         function toggle(): void { root.isOpen = !root.isOpen }
-        function open(): void { root.isOpen = true }   
-        function close(): void { root.isOpen = false } 
+        function open():   void { root.isOpen = true  }
+        function close():  void { root.isOpen = false }
     }
 
-    // --- REUSABLE COMPONENTS ---
-    component ML4WMenuItem: MenuItem {
-        id: control
-        contentItem: Text {
-            text: control.text
-            font.family: Theme.fontFamily
-            font.pixelSize: 14
-            color: control.highlighted ? Theme.background : Theme.primary 
-            verticalAlignment: Text.AlignVCenter
-        }
-        background: Rectangle {
-            implicitWidth: 200
-            implicitHeight: 36
-            color: control.highlighted ? Theme.primary : "transparent"
-            radius: 4
-        }
+    // ── Reusable components ───────────────────────────────────────────────────
+
+    component Divider: Rectangle {
+        Layout.fillWidth: true; implicitHeight: 1
+        color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.15)
     }
 
-    component ML4WButton: Button {
+    component RowLabel: Text {
+        color: Theme.on_surface
+        font.family: Theme.fontFamily; font.pixelSize: 14
         Layout.fillWidth: true
-        background: Rectangle {
-            color: "transparent"
-            border.color: Theme.primary
-            border.width: 1
-            radius: 10
-        }
-        contentItem: Text {
-            text: parent.text
-            font.family: Theme.fontFamily
-            font.pixelSize: 16
-            color: Theme.primary
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            padding: 8
-        }
     }
 
-    component ML4WSwitch: Switch {
+    component WCSwitch: Item {
+        id: sw
+        property bool checked: false
+        property bool ready:   false
+        signal toggled()
         Layout.alignment: Qt.AlignVCenter
-        implicitWidth: 48
-        implicitHeight: 26
-        indicator: Rectangle {
-            implicitWidth: 48
-            implicitHeight: 26
-            radius: 13
-            color: parent.checked ? Theme.primary : Theme.background
-            border.color: Theme.primary
+        implicitWidth: 44; implicitHeight: 24
+
+        Rectangle {
+            anchors.fill: parent; radius: 12
+            color: sw.checked
+                   ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1.0)
+                   : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+            border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, sw.checked ? 0 : 0.35)
             border.width: 1
+            Behavior on color { ColorAnimation { duration: 150 } }
+
             Rectangle {
-                x: parent.parent.checked ? parent.width - width - 2 : 2
-                y: 2
-                implicitWidth: 22
-                implicitHeight: 22
-                radius: 11
-                color: parent.parent.checked ? Theme.background : Theme.on_primary
-                Behavior on x { NumberAnimation { duration: 150 } }
+                x: sw.checked ? parent.width - width - 3 : 3
+                y: 3; implicitWidth: 18; implicitHeight: 18; radius: 9
+                color: sw.checked ? Theme.on_primary : Theme.on_surface_variant
+                Behavior on x     { NumberAnimation  { duration: 150 } }
+                Behavior on color { ColorAnimation   { duration: 150 } }
             }
         }
-    }
-
-    component SettingsWheel: Button {
-        implicitWidth: 28  
-        implicitHeight: 28
-        text: "" 
-        font.family: "monospace"
-        background: Rectangle { color: "transparent" }
-        contentItem: Text { 
-            text: parent.text; color: Theme.primary; font.pixelSize: 18; 
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+        MouseArea {
+            anchors.fill: parent
+            onClicked: if (sw.ready) sw.toggled()
         }
     }
 
-    component ActionIcon: Button {
-        property string iconTxt: ""
-        implicitWidth: 28  
-        implicitHeight: 28
-        text: iconTxt
-        font.family: "monospace"
-        background: Rectangle { color: "transparent" }
-        contentItem: Text { 
-            text: parent.text; color: Theme.primary; font.pixelSize: 18; 
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+    component WCSlider: Slider {
+        id: sl
+        Layout.fillWidth: true
+        background: Rectangle {
+            x: sl.leftPadding
+            y: sl.topPadding + sl.availableHeight / 2 - height / 2
+            width: sl.availableWidth; height: 5; radius: 3
+            color: Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g,
+                           Theme.surface_container_high.b, 1.0)
+            Rectangle {
+                width: sl.visualPosition * parent.width
+                height: parent.height; radius: 3; color: Theme.primary
+            }
+        }
+        handle: Rectangle {
+            x: sl.leftPadding + sl.visualPosition * (sl.availableWidth - width)
+            y: sl.topPadding + sl.availableHeight / 2 - height / 2
+            implicitWidth: 15; implicitHeight: 15; radius: 8
+            color: sl.pressed ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.7)
+                              : Theme.primary
+            border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
+            border.width: 1
         }
     }
 
-    // ==========================================
-    // MAIN PANEL BACKGROUND
-    // ==========================================
+    // ── UI ────────────────────────────────────────────────────────────────────
+
     Item {
         anchors.fill: parent
 
         Rectangle {
-            anchors.fill: parent
-            color: Theme.background
-            border.color: Theme.primary
-            border.width: 2
-            radius: 10
-            opacity: 0.95 // Only the background is transparent
+            anchors.fill: parent; radius: 16
+            color: Qt.rgba(Theme.surface_container_low.r, Theme.surface_container_low.g,
+                           Theme.surface_container_low.b, 0.95)
+            border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
+            border.width: 1
         }
 
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 20
-            spacing: 20
+            spacing: 16
 
-            // --- PROFILE HEADER ---
+            // ── Profile ───────────────────────────────────────────────────────
             RowLayout {
-                Layout.fillWidth: true
-                spacing: 14
+                Layout.fillWidth: true; spacing: 14
 
                 Rectangle {
-                    implicitWidth: 52
-                    implicitHeight: 52
-                    radius: 26
-                    color: Theme.primary_container
+                    implicitWidth: 48; implicitHeight: 48; radius: 24
+                    color: Qt.rgba(Theme.primary_container.r, Theme.primary_container.g,
+                                   Theme.primary_container.b, 1.0)
                     Text {
-                        anchors.centerIn: parent
-                        text: "󰀄"
-                        font.family: "monospace"
-                        font.pixelSize: 28
+                        anchors.centerIn: parent; text: "󰀄"
+                        font.family: "monospace"; font.pixelSize: 26
                         color: Theme.on_primary_container
                     }
                 }
 
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 3
+                    Layout.fillWidth: true; spacing: 2
                     Text {
-                        text: Quickshell.env("USER")
-                        color: Theme.primary
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 18
-                        font.bold: true
+                        text: Quickshell.env("USER"); color: Theme.on_surface
+                        font.family: Theme.fontFamily; font.pixelSize: 16; font.bold: true
                     }
                     Text {
-                        id: uptimeText
-                        color: Theme.on_background
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 12
-                        opacity: 0.7
-                        text: "..."
+                        id: uptimeText; text: "…"
+                        color: Theme.on_surface_variant
+                        font.family: Theme.fontFamily; font.pixelSize: 11
                         Process {
                             command: ["bash", "-c", "uptime -p | sed 's/up //'"]
                             running: root.isOpen
-                            stdout: StdioCollector {
-                                onStreamFinished: uptimeText.text = this.text.trim()
-                            }
+                            stdout: StdioCollector { onStreamFinished: uptimeText.text = this.text.trim() }
                         }
                     }
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3 }
+            Divider {}
 
-            // --- POWER BUTTONS ---
+            // ── Power buttons ─────────────────────────────────────────────────
             RowLayout {
-                Layout.fillWidth: true
-                spacing: 0
+                Layout.fillWidth: true; spacing: 0
                 Item { Layout.fillWidth: true }
-
                 Repeater {
                     model: [
-                        { icon: "󰐦", tip: "Shutdown",  cmd: ["systemctl", "poweroff"] },
-                        { icon: "󰜉", tip: "Reboot",    cmd: ["systemctl", "reboot"] },
-                        { icon: "󰌾", tip: "Lock",       cmd: ["bash", "-c", "sleep 0.2 && hyprlock"] },
-                        { icon: "󰒲", tip: "Sleep",      cmd: ["systemctl", "suspend"] },
-                        { icon: "󰈆", tip: "Logout",     cmd: ["bash", "-c", "hyprctl dispatch exit"] }
+                        { icon: "󰐦", tip: "Shutdown", cmd: ["systemctl", "poweroff"] },
+                        { icon: "󰜉", tip: "Reboot",   cmd: ["systemctl", "reboot"] },
+                        { icon: "󰌾", tip: "Lock",     cmd: ["bash", "-c", "sleep 0.2 && hyprlock"] },
+                        { icon: "󰒲", tip: "Sleep",    cmd: ["systemctl", "suspend"] },
+                        { icon: "󰈆", tip: "Logout",   cmd: ["bash", "-c", "hyprctl dispatch exit"] }
                     ]
                     delegate: Button {
                         required property var modelData
-                        implicitWidth: 44
-                        implicitHeight: 44
-                        ToolTip.visible: hovered
-                        ToolTip.text: modelData.tip
+                        implicitWidth: 44; implicitHeight: 44
+                        ToolTip.visible: hovered; ToolTip.text: modelData.tip
                         background: Rectangle {
                             radius: 8
-                            color: parent.pressed ? Theme.primary_container
-                                 : parent.hovered  ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
+                            color: parent.pressed ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.20)
+                                 : parent.hovered  ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.10)
                                  : "transparent"
                             Behavior on color { ColorAnimation { duration: 100 } }
                         }
                         contentItem: Text {
-                            text: parent.modelData.icon
-                            font.family: "monospace"
-                            font.pixelSize: 22
-                            color: Theme.primary
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: parent.modelData.icon; font.family: "monospace"; font.pixelSize: 22
+                            color: Theme.on_surface; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                         }
-                        onClicked: {
-                            root.isOpen = false
-                            Quickshell.execDetached(parent.modelData.cmd)
-                        }
+                        onClicked: { root.isOpen = false; Quickshell.execDetached(parent.modelData.cmd) }
                     }
                 }
-
                 Item { Layout.fillWidth: true }
             }
 
-            Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3 }
+            Divider {}
 
-            // --- TOP BAR (Light/Dark, Screenshot & Color Picker) ---
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 10
-
-                ActionIcon {
-                    iconTxt: "󰔎"
-                    onClicked: {
-                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-theme"])
-                    }
-                }
-
-                ActionIcon {
-                    iconTxt: "" 
-                    onClicked: {
-                        root.isOpen = false
-                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/settings/hyprpicker.sh"])
-                    }
-                }
-
-                ActionIcon { 
-                    iconTxt: ""
-                    onClicked: {
-                        root.isOpen = false
-                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/hypr/scripts/screenshot.sh"])
-                    }
-                }
-
-                Item { Layout.fillWidth: true } 
-            }
-
-            Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3 }
-
-            // --- SCROLLABLE CONTENT ---
+            // ── Scrollable content ────────────────────────────────────────────
             ScrollView {
-                id: scrollView 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                contentHeight: mainContentColumn.implicitHeight // Tells ScrollView how tall the inner content truly is
-                clip: true
+                id: scrollView
+                Layout.fillWidth: true; Layout.fillHeight: true
+                contentHeight: col.implicitHeight; clip: true
 
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AsNeeded
-                    interactive: true
                     contentItem: Rectangle {
-                        implicitWidth: 6; radius: 3; color: Theme.primary
-                        opacity: parent.pressed ? 1.0 : (parent.active ? 0.8 : 0.4)
+                        implicitWidth: 4; radius: 2; color: Theme.primary
+                        opacity: parent.pressed ? 0.9 : parent.active ? 0.6 : 0.3
                     }
                 }
 
                 ColumnLayout {
-                    id: mainContentColumn
+                    id: col
                     width: scrollView.width
-                    spacing: 20
+                    spacing: 14
 
-                    // --- SLIDERS (Loudness & Brightness) ---
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 20
-
-                        // LOUDNESS SLIDER
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 15
-
-                            Text {
-                                text: "" // Speaker icon
-                                color: Theme.primary
-                                font.family: "monospace"
-                                font.pixelSize: 18
-                                Layout.alignment: Qt.AlignVCenter
-                            }
-
-                            Slider {
-                                id: volumeSlider
-                                Layout.fillWidth: true
-                                from: 0
-                                to: 100
-                                value: 50 // Default
-
-                                Process {
-                                    command: ["bash", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'"]
-                                    running: root.isOpen
-                                    stdout: StdioCollector {
-                                        onStreamFinished: {
-                                            let val = parseInt(this.text.trim())
-                                            if (!isNaN(val)) volumeSlider.value = val;
-                                        }
-                                    }
-                                }
-
-                                onMoved: {
-                                    Quickshell.execDetached(["bash", "-c", "wpctl set-volume @DEFAULT_AUDIO_SINK@ " + Math.round(value) + "%"])
-                                }
-
-                                background: Rectangle {
-                                    x: volumeSlider.leftPadding
-                                    y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                                    implicitWidth: 200
-                                    implicitHeight: 6
-                                    width: volumeSlider.availableWidth
-                                    height: implicitHeight
-                                    radius: 3
-                                    color: Theme.background
-                                    border.color: Theme.primary
-                                    border.width: 1
-
-                                    Rectangle {
-                                        width: volumeSlider.visualPosition * parent.width
-                                        height: parent.height
-                                        color: Theme.primary
-                                        radius: 3
-                                    }
-                                }
-
-                                handle: Rectangle {
-                                    x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
-                                    y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                                    implicitWidth: 16
-                                    implicitHeight: 16
-                                    radius: 8
-                                    color: volumeSlider.pressed ? Theme.background : Theme.primary
-                                    border.color: Theme.primary
-                                    border.width: 1
-                                }
-                            }
+                    // ── Volume ────────────────────────────────────────────────
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: ""; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
                         }
-
-                        // BRIGHTNESS SLIDER
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 15
-
-                            Text {
-                                text: "" // Sun/Brightness icon
-                                color: Theme.primary
-                                font.family: "monospace"
-                                font.pixelSize: 18
-                                Layout.alignment: Qt.AlignVCenter
+                        WCSlider {
+                            id: volSlider; from: 0; to: 100; value: 50
+                            Process {
+                                command: ["bash", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}'"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseInt(this.text.trim())
+                                    if (!isNaN(v)) volSlider.value = v
+                                }}
                             }
-
-                            Slider {
-                                id: brightnessSlider
-                                Layout.fillWidth: true
-                                from: 10 // Guaranteed Minimum 10%
-                                to: 100
-                                value: 100
-
-                                Process {
-                                    command: ["bash", "-c", "brightnessctl -m | awk -F, '{gsub(\"%\",\"\",$4); print $4}'"]
-                                    running: root.isOpen
-                                    stdout: StdioCollector {
-                                        onStreamFinished: {
-                                            let val = parseInt(this.text.trim())
-                                            if (!isNaN(val)) brightnessSlider.value = Math.max(10, val);
-                                        }
-                                    }
-                                }
-
-                                onMoved: {
-                                    Quickshell.execDetached(["bash", "-c", "brightnessctl set " + Math.round(value) + "%"])
-                                }
-
-                                background: Rectangle {
-                                    x: brightnessSlider.leftPadding
-                                    y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
-                                    implicitWidth: 200
-                                    implicitHeight: 6
-                                    width: brightnessSlider.availableWidth
-                                    height: implicitHeight
-                                    radius: 3
-                                    color: Theme.background
-                                    border.color: Theme.primary
-                                    border.width: 1
-
-                                    Rectangle {
-                                        width: brightnessSlider.visualPosition * parent.width
-                                        height: parent.height
-                                        color: Theme.primary
-                                        radius: 3
-                                    }
-                                }
-
-                                handle: Rectangle {
-                                    x: brightnessSlider.leftPadding + brightnessSlider.visualPosition * (brightnessSlider.availableWidth - width)
-                                    y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
-                                    implicitWidth: 16
-                                    implicitHeight: 16
-                                    radius: 8
-                                    color: brightnessSlider.pressed ? Theme.background : Theme.primary
-                                    border.color: Theme.primary
-                                    border.width: 1
-                                }
-                            }
+                            onMoved: Quickshell.execDetached(["bash", "-c",
+                                "wpctl set-volume @DEFAULT_AUDIO_SINK@ " + Math.round(value) + "%"])
                         }
                     }
 
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3; Layout.topMargin: 5; Layout.bottomMargin: 5 }
-
-                    // --- MPRIS PLAYERS (Scrollable ListView) ---
-                    ListView {
-                        id: mprisListView
-                        Layout.fillWidth: true
-                        
-                        // Dynamically scale based on players, up to 210px (max 2 players)
-                        Layout.preferredHeight: contentHeight
-                        Layout.maximumHeight: 210
-                        
-                        spacing: 10
-                        clip: true
-                        
-                        model: Mpris.players.values
-                        visible: Mpris.players.values.length > 0
-
-                        // Force disable scrolling entirely unless there are 3+ players
-                        interactive: mprisListView.count > 2
-
-                        ScrollBar.vertical: ScrollBar {
-                            // Explicitly hide the scrollbar unless there are 3+ players
-                            policy: mprisListView.count > 2 ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
-                            interactive: true
-                            contentItem: Rectangle {
-                                implicitWidth: 6; radius: 3; color: Theme.primary
-                                opacity: parent.pressed ? 1.0 : (parent.active ? 0.8 : 0.4)
-                            }
+                    // ── Brightness ────────────────────────────────────────────
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: ""; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
                         }
+                        WCSlider {
+                            id: brightSlider; from: 10; to: 100; value: 100
+                            Process {
+                                command: ["bash", "-c", "brightnessctl -m | awk -F, '{gsub(\"%\",\"\",$4); print $4}'"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseInt(this.text.trim())
+                                    if (!isNaN(v)) brightSlider.value = Math.max(10, v)
+                                }}
+                            }
+                            onMoved: Quickshell.execDetached(["bash", "-c",
+                                "brightnessctl set " + Math.round(value) + "%"])
+                        }
+                    }
 
-                        delegate: Rectangle {
-                            id: playerCard
-                            property var player: modelData
-
-                            width: mprisListView.width - 16
-                            implicitHeight: 100
-                            
-                            radius: 10
-                            color: Theme.background
-                            border.color: Theme.primary
-                            border.width: 1
-                            clip: true
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 15
-
-                                // Cover Art Block
-                                Rectangle {
-                                    implicitWidth: 80
-                                    implicitHeight: 80
-                                    radius: 8
-                                    color: "transparent"
-                                    border.color: Theme.primary
+                    // ── MPRIS ─────────────────────────────────────────────────
+                    Loader {
+                        Layout.fillWidth: true
+                        active: Mpris.players.values.length > 0
+                        visible: active
+                        sourceComponent: ColumnLayout {
+                            spacing: 10
+                            Divider {}
+                            Repeater {
+                                model: Mpris.players.values
+                                delegate: Rectangle {
+                                    required property var modelData
+                                    property var player: modelData
+                                    width: col.width; implicitHeight: 90; radius: 10; clip: true
+                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g,
+                                                   Theme.surface_container.b, 0.6)
+                                    border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
                                     border.width: 1
-                                    clip: true
-                                    
-                                    Image {
-                                        anchors.fill: parent
-                                        source: player.trackArtUrl ? player.trackArtUrl : ""
-                                        fillMode: Image.PreserveAspectCrop
-                                        visible: player.trackArtUrl !== ""
-                                    }
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰝚" // Music note icon (fallback)
-                                        font.family: "monospace"
-                                        font.pixelSize: 32
-                                        color: Theme.primary
-                                        visible: !player.trackArtUrl || player.trackArtUrl === ""
-                                    }
-                                }
-
-                                // Track Info & Controls
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    spacing: 5
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: player.trackTitle ? player.trackTitle : (player.identity ? player.identity : "No Media Playing")
-                                        color: Theme.primary
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: 16
-                                        font.bold: true
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: {
-                                            if (player.trackArtist) return player.trackArtist;
-                                            if (player.trackArtists && player.trackArtists.length > 0) return player.trackArtists[0];
-                                            return "Unknown Artist";
-                                        }
-                                        color: Theme.on_background
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: 13
-                                        elide: Text.ElideRight
-                                        opacity: 0.8
-                                    }
-
-                                    Item { Layout.fillHeight: true } 
 
                                     RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 15
-                                        
-                                        Item { Layout.fillWidth: true } 
+                                        anchors.fill: parent; anchors.margins: 10; spacing: 12
 
-                                        ActionIcon {
-                                            iconTxt: "󰒮" 
-                                            implicitWidth: 32
-                                            implicitHeight: 32
-                                            onClicked: player.previous()
+                                        Rectangle {
+                                            implicitWidth: 70; implicitHeight: 70; radius: 8; clip: true
+                                            color: Qt.rgba(Theme.surface_container_high.r,
+                                                           Theme.surface_container_high.g,
+                                                           Theme.surface_container_high.b, 1.0)
+                                            Image {
+                                                anchors.fill: parent
+                                                source: player.trackArtUrl || ""
+                                                fillMode: Image.PreserveAspectCrop
+                                                visible: player.trackArtUrl !== ""
+                                            }
+                                            Text {
+                                                anchors.centerIn: parent; text: "󰝚"
+                                                font.family: "monospace"; font.pixelSize: 28
+                                                color: Theme.on_surface_variant
+                                                visible: !player.trackArtUrl || player.trackArtUrl === ""
+                                            }
                                         }
 
-                                        ActionIcon {
-                                            iconTxt: player.isPlaying ? "󰏤" : "󰐊" 
-                                            implicitWidth: 32
-                                            implicitHeight: 32
-                                            onClicked: player.isPlaying = !player.isPlaying 
+                                        ColumnLayout {
+                                            Layout.fillWidth: true; Layout.fillHeight: true; spacing: 4
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: player.trackTitle || player.identity || "No media"
+                                                color: Theme.on_surface; font.family: Theme.fontFamily
+                                                font.pixelSize: 13; font.bold: true; elide: Text.ElideRight
+                                            }
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: player.trackArtist || (player.trackArtists && player.trackArtists.length > 0 ? player.trackArtists[0] : "")
+                                                color: Theme.on_surface_variant; font.family: Theme.fontFamily
+                                                font.pixelSize: 11; elide: Text.ElideRight
+                                            }
+                                            Item { Layout.fillHeight: true }
+                                            RowLayout {
+                                                Layout.fillWidth: true; spacing: 10
+                                                Item { Layout.fillWidth: true }
+                                                Repeater {
+                                                    model: [
+                                                        { icon: "󰒮", act: () => player.previous() },
+                                                        { icon: player.isPlaying ? "󰏤" : "󰐊", act: () => { player.isPlaying = !player.isPlaying } },
+                                                        { icon: "󰒭", act: () => player.next() }
+                                                    ]
+                                                    delegate: Text {
+                                                        required property var modelData
+                                                        text: modelData.icon; font.family: "monospace"; font.pixelSize: 20
+                                                        color: Theme.on_surface_variant
+                                                        MouseArea { anchors.fill: parent; onClicked: parent.modelData.act() }
+                                                    }
+                                                }
+                                                Item { Layout.fillWidth: true }
+                                            }
                                         }
-
-                                        ActionIcon {
-                                            iconTxt: "󰒭" 
-                                            implicitWidth: 32
-                                            implicitHeight: 32
-                                            onClicked: player.next()
-                                        }
-                                        
-                                        Item { Layout.fillWidth: true }
                                     }
                                 }
                             }
                         }
                     }
 
-                    Rectangle { 
-                        Layout.fillWidth: true; 
-                        implicitHeight: 1; 
-                        color: Theme.primary; 
-                        opacity: 0.3; 
-                        Layout.topMargin: 5; 
-                        Layout.bottomMargin: 5;
-                        visible: Mpris.players.values.length > 0 
-                    }
+                    Divider {}
 
-                    // --- QUICK TOGGLES ---
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Bluetooth"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch {
-                            id: btSwitch
-                            property bool ready: false
-                            Process {
-                                command: ["bash", "-c", "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0"]
-                                running: root.isOpen
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        btSwitch.checked = (this.text.trim() === "1")
-                                        btSwitch.ready = true
-                                    }
-                                }
+                    // ── Connectivity toggles ──────────────────────────────────
+                    Repeater {
+                        model: [
+                            {
+                                label: "Bluetooth",
+                                checkCmd:  "bluetoothctl show | grep -q 'Powered: yes' && echo 1 || echo 0",
+                                onCmd:     "bluetoothctl power on",
+                                offCmd:    "bluetoothctl power off"
+                            },
+                            {
+                                label: "WiFi",
+                                checkCmd:  "nmcli radio wifi | grep -q enabled && echo 1 || echo 0",
+                                onCmd:     "nmcli radio wifi on",
+                                offCmd:    "nmcli radio wifi off"
+                            },
+                            {
+                                label: "Night Mode",
+                                checkCmd:  "pgrep -x hyprsunset >/dev/null && echo 1 || echo 0",
+                                onCmd:     Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset",
+                                offCmd:    Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"
+                            },
+                            {
+                                label: "Do Not Disturb",
+                                checkCmd:  "swaync-client --get-dnd 2>/dev/null | grep -qi true && echo 1 || echo 0",
+                                onCmd:     "swaync-client --toggle-dnd",
+                                offCmd:    "swaync-client --toggle-dnd"
                             }
-                            onClicked: {
-                                if (!ready) return
-                                Quickshell.execDetached(["bash", "-c", checked ? "bluetoothctl power on" : "bluetoothctl power off"])
+                        ]
+                        delegate: RowLayout {
+                            required property var modelData
+                            Layout.fillWidth: true
+
+                            RowLabel { text: modelData.label }
+
+                            WCSwitch {
+                                id: sw
+                                Process {
+                                    command: ["bash", "-c", modelData.checkCmd]
+                                    running: root.isOpen
+                                    stdout: StdioCollector { onStreamFinished: {
+                                        sw.checked = this.text.trim() === "1"
+                                        sw.ready   = true
+                                    }}
+                                }
+                                onToggled: Quickshell.execDetached(["bash", "-c",
+                                    checked ? modelData.offCmd : modelData.onCmd])
                             }
                         }
-                        Item { implicitWidth: 28 }
                     }
 
+                    Divider {}
+
+                    // ── UI toggles ────────────────────────────────────────────
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "WiFi"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch {
-                            id: wifiSwitch
-                            property bool ready: false
-                            Process {
-                                command: ["bash", "-c", "nmcli radio wifi | grep -q enabled && echo 1 || echo 0"]
-                                running: root.isOpen
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        wifiSwitch.checked = (this.text.trim() === "1")
-                                        wifiSwitch.ready = true
-                                    }
-                                }
-                            }
-                            onClicked: {
-                                if (!ready) return
-                                Quickshell.execDetached(["bash", "-c", checked ? "nmcli radio wifi on" : "nmcli radio wifi off"])
-                            }
-                        }
-                        Item { implicitWidth: 28 }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Night Mode"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch {
-                            id: nightSwitch
-                            property bool ready: false
-                            Process {
-                                command: ["bash", "-c", "pgrep -x hyprsunset > /dev/null && echo 1 || echo 0"]
-                                running: root.isOpen
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        nightSwitch.checked = (this.text.trim() === "1")
-                                        nightSwitch.ready = true
-                                    }
-                                }
-                            }
-                            onClicked: {
-                                if (!ready) return
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"])
-                            }
-                        }
-                        Item { implicitWidth: 28 }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Do Not Disturb"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch {
-                            id: dndSwitch
-                            property bool ready: false
-                            Process {
-                                command: ["bash", "-c", "swaync-client --get-dnd 2>/dev/null | grep -qi true && echo 1 || echo 0"]
-                                running: root.isOpen
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        dndSwitch.checked = (this.text.trim() === "1")
-                                        dndSwitch.ready = true
-                                    }
-                                }
-                            }
-                            onClicked: {
-                                if (!ready) return
-                                Quickshell.execDetached(["bash", "-c", "swaync-client --toggle-dnd"])
-                            }
-                        }
-                        Item { implicitWidth: 28 }
-                    }
-
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3; Layout.topMargin: 5; Layout.bottomMargin: 5 }
-
-                    // --- WAYBAR ---
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Waybar"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true } 
-                        ML4WSwitch { 
-                            id: waybarSwitch
-                            property bool ready: false
+                        RowLabel { text: "Waybar" }
+                        WCSwitch {
+                            id: waybarSw
                             Process {
                                 command: ["bash", "-c", "test -f ~/.config/ml4w/settings/waybar-disabled && echo 0 || echo 1"]
-                                running: root.isOpen 
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        console.log("Test for Waybar: " + this.text.trim())
-                                        waybarSwitch.checked = (this.text.trim() === "1")
-                                        waybarSwitch.ready = true
-                                    }
-                                }
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    waybarSw.checked = this.text.trim() === "1"; waybarSw.ready = true
+                                }}
                             }
-                            onClicked: {
-                                if (!ready) return;
-                                let fileCmd = checked 
-                                ? "rm -f ~/.config/ml4w/settings/waybar-disabled"
-                                : "touch ~/.config/ml4w/settings/waybar-disabled"       
-                                console.log("Waybar cmd: " + fileCmd)
-                                Quickshell.execDetached(["bash", "-c", fileCmd + ";" + Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
-                            }
+                            onToggled: Quickshell.execDetached(["bash", "-c",
+                                (checked ? "rm -f" : "touch") + " ~/.config/ml4w/settings/waybar-disabled;" +
+                                Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
                         }
-
-                        SettingsWheel {
-                            onClicked: waybarMenu.open()
-                            Menu {
-                                id: waybarMenu
-                                y: parent.height
-                                implicitWidth: 220
-                                padding: 8
-                                
-                                background: Rectangle { color: Theme.background; border.color: Theme.primary; border.width: 1; radius: 8 }
-                                ML4WMenuItem { text: "Select Waybar Theme"; onClicked: {
-                                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/waybar/themeswitcher.sh"])
-                                    }
-                                }
-                                ML4WMenuItem { text: "Edit Quicklinks"; onClicked: {
-                                        root.isOpen = false
-                                        Quickshell.execDetached(["gnome-text-editor", Quickshell.env("HOME") + "/.config/ml4w/settings/waybar-quicklinks.json"])
-                                    }
-                                }
-                                ML4WMenuItem { text: "Reload Waybar"; onClicked: {
-                                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
-                                    } 
-                                }
+                        // Settings gear → reload waybar
+                        Text {
+                            text: ""; font.family: "monospace"; font.pixelSize: 15
+                            color: Theme.on_surface_variant; leftPadding: 6
+                            MouseArea { anchors.fill: parent; onClicked:
+                                Quickshell.execDetached(["bash", "-c",
+                                    Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
                             }
                         }
                     }
 
-                    // --- DOCK ---
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "Dock"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch { 
-                            id: dockSwitch
-                            property bool ready: false
+                        RowLabel { text: "Dock" }
+                        WCSwitch {
+                            id: dockSw
                             Process {
                                 command: ["bash", "-c", "test -f ~/.config/ml4w/settings/dock-disabled && echo 0 || echo 1"]
-                                running: root.isOpen 
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        console.log("Test for Dock: " + this.text.trim())
-                                        dockSwitch.checked = (this.text.trim() === "1")
-                                        dockSwitch.ready = true
-                                    }
-                                }
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    dockSw.checked = this.text.trim() === "1"; dockSw.ready = true
+                                }}
                             }
-                            onClicked: {
-                                if (!ready) return;
-                                let fileCmd = checked 
-                                ? "rm -f ~/.config/ml4w/settings/dock-disabled"
-                                : "touch ~/.config/ml4w/settings/dock-disabled"
-                                console.log("Dock cmd: " + fileCmd)
-                                Quickshell.execDetached(["bash", "-c", fileCmd + "; " + Quickshell.env("HOME") + "/.config/nwg-dock-hyprland/launch.sh"])
-                            }
+                            onToggled: Quickshell.execDetached(["bash", "-c",
+                                (checked ? "rm -f" : "touch") + " ~/.config/ml4w/settings/dock-disabled;" +
+                                Quickshell.env("HOME") + "/.config/nwg-dock-hyprland/launch.sh"])
                         }
-                        Item { implicitWidth: 28 } 
                     }
 
-                    // --- GAMEMODE ---
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "Gamemode"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch { 
-                            id: gamemodeSwitch
-                            property bool ready: false
+                        RowLabel { text: "Gamemode" }
+                        WCSwitch {
+                            id: gamemodeSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/gamemode-enabled && echo 0 || echo 1"]
-                                running: root.isOpen 
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        console.log("Test for Gamemode: " + this.text.trim())
-                                        gamemodeSwitch.checked = (this.text.trim() === "0")
-                                        gamemodeSwitch.ready = true
-                                    }
-                                }
+                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/gamemode-enabled && echo 1 || echo 0"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    gamemodeSw.checked = this.text.trim() === "1"; gamemodeSw.ready = true
+                                }}
                             }
-                            onClicked: {
-                                if (!ready) return;
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/hypr/scripts/gamemode.sh"])
-                            }
+                            onToggled: Quickshell.execDetached(["bash", "-c",
+                                Quickshell.env("HOME") + "/.config/hypr/scripts/gamemode.sh"])
                         }
-                        Item { implicitWidth: 28 } 
                     }
 
-                    // --- FASTFETCH ---
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: "Fastfetch"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ML4WSwitch { 
-                            id: fastfetchSwitch
-                            property bool ready: false
+                        RowLabel { text: "Fastfetch" }
+                        WCSwitch {
+                            id: fastfetchSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/hide-fastfetch && echo 1 || echo 0"]
-                                running: root.isOpen 
-                                stdout: StdioCollector {
-                                    onStreamFinished: {
-                                        console.log("Test for Fastfetch: " + this.text.trim())
-                                        fastfetchSwitch.checked = (this.text.trim() === "0")
-                                        fastfetchSwitch.ready = true
-                                    }
-                                }
+                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/hide-fastfetch && echo 0 || echo 1"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    fastfetchSw.checked = this.text.trim() === "1"; fastfetchSw.ready = true
+                                }}
                             }
-                            onClicked: {
-                                if (!ready) return;
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-fastfetch"])
-                            }
-                        }
-                        Item { implicitWidth: 28 } 
-                    }
-
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.primary; opacity: 0.3; Layout.topMargin: 5; Layout.bottomMargin: 5 }
-
-                    // --- WALLPAPER ---
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Wallpaper"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ActionIcon { 
-                            iconTxt: ""
-                            onClicked: {
-                                root.isOpen = false
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper-app"])
-                            }
+                            onToggled: Quickshell.execDetached(["bash", "-c",
+                                Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-fastfetch"])
                         }
                     }
 
-                    // --- THEME ---
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "Theme"; color: Theme.on_background; font.family: Theme.fontFamily; font.pixelSize: 16 }
-                        Item { Layout.fillWidth: true }
-                        ActionIcon { 
-                            iconTxt: ""
-                            onClicked: {
-                                root.isOpen = false
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/themes/themes.sh"])
-                            }
-                        }
-                        SettingsWheel {
-                            onClicked: themeMenu.open()
-                            Menu {
-                                id: themeMenu
-                                y: parent.height
-                                
-                                implicitWidth: 220
-                                padding: 8
-                                
-                                background: Rectangle { color: Theme.background; border.color: Theme.primary; border.width: 1; radius: 8 }
-                                ML4WMenuItem { text: "Set GTK Theme"; onClicked: {
-                                        root.isOpen = false
-                                        Quickshell.execDetached(["nwg-look"])
-                                    } 
-                                }
-                                ML4WMenuItem { text: "Set QT Theme"; onClicked: {
-                                        root.isOpen = false
-                                        Quickshell.execDetached(["qt6ct"])
-                                    }
-                                }
-                                ML4WMenuItem { text: "Refresh GTK Theme"; onClicked: {
-                                        root.isOpen = false
-                                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/hypr/scripts/gtk.sh"])
-                                    } 
-                                }
+                    Divider {}
+
+                    // ── Launch buttons ────────────────────────────────────────
+                    Repeater {
+                        model: [
+                            { label: "Wallpaper", icon: "", cmd: Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper-app" },
+                            { label: "Theme",     icon: "", cmd: Quickshell.env("HOME") + "/.config/ml4w/themes/themes.sh" }
+                        ]
+                        delegate: RowLayout {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            RowLabel { text: modelData.label }
+                            Text {
+                                text: modelData.icon; font.family: "monospace"; font.pixelSize: 18
+                                color: Theme.on_surface_variant
+                                MouseArea { anchors.fill: parent; onClicked: {
+                                    root.isOpen = false
+                                    Quickshell.execDetached(["bash", "-c", modelData.cmd])
+                                }}
                             }
                         }
                     }
+
+                    Item { implicitHeight: 4 }
                 }
             }
         }
