@@ -169,41 +169,6 @@ PanelWindow {
 
             Divider {}
 
-            // ── Power buttons ─────────────────────────────────────────────────
-            RowLayout {
-                Layout.fillWidth: true; spacing: 0
-                Item { Layout.fillWidth: true }
-                Repeater {
-                    model: [
-                        { icon: "󰐦", tip: "Shutdown", cmd: ["systemctl", "poweroff"] },
-                        { icon: "󰜉", tip: "Reboot",   cmd: ["systemctl", "reboot"] },
-                        { icon: "󰌾", tip: "Lock",     cmd: ["bash", "-c", "sleep 0.2 && hyprlock"] },
-                        { icon: "󰒲", tip: "Sleep",    cmd: ["systemctl", "suspend"] },
-                        { icon: "󰈆", tip: "Logout",   cmd: ["bash", "-c", "hyprctl dispatch exit"] }
-                    ]
-                    delegate: Button {
-                        required property var modelData
-                        implicitWidth: 44; implicitHeight: 44
-                        ToolTip.visible: hovered; ToolTip.text: modelData.tip
-                        background: Rectangle {
-                            radius: 8
-                            color: parent.pressed ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.20)
-                                 : parent.hovered  ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.10)
-                                 : "transparent"
-                            Behavior on color { ColorAnimation { duration: 100 } }
-                        }
-                        contentItem: Text {
-                            text: parent.modelData.icon; font.family: "monospace"; font.pixelSize: 22
-                            color: Theme.on_surface; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-                        }
-                        onClicked: { root.isOpen = false; Quickshell.execDetached(parent.modelData.cmd) }
-                    }
-                }
-                Item { Layout.fillWidth: true }
-            }
-
-            Divider {}
-
             // ── Scrollable content ────────────────────────────────────────────
             ScrollView {
                 id: scrollView
