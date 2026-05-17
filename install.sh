@@ -215,7 +215,7 @@ for name in "${SYMLINK_CONFIGS[@]}"; do
 done
 
 # Configs with machine-specific data written into them — copy rather than symlink
-COPY_CONFIGS=(hypr waypaper sunshine eww nwg-dock-hyprland)
+COPY_CONFIGS=(hypr waypaper sunshine eww nwg-dock-hyprland gtk-3.0 gtk-4.0)
 
 for name in "${COPY_CONFIGS[@]}"; do
     src="$DOTFILES_DIR/config/$name"
@@ -240,6 +240,11 @@ fi
 for f in ~/.config/waypaper/config.ini ~/.config/quickshell/settings/wallpaper-folder; do
     [[ -f "$f" ]] && sed -i "s|/home/luisito|$HOME|g" "$f" && info "Fixed paths in: $f"
 done
+
+# GTK dark mode
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null && info "GTK dark mode set"
+gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark' 2>/dev/null \
+    || gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null || true
 
 if [[ "$DOTFILES_ONLY" == "true" ]]; then
     echo -e "${GREEN}  Dotfiles deployed. Done!${NC}"
