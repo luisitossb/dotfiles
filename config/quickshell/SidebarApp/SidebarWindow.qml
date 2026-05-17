@@ -504,8 +504,8 @@ PanelWindow {
                     // ── Launch buttons ────────────────────────────────────────
                     Repeater {
                         model: [
-                            { label: "Wallpaper", icon: "", cmd: "qs ipc call wallpaper toggle" },
-                            { label: "Theme",     icon: "", cmd: Quickshell.env("HOME") + "/.config/quickshell/scripts/qs-themes.sh" }
+                            { label: "Wallpaper", icon: "󰋩", cmd: "qs ipc call wallpaper toggle" },
+                            { label: "Theme",     icon: "󰸌", cmd: Quickshell.env("HOME") + "/.config/quickshell/scripts/qs-themes.sh" }
                         ]
                         delegate: RowLayout {
                             required property var modelData
