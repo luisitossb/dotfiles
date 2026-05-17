@@ -175,11 +175,11 @@ PanelWindow {
                 Item { Layout.fillWidth: true }
                 Repeater {
                     model: [
-                        { icon: "󰐦", tip: "Shutdown", cmd: ["systemctl", "poweroff"] },
-                        { icon: "󰜉", tip: "Reboot",   cmd: ["systemctl", "reboot"] },
-                        { icon: "󰌾", tip: "Lock",     cmd: ["bash", "-c", "sleep 0.2 && hyprlock"] },
-                        { icon: "󰒲", tip: "Sleep",    cmd: ["systemctl", "suspend"] },
-                        { icon: "󰈆", tip: "Logout",   cmd: ["bash", "-c", "hyprctl dispatch exit"] }
+                        { icon: "󰐦", tip: "Shutdown", cmd: ["bash", "-c", "sleep 0.5 && systemctl poweroff"] },
+                        { icon: "󰜉", tip: "Reboot",   cmd: ["bash", "-c", "sleep 0.5 && systemctl reboot"] },
+                        { icon: "󰌾", tip: "Lock",     cmd: ["bash", "-c", "sleep 0.5 && loginctl lock-session"] },
+                        { icon: "󰒲", tip: "Sleep",    cmd: ["bash", "-c", "sleep 0.5 && systemctl suspend"] },
+                        { icon: "󰈆", tip: "Logout",   cmd: ["bash", "-c", "sleep 0.5 && hyprctl dispatch exit"] }
                     ]
                     delegate: Button {
                         required property var modelData
