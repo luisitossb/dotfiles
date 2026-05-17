@@ -394,8 +394,11 @@ PanelWindow {
                                         sw.ready   = true
                                     }}
                                 }
-                                onToggled: Quickshell.execDetached(["bash", "-c",
-                                    checked ? modelData.offCmd : modelData.onCmd])
+                                onToggled: {
+                                    Quickshell.execDetached(["bash", "-c",
+                                        checked ? modelData.offCmd : modelData.onCmd])
+                                    checked = !checked
+                                }
                             }
                         }
                     }
@@ -415,9 +418,12 @@ PanelWindow {
                                     waybarSw.checked = this.text.trim() === "1"; waybarSw.ready = true
                                 }}
                             }
-                            onToggled: Quickshell.execDetached(["bash", "-c",
-                                (checked ? "rm -f" : "touch") + " ~/.config/ml4w/settings/waybar-disabled;" +
-                                Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
+                            onToggled: {
+                                Quickshell.execDetached(["bash", "-c",
+                                    (checked ? "touch" : "rm -f") + " ~/.config/ml4w/settings/waybar-disabled;" +
+                                    Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
+                                checked = !checked
+                            }
                         }
                         // Settings gear → reload waybar
                         Text {
@@ -442,9 +448,12 @@ PanelWindow {
                                     dockSw.checked = this.text.trim() === "1"; dockSw.ready = true
                                 }}
                             }
-                            onToggled: Quickshell.execDetached(["bash", "-c",
-                                (checked ? "rm -f" : "touch") + " ~/.config/ml4w/settings/dock-disabled;" +
-                                Quickshell.env("HOME") + "/.config/nwg-dock-hyprland/launch.sh"])
+                            onToggled: {
+                                Quickshell.execDetached(["bash", "-c",
+                                    (checked ? "touch" : "rm -f") + " ~/.config/ml4w/settings/dock-disabled;" +
+                                    Quickshell.env("HOME") + "/.config/nwg-dock-hyprland/launch.sh"])
+                                checked = !checked
+                            }
                         }
                     }
 
@@ -460,8 +469,11 @@ PanelWindow {
                                     gamemodeSw.checked = this.text.trim() === "1"; gamemodeSw.ready = true
                                 }}
                             }
-                            onToggled: Quickshell.execDetached(["bash", "-c",
-                                Quickshell.env("HOME") + "/.config/hypr/scripts/gamemode.sh"])
+                            onToggled: {
+                                Quickshell.execDetached(["bash", "-c",
+                                    Quickshell.env("HOME") + "/.config/hypr/scripts/gamemode.sh"])
+                                checked = !checked
+                            }
                         }
                     }
 
@@ -477,8 +489,11 @@ PanelWindow {
                                     fastfetchSw.checked = this.text.trim() === "1"; fastfetchSw.ready = true
                                 }}
                             }
-                            onToggled: Quickshell.execDetached(["bash", "-c",
-                                Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-fastfetch"])
+                            onToggled: {
+                                Quickshell.execDetached(["bash", "-c",
+                                    Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-fastfetch"])
+                                checked = !checked
+                            }
                         }
                     }
 
