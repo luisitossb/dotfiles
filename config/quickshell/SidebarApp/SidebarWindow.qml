@@ -370,7 +370,7 @@ PanelWindow {
                             {
                                 label: "Night Mode",
                                 checkCmd:  "pgrep -x hyprsunset >/dev/null && echo 1 || echo 0",
-                                onCmd:     "hyprsunset &",
+                                onCmd:     "hyprsunset -t 4000 &",
                                 offCmd:    "pkill -x hyprsunset"
                             },
                             {
