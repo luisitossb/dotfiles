@@ -120,7 +120,8 @@ The log path rotates each qs restart — the aliases find the latest one automat
 ### Terminal / Shell
 - **Terminal:** Kitty (opacity 0.75, dynamic opacity, matugen colors)
 - **Shell:** Zsh + Oh My Zsh + Oh My Posh (zen theme: `luisito.toml`)
-- **Custom aliases/functions:** `~/.zshrc_custom` (sourced from `.zshrc`)
+- **Shell config:** `~/.zshrc` — standalone, tracked in dotfiles repo. Loads oh-my-zsh, plugins, aliases, prompt, fastfetch. Sources `~/.zshrc_custom` at the end.
+- **Custom aliases/functions:** `~/.zshrc_custom` — dotfiles-sync, claude wrapper, qs-log, qs-errors, etc.
 
 ### Browser
 - **Primary:** Zen Browser (`zen-browser` AUR package)
@@ -220,14 +221,14 @@ trap 'echo "[ERROR] scriptname.sh failed at line $LINENO (exit code: $?)" >&2' E
 
 ### Dotfiles repo
 ```
-~/dotfiles/                         — git repo (pushed to github.com/luisitossb/dotfiles)
-~/dotfiles/config/                  — config source; most dirs are symlinked from ~/.config/
-~/dotfiles/home/                    — home-level files (.zshrc_custom, .local/bin scripts)
-~/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
-~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/Ricing Hub/AI - System Tools/)
-~/dotfiles/wallpapers/              — wallpaper collection
-~/dotfiles/install.sh               — full CachyOS bootstrap script
-~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
+~/Ricing Hub/dotfiles/                         — git repo (pushed to github.com/luisitossb/dotfiles)
+~/Ricing Hub/dotfiles/config/                  — config source; most dirs are symlinked from ~/.config/
+~/Ricing Hub/dotfiles/home/                    — home-level files (.zshrc, .zshrc_custom, .bashrc, .local/bin scripts)
+~/Ricing Hub/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
+~/Ricing Hub/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/Ricing Hub/AI - System Tools/)
+~/Ricing Hub/dotfiles/wallpapers/              — wallpaper collection
+~/Ricing Hub/dotfiles/install.sh               — full CachyOS bootstrap script
+~/Ricing Hub/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
 ```
 
 ### Config symlink architecture
@@ -236,22 +237,29 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 
 **Symlinked → repo** (edit anywhere, git picks it up instantly):
 ```
-~/.config/quickshell  → ~/dotfiles/config/quickshell
-~/.config/waybar      → ~/dotfiles/config/waybar
-~/.config/kitty       → ~/dotfiles/config/kitty
-~/.config/rofi        → ~/dotfiles/config/rofi
-~/.config/btop        → ~/dotfiles/config/btop
-~/.config/swaync      → ~/dotfiles/config/swaync
-~/.config/fastfetch   → ~/dotfiles/config/fastfetch
-~/.config/ohmyposh    → ~/dotfiles/config/ohmyposh
-~/.config/matugen     → ~/dotfiles/config/matugen
-~/.config/nwg-dock-hyprland → ~/dotfiles/config/nwg-dock-hyprland
-~/.config/networkmanager-dmenu → ~/dotfiles/config/networkmanager-dmenu
+~/.config/quickshell           → ~/Ricing Hub/dotfiles/config/quickshell
+~/.config/waybar               → ~/Ricing Hub/dotfiles/config/waybar
+~/.config/kitty                → ~/Ricing Hub/dotfiles/config/kitty
+~/.config/rofi                 → ~/Ricing Hub/dotfiles/config/rofi
+~/.config/btop                 → ~/Ricing Hub/dotfiles/config/btop
+~/.config/swaync               → ~/Ricing Hub/dotfiles/config/swaync
+~/.config/fastfetch            → ~/Ricing Hub/dotfiles/config/fastfetch
+~/.config/ohmyposh             → ~/Ricing Hub/dotfiles/config/ohmyposh
+~/.config/matugen              → ~/Ricing Hub/dotfiles/config/matugen
+~/.config/nwg-dock-hyprland    → ~/Ricing Hub/dotfiles/config/nwg-dock-hyprland
+~/.config/networkmanager-dmenu → ~/Ricing Hub/dotfiles/config/networkmanager-dmenu
+```
+
+**Home files** (copied by install.sh, synced by dotfiles-sync):
+```
+~/.zshrc          — standalone shell config (plugins, aliases, prompt, fastfetch)
+~/.zshrc_custom   — personal additions: dotfiles-sync, claude alias, qs-log, etc.
+~/.bashrc         — minimal bash config (rarely used — shell is zsh)
 ```
 
 **Copy-deployed** (machine-specific data written here — NOT symlinked):
 ```
-~/.config/hypr/       — Hyprland config (changes must be manually synced to ~/dotfiles/config/hypr/)
+~/.config/hypr/       — Hyprland config (changes must be manually synced via dotfiles-sync)
 ~/.config/waypaper/   — wallpaper paths updated continuously
 ~/.config/sunshine/   — machine-specific GPU encoder config
 ```
@@ -302,8 +310,8 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 
 ### Dotfiles
 ```bash
-dotfiles-sync                       # sync all configs to ~/dotfiles and push to GitHub
-cd ~/dotfiles && bash install.sh    # full bootstrap on fresh machine
+dotfiles-sync                                        # sync all configs to ~/Ricing Hub/dotfiles and push to GitHub
+cd ~/"Ricing Hub"/dotfiles && bash install.sh        # full bootstrap on fresh machine
 ```
 
 ### Hyprland
@@ -488,14 +496,16 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 Defined in `~/.zshrc_custom`. Run it with: `dotfiles-sync`
 
 What it does:
-1. `cd ~/dotfiles`
-2. rsync each config directory from `~/.config/` into `dotfiles/config/`
-3. Copies `~/.zshrc_custom` to `dotfiles/home/`
-4. rsync `~/.local/bin/*.sh` scripts (skips non-script binaries)
-5. rsync `~/.config/systemd/user/` (skips `default.target.wants/`)
-6. rsync `~/AI\ -\ System\ Tools/*.md` into `dotfiles/docs/ai-system-tools/` (with --delete, so deletions sync too)
-7. `git add . && git commit -m "sync: YYYY-MM-DD HH:MM" && git push`
+1. `cd ~/Ricing Hub/dotfiles`
+2. rsync `~/.config/hypr/` into `dotfiles/config/hypr/` (copy-deployed, not symlinked)
+3. rsync `~/.config/eww/` into `dotfiles/config/eww/` (eww scripts used by Quickshell)
+4. Copy `~/.config/sunshine/sunshine.conf` into `dotfiles/config/sunshine/`
+5. Copies `~/.zshrc` and `~/.zshrc_custom` to `dotfiles/home/`
+6. rsync `~/.local/bin/*.sh` scripts (skips non-script binaries)
+7. rsync `~/.config/systemd/user/` (skips `default.target.wants/`)
+8. rsync `~/Ricing Hub/AI - System Tools/*.md` into `dotfiles/docs/ai-system-tools/` (with --delete, so deletions sync too)
+9. `git add . && git commit -m "sync: YYYY-MM-DD HH:MM" && git push`
 
-The `AI - System Tools/` directory (at `~/Ricing Hub/AI - System Tools/`) contains markdown files documenting various fixes and setups. These get pushed to the repo as `docs/ai-system-tools/` so they're accessible from anywhere and AI assistants can reference them.
+The `AI - System Tools/` directory (inside `~/Ricing Hub/`) contains markdown files documenting various fixes and setups. These get pushed to the repo as `docs/ai-system-tools/` so they're accessible from anywhere and AI assistants can reference them.
 
-**Important:** Files created directly in `~/dotfiles/docs/ai-system-tools/` will be deleted on the next sync if they don't also exist in `~/Ricing Hub/AI - System Tools/`. Always create new docs there first.
+**Important:** Files created directly in `~/Ricing Hub/dotfiles/docs/ai-system-tools/` will be deleted on the next sync if they don't also exist in `~/Ricing Hub/AI - System Tools/`. Always create new docs there first.
