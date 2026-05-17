@@ -456,11 +456,11 @@ PanelWindow {
                     spacing: 14
 
                     StatRow {
-                        statLabel: "CPU";  statIcon: "󰍛"; statPct: root.cpuUsage
+                        statLabel: "CPU";  statIcon: "󰻠"; statPct: root.cpuUsage
                         statInfo: root.cpuTemp + "°C"; statColor: Theme.primary
                     }
                     StatRow {
-                        statLabel: "RAM";  statIcon: "";  statPct: root.ramUsage
+                        statLabel: "RAM";  statIcon: "󰍛"; statPct: root.ramUsage
                         statInfo: root.ramUsed;           statColor: Theme.tertiary
                     }
                     StatRow {
