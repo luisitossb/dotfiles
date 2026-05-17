@@ -1,6 +1,5 @@
 import Quickshell
 import Quickshell.Io
-import "WelcomeApp"
 import "PowerApp"
 import "SidebarApp"
 import "CalendarApp"
@@ -23,7 +22,6 @@ ShellRoot {
         }
     }
 
-    WelcomeWindow {}
     PowerWindow {}
     SidebarWindow {}
     CalendarWindow {}
