@@ -28,6 +28,12 @@ PanelWindow {
         NumberAnimation { id: slideAnim; duration: 320; easing.type: Easing.OutQuint }
     }
 
+    HyprlandFocusGrab {
+        windows: [root]
+        active: root.isOpen
+        onCleared: root.isOpen = false
+    }
+
     Shortcut {
         sequence: "Escape"
         onActivated: if (root.isOpen) root.isOpen = false
