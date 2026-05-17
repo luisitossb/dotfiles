@@ -368,8 +368,8 @@ PanelWindow {
                             {
                                 label: "Night Mode",
                                 checkCmd:  "pgrep -x hyprsunset >/dev/null && echo 1 || echo 0",
-                                onCmd:     Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset",
-                                offCmd:    Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"
+                                onCmd:     "hyprsunset &",
+                                offCmd:    "pkill -x hyprsunset"
                             },
                             {
                                 label: "Do Not Disturb",
@@ -412,7 +412,7 @@ PanelWindow {
                         WCSwitch {
                             id: waybarSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/waybar-disabled && echo 0 || echo 1"]
+                                command: ["bash", "-c", "test -f ~/.config/quickshell/state/waybar-disabled && echo 0 || echo 1"]
                                 running: root.isOpen
                                 stdout: StdioCollector { onStreamFinished: {
                                     waybarSw.checked = this.text.trim() === "1"; waybarSw.ready = true
@@ -420,7 +420,7 @@ PanelWindow {
                             }
                             onToggled: {
                                 Quickshell.execDetached(["bash", "-c",
-                                    (checked ? "touch" : "rm -f") + " ~/.config/ml4w/settings/waybar-disabled;" +
+                                    (checked ? "touch" : "rm -f") + " ~/.config/quickshell/state/waybar-disabled;" +
                                     Quickshell.env("HOME") + "/.config/waybar/launch.sh"])
                                 checked = !checked
                             }
@@ -442,7 +442,7 @@ PanelWindow {
                         WCSwitch {
                             id: dockSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/dock-disabled && echo 0 || echo 1"]
+                                command: ["bash", "-c", "test -f ~/.config/quickshell/state/dock-disabled && echo 0 || echo 1"]
                                 running: root.isOpen
                                 stdout: StdioCollector { onStreamFinished: {
                                     dockSw.checked = this.text.trim() === "1"; dockSw.ready = true
@@ -450,7 +450,7 @@ PanelWindow {
                             }
                             onToggled: {
                                 Quickshell.execDetached(["bash", "-c",
-                                    (checked ? "touch" : "rm -f") + " ~/.config/ml4w/settings/dock-disabled;" +
+                                    (checked ? "touch" : "rm -f") + " ~/.config/quickshell/state/dock-disabled;" +
                                     Quickshell.env("HOME") + "/.config/nwg-dock-hyprland/launch.sh"])
                                 checked = !checked
                             }
@@ -463,7 +463,7 @@ PanelWindow {
                         WCSwitch {
                             id: gamemodeSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/gamemode-enabled && echo 1 || echo 0"]
+                                command: ["bash", "-c", "test -f ~/.config/quickshell/state/gamemode-enabled && echo 1 || echo 0"]
                                 running: root.isOpen
                                 stdout: StdioCollector { onStreamFinished: {
                                     gamemodeSw.checked = this.text.trim() === "1"; gamemodeSw.ready = true
@@ -483,7 +483,7 @@ PanelWindow {
                         WCSwitch {
                             id: fastfetchSw
                             Process {
-                                command: ["bash", "-c", "test -f ~/.config/ml4w/settings/hide-fastfetch && echo 0 || echo 1"]
+                                command: ["bash", "-c", "test -f ~/.config/quickshell/state/hide-fastfetch && echo 0 || echo 1"]
                                 running: root.isOpen
                                 stdout: StdioCollector { onStreamFinished: {
                                     fastfetchSw.checked = this.text.trim() === "1"; fastfetchSw.ready = true
@@ -491,7 +491,7 @@ PanelWindow {
                             }
                             onToggled: {
                                 Quickshell.execDetached(["bash", "-c",
-                                    Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-fastfetch"])
+                                    "f=~/.config/quickshell/state/hide-fastfetch; [ -f \"$f\" ] && rm \"$f\" || touch \"$f\""])
                                 checked = !checked
                             }
                         }

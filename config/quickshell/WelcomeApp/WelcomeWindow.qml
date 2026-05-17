@@ -110,7 +110,7 @@ FloatingWindow {
                 ML4WMenuItem { 
                     text: qsTr("Network");
                     onClicked: { 
-                        Quickshell.execDetached(["kitty", "--class", "dotfiles-floating", "-e", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-network"])
+                        Quickshell.execDetached(["kitty", "--class", "dotfiles-floating", "-e", "nmtui"])
                     }
                 }    
                 ML4WMenuItem { 
@@ -122,7 +122,7 @@ FloatingWindow {
                 ML4WMenuItem { 
                     text: qsTr("Wallpaper");
                     onClicked: { 
-                        Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper-app"])
+                        Quickshell.execDetached(["bash", "-c", "qs ipc call wallpaper toggle"])
                     }
                 }
                 ML4WMenuItem { 

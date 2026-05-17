@@ -9,12 +9,12 @@ BLURRED_WALLPAPER="$CACHE_DIR/blurred_wallpaper.png"
 SQUARE_WALLPAPER="$CACHE_DIR/square_wallpaper.png"
 RASI_FILE="$CACHE_DIR/current_wallpaper.rasi"
 DEFAULT_WALLPAPER="$HOME/dotfiles/wallpapers/Blackhole.jpeg"
-BLUR=$(cat "$HOME/.config/ml4w/settings/blur.sh" 2>/dev/null || echo "50x30")
-TRANSITION=$(cat "$HOME/.config/ml4w/settings/wallpaper-transition-effect" 2>/dev/null || echo "grow")
+BLUR=$(cat "$HOME/.config/quickshell/settings/blur" 2>/dev/null || cat "$HOME/.config/ml4w/settings/blur.sh" 2>/dev/null || echo "50x30")
+TRANSITION=$(cat "$HOME/.config/quickshell/settings/wallpaper-transition" 2>/dev/null || cat "$HOME/.config/ml4w/settings/wallpaper-transition-effect" 2>/dev/null || echo "grow")
 
 # --random: pick a random image from the wallpaper folder
 if [[ "$1" == "--random" ]]; then
-    FOLDER="${2:-$(cat "$HOME/.config/ml4w/settings/wallpaper-folder" 2>/dev/null || echo "$HOME/dotfiles/wallpapers")}"
+    FOLDER="${2:-$(cat "$HOME/.config/quickshell/settings/wallpaper-folder" 2>/dev/null || echo "$HOME/dotfiles/wallpapers")}"
     FOLDER="${FOLDER//\$HOME/$HOME}"; FOLDER="${FOLDER//\~/$HOME}"
     IMAGE_PATH=$(find "$FOLDER" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | shuf -n 1)
     [[ -z "$IMAGE_PATH" ]] && { echo "No images found in $FOLDER" >&2; exit 1; }

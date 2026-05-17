@@ -76,12 +76,11 @@ PanelWindow {
     }
 
     // Default fallback folder just in case the file doesn't exist
-    property string wallpaperFolder: "file://" + Quickshell.env("HOME") + "/.config/ml4w/wallpapers"
+    property string wallpaperFolder: "file://" + Quickshell.env("HOME") + "/dotfiles/wallpapers"
 
     Process {
         id: folderLoader
-        // Call cat directly and pass the path as the second array item
-        command: ["cat", Quickshell.env("HOME") + "/.config/ml4w/settings/wallpaper-folder"]
+        command: ["cat", Quickshell.env("HOME") + "/.config/quickshell/settings/wallpaper-folder"]
         running: true
         
         stdout: StdioCollector {
@@ -203,23 +202,7 @@ PanelWindow {
                             } 
                         }
                         
-                        ML4WMenuItem { 
-                            text: "Wallpaper Effects"
-                            onClicked: {
-                                root.isOpen = false
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-wallpaper-effects"])
-                            } 
-                        }
-
-                        ML4WMenuItem { 
-                            text: "Clear Wallpaper Cache"
-                            onClicked: {
-                                root.isOpen = false
-                                Quickshell.execDetached(["bash", "-c", Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-clear-wallpaper-cache"])
-                            } 
-                        }
-
-                        ML4WMenuItem { 
+                        ML4WMenuItem {
                             text: "Reload Images"
                             onClicked: {
                                 folderLoader.running = true;
