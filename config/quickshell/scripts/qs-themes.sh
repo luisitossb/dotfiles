@@ -10,6 +10,7 @@ fi
 selected=$(printf "dark\nlight" | rofi -dmenu -replace -config ~/.config/rofi/config-themes.rasi -i -no-show-icons -l 2 -width 20 -p "Color Mode")
 [[ -z "$selected" ]] && exit 0
 
+echo "$selected" > ~/.config/quickshell/settings/color-mode
 matugen image "$WALLPAPER" --source-color-index 0 -m "$selected"
 qs ipc call theme-manager reload
 nohup bash -c "$HOME/.config/waybar/launch.sh" >/dev/null 2>&1 &

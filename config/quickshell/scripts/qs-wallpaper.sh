@@ -45,9 +45,8 @@ echo "$IMAGE_PATH" > "$CACHE_FILE"
 # Set wallpaper
 awww img "$IMAGE_PATH" --transition-type "$TRANSITION"
 
-# Detect dark/light mode
-THEME_PREF=$(grep -E '^gtk-application-prefer-dark-theme=' "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null | awk -F'=' '{print $2}')
-[[ "$THEME_PREF" == "0" ]] && MATUGEN_MODE="light" || MATUGEN_MODE="dark"
+# Detect dark/light mode — reads explicit setting file, defaults to dark
+MATUGEN_MODE=$(cat "$HOME/.config/quickshell/settings/color-mode" 2>/dev/null || echo "dark")
 
 # Run matugen
 if [[ -f "$HOME/.cargo/bin/matugen" ]]; then
