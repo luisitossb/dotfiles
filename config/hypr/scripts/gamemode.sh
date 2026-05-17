@@ -1,44 +1,26 @@
 #!/usr/bin/env bash
-#                                      __   
-#   ___ ____ ___ _  ___ __ _  ___  ___/ /__ 
+#                                      __
+#   ___ ____ ___ _  ___ __ _  ___  ___/ /__
 #  / _ `/ _ `/  ' \/ -_)  ' \/ _ \/ _  / -_)
-#  \_, /\_,_/_/_/_/\__/_/_/_/\___/\_,_/\__/ 
-# /___/                                     
-# 
+#  \_, /\_,_/_/_/_/\__/_/_/_/\___/\_,_/\__/
+# /___/
+#
 
-
-ml4w_cache_folder="$HOME/.cache/ml4w/hyprland-dotfiles"
+cache_folder="$HOME/.cache/qs-dotfiles"
 gamemode_monitor="$HOME/.config/hypr/conf/monitors/gamemode.conf"
 
-# Notifications
-source "$HOME/.config/ml4w/scripts/ml4w-notification-handler"
-APP_NAME="System"
-NOTIFICATION_ICON="joystick"
-
-
 if [ -f $HOME/.config/quickshell/state/gamemode-enabled ]; then
-  if [ -f $ml4w_cache_folder/last_monitor.conf ]; then
-    cat $ml4w_cache_folder/last_monitor.conf > $HOME/.config/hypr/conf/monitor.conf
-    rm $ml4w_cache_folder/last_monitor.conf
-  fi
-  if [ -f $ml4w_cache_folder/restart-wpauto ]; then
-    rm $ml4w_cache_folder/restart-wpauto
-    $HOME/.config/ml4w/scripts/ml4w-wallpaper-automation &
+  if [ -f $cache_folder/last_monitor.conf ]; then
+    cat $cache_folder/last_monitor.conf > $HOME/.config/hypr/conf/monitor.conf
+    rm $cache_folder/last_monitor.conf
   fi
   hyprctl reload
   rm $HOME/.config/quickshell/state/gamemode-enabled
-  notify_user --a "${APP_NAME}" \
-            --i "${NOTIFICATION_ICON}" \
-            --s "Gamemode deactivated" \
-            --m "Animations and blur are now enabled."
+  notify-send -u low -i joystick -a System "Gamemode deactivated" "Animations and blur are now enabled."
 else
   if [ -f $gamemode_monitor ]; then
-    cat $HOME/.config/hypr/conf/monitor.conf > $ml4w_cache_folder/last_monitor.conf
+    cat $HOME/.config/hypr/conf/monitor.conf > $cache_folder/last_monitor.conf
     echo "source = $gamemode_monitor" > $HOME/.config/hypr/conf/monitor.conf
-  fi
-  if [ -f $ml4w_cache_folder/wallpaper-automation ]; then
-    touch $ml4w_cache_folder/restart-wpauto
-    $HOME/.config/ml4w/scripts/ml4w-wallpaper-automation
   fi
   hyprctl --batch "\
     keyword animations:enabled 0;\
@@ -52,8 +34,5 @@ else
     keyword decoration:fullscreen_opacity 1;\
     keyword decoration:rounding 0"
   touch $HOME/.config/quickshell/state/gamemode-enabled
-  notify_user --a "${APP_NAME}" \
-          --i "${NOTIFICATION_ICON}" \
-          --s "Gamemode activated" \
-          --m "Animations and blur are now disabled."
+  notify-send -u low -i joystick -a System "Gamemode activated" "Animations and blur are now disabled."
 fi

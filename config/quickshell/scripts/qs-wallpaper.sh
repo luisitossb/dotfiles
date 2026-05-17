@@ -3,14 +3,14 @@
 # Usage: qs-wallpaper.sh /path/to/image
 #        qs-wallpaper.sh --random [folder]
 
-CACHE_DIR="$HOME/.cache/ml4w/hyprland-dotfiles"
+CACHE_DIR="$HOME/.cache/qs-dotfiles"
 CACHE_FILE="$CACHE_DIR/current_wallpaper"
 BLURRED_WALLPAPER="$CACHE_DIR/blurred_wallpaper.png"
 SQUARE_WALLPAPER="$CACHE_DIR/square_wallpaper.png"
 RASI_FILE="$CACHE_DIR/current_wallpaper.rasi"
 DEFAULT_WALLPAPER="$HOME/dotfiles/wallpapers/Blackhole.jpeg"
-BLUR=$(cat "$HOME/.config/quickshell/settings/blur" 2>/dev/null || cat "$HOME/.config/ml4w/settings/blur.sh" 2>/dev/null || echo "50x30")
-TRANSITION=$(cat "$HOME/.config/quickshell/settings/wallpaper-transition" 2>/dev/null || cat "$HOME/.config/ml4w/settings/wallpaper-transition-effect" 2>/dev/null || echo "grow")
+BLUR=$(cat "$HOME/.config/quickshell/settings/blur" 2>/dev/null || echo "50x30")
+TRANSITION=$(cat "$HOME/.config/quickshell/settings/wallpaper-transition" 2>/dev/null || echo "grow")
 
 # --random: pick a random image from the wallpaper folder
 if [[ "$1" == "--random" ]]; then

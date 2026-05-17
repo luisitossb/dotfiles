@@ -95,7 +95,7 @@ PanelWindow {
     }
     function toggleShader() {
         Quickshell.execDetached(["bash", "-c",
-            "sleep 0.5 && " + Quickshell.env("HOME") + "/.config/ml4w/scripts/ml4w-toggle-hyprsunset"])
+            "sleep 0.5 && (pgrep -x hyprsunset && pkill -x hyprsunset || hyprsunset &)"])
         shaderTimer.start()
     }
     function cycleProfile() {

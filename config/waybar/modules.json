@@ -61,11 +61,11 @@
     },
     "separate-outputs": true
   },
-  // ML4W Welcome App
+  // Sidebar Toggle
   "custom/ml4w-welcome": {
     "on-click": "qs ipc call sidebar toggle",
     "format": "luis",
-    "tooltip-format": "Open Sidebar"
+    "tooltip-format": "Open Widget Center"
   },
   // Empty
   "custom/empty": {
@@ -87,7 +87,7 @@
 
   // Now Playing
   "custom/nowplaying": {
-    "exec": "~/.config/ml4w/scripts/ml4w-now-playing",
+    "exec": "~/.config/quickshell/scripts/now-playing.sh",
     "format": "  {text}",
     "return-type": "json",
     "interval": 1,
@@ -195,7 +195,7 @@
   "custom/hyprshade": {
     "format": "",
     "tooltip-format": "Toggle Screen Shader",
-    "on-click": "sleep 0.5; ~/.config/ml4w/scripts/ml4w-toggle-hyprsunset",
+    "on-click": "bash -c 'sleep 0.5; pgrep -x hyprsunset && pkill -x hyprsunset || hyprsunset &'",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
@@ -346,7 +346,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "max-length": 50,
     "on-click": "qs ipc call wifi-panel toggle",
-    "on-click-right": "~/.config/ml4w/scripts/nm-applet.sh toggle",
+    "on-click-right": "kitty --class dotfiles-floating -e nmtui",
   },
   // Battery
   "battery": {

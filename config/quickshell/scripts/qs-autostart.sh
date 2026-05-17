@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # qs-autostart.sh — start Quickshell daemon + overview
 
-CACHE_FILE="$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
+CACHE_FILE="$HOME/.cache/qs-dotfiles/current_wallpaper"
 QS_WALLPAPER="$HOME/.config/quickshell/scripts/qs-wallpaper.sh"
 
 # Restore last wallpaper (runs in background so qs can start sooner)
