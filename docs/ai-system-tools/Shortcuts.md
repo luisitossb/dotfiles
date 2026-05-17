@@ -37,7 +37,8 @@
 ## Actions
 | Shortcut | Action |
 |---|---|
-| `Super + Print` | Screenshot (with menu) |
+| `Super + Shift + S` | Screenshot — freeze screen, select region, copy (flameshot) |
+| `Super + Print` | Screenshot picker — Full/Window/Region/Display (Quickshell) |
 | `Super + Alt + F` | Instant fullscreen screenshot |
 | `Super + Alt + S` | Instant area screenshot |
 | `Super + Alt + A` | Extract text from area |
@@ -47,7 +48,6 @@
 | `Super + Shift + H` | Toggle night mode (hyprsunset) |
 | `Super + Shift + W` | Random wallpaper |
 | `Super + Ctrl + W` | Wallpaper selector |
-| `Super + Alt + W` | Auto wallpaper rotation |
 | `Super + Ctrl + Enter` | App launcher |
 | `Super + Ctrl + K` | Show keybindings |
 | `Super + Shift + B` | Reload waybar |
@@ -55,16 +55,15 @@
 | `Super + Ctrl + R` | Reload Hyprland |
 | `Super + Shift + R` | Reload Hyprland config |
 | `Super + Shift + A` | Toggle animations |
-| `Super + Ctrl + T` | Waybar theme switcher |
 | `Super + Shift + M` | Toggle light/dark mode |
-| `Super + S` | Toggle eww dashboard |
-| `Super + Ctrl + S` | Open sidebar |
+| `Ctrl + Alt + T` | Open theme selector |
+| `Super + S` | Toggle dashboard |
+| `Super + Ctrl + S` | Open sidebar (Widget Center) |
 | `Super + Ctrl + C` | Open calendar widget |
 | `Super + Ctrl + P` | Power menu |
 | `Super + Alt + G` | Toggle game mode |
 | `Super + Shift + Z` | Reset display zoom |
 | `Super + Shift + scroll` | Display zoom in/out |
-| `Ctrl + Alt + T` | Open theme selector |
 
 ## Workspaces
 | Shortcut | Action |
@@ -87,13 +86,11 @@
 | `Play/Pause/Next/Prev` | Media controls |
 | `Calculator key` | Open calculator |
 | `Lock key` | Lock screen |
-| `Tools key` | Open ML4W settings |
 | `Kbd backlight Up/Down` | Keyboard backlight |
 
 ---
 
 ## Free Keys (nothing assigned)
-- `Super + Shift + S`
 - `Super + Shift + G`
 - `Super + Ctrl + →`
 - `Super + Ctrl + ←`
