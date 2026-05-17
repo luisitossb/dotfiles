@@ -8,7 +8,7 @@
 #
 # Flags:
 #   --dotfiles-only   Skip all package installs; only deploy configs + system files.
-#                     Use after ml4w install to overlay dotfiles on top.
+#                     Re-deploys dotfiles only, skips package install.
 #
 # After this script, optionally run:
 #   bash scripts/apps/install.sh       — user applications (Discord, Steam, Spotify, etc.)
@@ -212,9 +212,8 @@ for name in "${SYMLINK_CONFIGS[@]}"; do
     info "Symlinked: ~/.config/$name"
 done
 
-# Configs managed by ml4w or with machine-specific data written into them —
-# copy these so the repo stays clean.
-COPY_CONFIGS=(hypr ml4w waypaper sunshine eww nwg-dock-hyprland)
+# Configs with machine-specific data written into them — copy rather than symlink
+COPY_CONFIGS=(hypr waypaper sunshine eww nwg-dock-hyprland)
 
 for name in "${COPY_CONFIGS[@]}"; do
     src="$DOTFILES_DIR/config/$name"
@@ -224,8 +223,9 @@ for name in "${COPY_CONFIGS[@]}"; do
 done
 
 # Home files
-[[ -f "$DOTFILES_DIR/home/.zshrc_custom" ]] && \
-    cp "$DOTFILES_DIR/home/.zshrc_custom" ~/ && info "Deployed: ~/.zshrc_custom"
+for f in .zshrc .zshrc_custom .bashrc; do
+    [[ -f "$DOTFILES_DIR/home/$f" ]] && cp "$DOTFILES_DIR/home/$f" ~/ && info "Deployed: ~/$f"
+done
 
 # Scripts
 if [[ -d "$DOTFILES_DIR/home/.local/bin" ]]; then
@@ -234,25 +234,12 @@ if [[ -d "$DOTFILES_DIR/home/.local/bin" ]]; then
     info "Deployed: ~/.local/bin scripts"
 fi
 
-# Source zshrc_custom from .zshrc
-if ! grep -q "zshrc_custom" ~/.zshrc 2>/dev/null; then
-    echo '[[ -f ~/.zshrc_custom ]] && source ~/.zshrc_custom' >> ~/.zshrc
-    info "Linked .zshrc_custom in .zshrc"
-fi
-
-# Fix hardcoded /home/luisito paths (waypaper config, wallpaper-folder)
-# Note: waybar style.css uses a relative @import so no fix needed there
-for f in \
-    ~/.config/waypaper/config.ini \
-    ~/.config/ml4w/settings/wallpaper-folder; do
+# Fix hardcoded /home/luisito paths (waypaper config)
+for f in ~/.config/waypaper/config.ini; do
     [[ -f "$f" ]] && sed -i "s|/home/luisito|$HOME|g" "$f" && info "Fixed paths in: $f"
 done
 
 if [[ "$DOTFILES_ONLY" == "true" ]]; then
-    step "Manual step required: ml4w"
-    echo "  paru -S ml4w-hyprland"
-    echo "  Then: cd ~/dotfiles && bash install.sh --dotfiles-only"
-    echo ""
     echo -e "${GREEN}  Dotfiles deployed. Done!${NC}"
     exit 0
 fi
@@ -302,14 +289,15 @@ Current=sddm-astronaut-theme
 EOF
 info "SDDM theme set to sddm-astronaut-theme"
 
-# Point astronaut theme at the ml4w blurred wallpaper cache (auto-updates on wallpaper change)
+# Point astronaut theme at the wallpaper cache (auto-updates on wallpaper change)
 sudo sed -i 's|Background="Backgrounds/astronaut.png"|Background="Backgrounds/current.png"|' \
     /usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf
-sudo ln -sf "$HOME/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png" \
+mkdir -p "$HOME/.cache/qs-dotfiles"
+sudo ln -sf "$HOME/.cache/qs-dotfiles/blurred_wallpaper.png" \
     /usr/share/sddm/themes/sddm-astronaut-theme/Backgrounds/current.png
 # Allow sddm user to traverse the cache path (file itself is already world-readable)
-chmod o+x "$HOME" "$HOME/.cache" "$HOME/.cache/ml4w" "$HOME/.cache/ml4w/hyprland-dotfiles"
-info "SDDM wallpaper symlinked to ml4w wallpaper cache"
+chmod o+x "$HOME" "$HOME/.cache" "$HOME/.cache/qs-dotfiles"
+info "SDDM wallpaper symlinked to qs-dotfiles wallpaper cache"
 
 # ── Battery charge limit (laptop only) ───────────────────────────────────────
 if [[ "$IS_LAPTOP" == "true" ]]; then
@@ -343,13 +331,6 @@ else
     warn "Limine config not found at /boot/limine.conf — skipping"
 fi
 
-# ── ml4w note ─────────────────────────────────────────────────────────────────
-step "Manual step required: ml4w"
-echo "  ml4w must be installed separately — it provides scripts the configs depend on."
-echo ""
-echo "  After reboot:"
-echo "    paru -S ml4w-hyprland"
-echo "    cd ~/dotfiles && bash install.sh --dotfiles-only"
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
