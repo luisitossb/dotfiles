@@ -62,7 +62,7 @@
     "separate-outputs": true
   },
   // Sidebar Toggle
-  "custom/ml4w-welcome": {
+  "custom/sidebar": {
     "on-click": "qs ipc call sidebar toggle",
     "format": "luis",
     "tooltip-format": "Open Widget Center"
@@ -112,12 +112,12 @@
     "format": "  {}",
     "escape": true,
     "return-type": "json",
-    "exec": "~/.config/ml4w/scripts/ml4w-check-system-updates",
+    "exec": "checkupdates | wc -l",
     "interval": 1800,
     "signal": 1,
     "hide-empty-text": true,
-    "on-click": "~/.config/ml4w/settings/installupdates.sh",
-    "on-click-right": "~/.config/ml4w/settings/software.sh"
+    "on-click": "kitty --class dotfiles-floating -e sudo pacman -Syu",
+    
   },
   // Wallpaper
   "custom/wallpaper": {
@@ -135,7 +135,7 @@
   // Settings
   "custom/settings": {
     "format": "",
-    "on-click": "sleep 0.1 && ml4w-dotfiles-settings",
+    "on-click": "kitty --class dotfiles-floating -e btop",
     "tooltip-format": "ML4W Settings"
   },
   // Keybindings
@@ -256,14 +256,14 @@
   // CPU
   "cpu": {
     "format": "󰻟 {usage}% ",
-    "on-click": "~/.config/ml4w/settings/system-monitor.sh",
+    "on-click": "kitty --class dotfiles-floating -e btop",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
   // Memory
   "memory": {
     "format": "󰍛 {}% ",
-    "on-click": "~/.config/ml4w/settings/system-monitor.sh",
+    "on-click": "kitty --class dotfiles-floating -e btop",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },
@@ -272,7 +272,7 @@
     "interval": 30,
     "format": "D {percentage_used}% ",
     "path": "/",
-    "on-click": "~/.config/ml4w/settings/system-monitor.sh",
+    "on-click": "kitty --class dotfiles-floating -e btop",
     "on-scroll-up": "true",
     "on-scroll-down": "true"
   },

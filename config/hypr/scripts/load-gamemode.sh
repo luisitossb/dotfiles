@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-#                                      __   
-#   ___ ____ ___ _  ___ __ _  ___  ___/ /__ 
-#  / _ `/ _ `/  ' \/ -_)  ' \/ _ \/ _  / -_)
-#  \_, /\_,_/_/_/_/\__/_/_/_/\___/\_,_/\__/ 
-# /___/                                     
-# 
-
-# Notifications
-source "$HOME/.config/ml4w/scripts/ml4w-notification-handler"
 
 _loadGameMode() {
     hyprctl --batch "\
@@ -20,10 +11,7 @@ _loadGameMode() {
         keyword decoration:rounding 0"
 }
 
-if [ -f $HOME/.config/ml4w/settings/gamemode-enabled ]; then
+if [ -f "$HOME/.config/quickshell/state/gamemode-enabled" ]; then
     _loadGameMode
-    notify_user --a "System" \
-        --i "joystick" \
-        --s "Gamemode activated" \
-        --m "Animations and blur are now disabled."
+    notify-send -u low -i joystick -a System "Gamemode activated" "Animations and blur are now disabled."
 fi

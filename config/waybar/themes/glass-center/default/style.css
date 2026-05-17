@@ -141,7 +141,7 @@ window#waybar.empty #window {
  * ML4W Icon
  * ----------------------------------------------------- */
 
-#custom-ml4w-welcome {
+#custom-sidebar {
     padding: 0 8px;
     color: @primary;
     font-weight: bold;
