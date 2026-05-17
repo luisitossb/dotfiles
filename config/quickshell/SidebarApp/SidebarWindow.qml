@@ -227,7 +227,8 @@ PanelWindow {
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12
                         Text {
-                            text: ""; font.family: "monospace"; font.pixelSize: 16
+                            text: volSlider.value === 0 ? "󰝟" : volSlider.value < 30 ? "󰕿" : volSlider.value < 70 ? "󰖀" : "󰕾"
+                            font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
                         }
                         WCSlider {
@@ -249,7 +250,8 @@ PanelWindow {
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12
                         Text {
-                            text: ""; font.family: "monospace"; font.pixelSize: 16
+                            text: brightSlider.value < 35 ? "󰃞" : brightSlider.value < 70 ? "󰃟" : "󰃠"
+                            font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
                         }
                         WCSlider {
