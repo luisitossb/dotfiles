@@ -18,7 +18,7 @@ Full reference document for AI assistants. Read this to understand the system wi
 - **Model:** ASUS laptop
 - **CPU:** Intel i7-8750H
 - **RAM:** 32GB
-- **GPU:** NVIDIA (discrete)
+- **GPU:** NVIDIA (discrete) + Intel iGPU (hybrid — Intel drives the display)
 - **Storage:** 1TB NVMe (btrfs with snapshots via snapper)
 - **Form factor:** Laptop — has keyboard backlight (`asus::kbd_backlight`), battery (`BAT0`), lid
 
@@ -35,7 +35,6 @@ Full reference document for AI assistants. Read this to understand the system wi
 
 ### Mac (not being migrated)
 - Waiting for a Framework laptop to replace it instead
-- `install-asahi.sh` exists in the repo but won't be used for now
 
 ---
 
@@ -44,107 +43,109 @@ Full reference document for AI assistants. Read this to understand the system wi
 ### OS / Window Manager
 - **OS:** CachyOS (Arch-based, rolling release)
 - **AUR helper:** paru
-- **Window Manager:** Hyprland 0.55 (deprecation note: .conf format deprecated in favor of Lua in 0.55 — still works, not broken yet)
+- **Window Manager:** Hyprland (uwsm session)
+- **Framework:** None — fully standalone dotfiles, no ml4w
 - **Session manager:** uwsm
 - **Login manager:** SDDM (sddm-astronaut-theme)
   - Config: `/etc/sddm.conf` — `[Theme] Current=sddm-astronaut-theme`
-  - Theme config: `/usr/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf` — background, colors, blur, font, date/time format
-  - **Wallpaper:** Auto-syncs with current wallpaper — background is a symlink to `~/.cache/qs-dotfiles/blurred_wallpaper.png`. Updates automatically on every wallpaper change, no scripts needed.
-  - **Permission setup (one-time):** `chmod o+x ~/ ~/.cache ~/.cache/qs-dotfiles` — allows sddm user to traverse the path to the file (file itself is 644). Already done; included in install.sh.
-  - Preview without logging out: `sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/sddm-astronaut-theme`
-  - **Nordic-darker was broken:** requires `org.kde.plasma.*` QML modules (KDE only) — incompatible with a pure Hyprland setup
+  - **Wallpaper:** `Backgrounds/current.png` symlinks to `~/.cache/qs-dotfiles/blurred_wallpaper.png`. Updates automatically on wallpaper change.
+  - **Permission setup (one-time):** `chmod o+x ~/ ~/.cache ~/.cache/qs-dotfiles` — allows sddm user to traverse to the file. Already done in install.sh.
 
 ### Bar / Notifications / Launcher
-- **Bar:** Waybar, theme: `glass-center`
+- **Bar:** Waybar, theme: `glass-center` (`~/.config/waybar/themes/glass-center/`)
 - **Notifications:** swaync
-- **Launcher:** Quickshell LauncherApp (Super+Ctrl+Return) — replaced Rofi drun
-- **Screenshot:** flameshot (Super+Print) — freeze frame, select region, copy to clipboard. Quickshell ScreenshotApp (Super+Shift+Print) for full picker
-- **Clipboard:** cliphist backend + Quickshell ClipboardApp (Super+V) — replaced cliphist-rofi-img.sh
-- **Rofi:** Still installed and used for keybindings viewer and theme switcher; `config-launcher.rasi` is the main theme
+- **Launcher:** Quickshell LauncherApp (Super+Ctrl+Return)
+- **Screenshot:** flameshot (Super+Shift+S) — freeze frame, select region, copy to clipboard. Quickshell ScreenshotApp available via `qs ipc call screenshot toggle` (no keybind)
+- **Clipboard:** cliphist backend + Quickshell ClipboardApp — accessible via `qs ipc call clipboard toggle` (no keybind)
+- **Rofi:** Still installed (used as fallback/secondary launcher)
 
 ### Dock
 - **App:** nwg-dock-hyprland, glass theme
-- **Config:** `~/.config/nwg-dock-hyprland/` (symlink → dotfiles repo)
-- **Launch script:** `~/.config/nwg-dock-hyprland/launch.sh` — reads `~/.config/quickshell/state/dock-disabled` flag
+- **Config:** `~/.config/nwg-dock-hyprland/` (copy-deployed from dotfiles — NOT symlinked)
+- **Launch script:** `~/.config/nwg-dock-hyprland/launch.sh`
 - **Icon size:** 32px (`-i 32` flag in launch.sh)
-- **Background:** `rgba(18, 20, 14, 0.75)` — matches Kitty terminal background color and opacity exactly
-- **Border:** `alpha(@primary, 0.5)` — subtle matugen primary color at 50% opacity
-- **Active indicator:** `alpha(@primary, 0.25)` background highlight with 200ms ease transition — auto-matches wallpaper color scheme via matugen. Hover is `alpha(@primary, 0.15)` so active is always visually brighter.
-- **Known limitation:** Active window detection can lag slightly — this is nwg-dock-hyprland's IPC event handling, not fixable via CSS or config flags. No "force refresh" signal exists.
-- **Transparency note:** Background must be a single `rgba()` layer with no opaque base layer beneath it. The original dual-layer `padding-box` / `border-box` gradient trick blocks compositor transparency. CSS `opacity` on the window element also affects icons — never use it for background-only transparency.
-- Restart dock: `~/.config/nwg-dock-hyprland/launch.sh`
 
 ### Quickshell widgets
-Quickshell is a QML-based Wayland shell toolkit. All interactive panels/overlays run under a single `qs` daemon started by `~/.config/quickshell/scripts/qs-autostart.sh`. Toggle any panel via `qs ipc call <target> toggle`.
+Quickshell is a QML-based Wayland shell toolkit. All panels run under a single `qs` daemon started by `~/.config/quickshell/scripts/qs-autostart.sh`. Toggle any panel via `qs ipc call <target> toggle`.
 
 | Target | Keybind / trigger | What it is |
 |--------|-------------------|-----------|
-| `dashboard` | **Super+S** | **Dashboard** — clock, quick toggles (mode/clipboard/shader/power/DND), CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing |
-| `sidebar` | Click **"luis"** (top-right Waybar) or **Super+Ctrl+S** | **Widget Center** — UI toggles (waybar, dock), BT/WiFi panels, battery, brightness sliders, wallpaper/theme pickers |
+| `dashboard` | **Super+S** | Full stats panel (clock, CPU/RAM/Disk/VRAM, volume, battery, net speed, Claude usage, now-playing) |
+| `sidebar` | Click **"luis"** (top-right Waybar) | Widget center (volume/brightness sliders, MPRIS, connectivity toggles, UI toggles, launch buttons) |
 | `bluetooth-panel` | Click BT Waybar icon | BT device list — paired devices, connect/disconnect, power toggle, scan |
-| `wifi-panel` | Click WiFi Waybar icon | WiFi saved networks, connect, radio toggle, "More networks" falls back to nmcli |
-| `screenshot` | **Super+Shift+PRINT** | Screenshot mode picker: Full/Window/Region/Display → Copy/Save/Copy+Save |
-| `clipboard` | **Super+V** | Clipboard history picker — text entries + image thumbnails, search, click to paste |
+| `wifi-panel` | Click WiFi Waybar icon | WiFi saved networks, connect, radio toggle |
+| `screenshot` | *(no keybind)* | Screenshot mode picker: Full/Window/Region/Display → Copy/Save/Copy+Save |
+| `clipboard` | *(no keybind)* | Clipboard history picker — text entries + image thumbnails, search, click to paste |
 | `launcher` | **Super+Ctrl+Return** | App launcher — all .desktop apps, icon lookup, search, keyboard navigation |
-| `power` | **Super+Ctrl+P** | Power menu |
-| `calendar` | **Super+Ctrl+C** | Calendar overlay |
+| `wallpaper` | **Super+Ctrl+W** | Wallpaper picker — image grid from wallpaper folder, search, click to apply |
 
-**Screenshot keybinds:**
-- **Super+Print** → flameshot gui: screen freezes, draw region, copy to clipboard (like Win+Shift+S). Requires: `flameshot` (pacman)
-- **Super+Shift+Print** → Quickshell picker: choose Full/Window/Region/Display, Copy/Save/both
-- **Super+Alt+F** → instant full-screen copy to clipboard (grimblast, no freeze)
-- **Super+Alt+S** → instant region copy to clipboard (grimblast, no freeze)
+**Widget center (sidebar) contents:**
+- Volume slider, brightness slider
+- MPRIS media player (shows when media is playing)
+- Connectivity toggles: Bluetooth, WiFi, Night Mode (hyprsunset -t 4000), Do Not Disturb
+- UI toggles: Waybar, Dock, Gamemode, Fastfetch
+- Launch buttons: Wallpaper picker, Theme picker
+- *(Power buttons removed — use hardware power button)*
 
-**Theme colors:** All panels load from `~/.config/quickshell/colors/colors.json` (generated by matugen). `CustomTheme/Theme.qml` reads this on startup. Run `qs ipc call theme-manager reload` after a wallpaper change if colors don't update.
+**Theme colors:** All panels load from `~/.config/quickshell/colors/colors.json` (generated by matugen). `CustomTheme/Theme.qml` reads this on startup.
 
-**Helper scripts** (all wrap Python in try/except, always emit valid JSON, errors go to stderr):
+**Helper scripts** (in `~/.config/quickshell/scripts/`):
 - `bt-devices.sh` → JSON array of paired BT devices with connection state
 - `wifi-networks.sh` → JSON of saved WiFi networks with active state
 - `clipboard-entries.sh` → JSON of cliphist entries; decodes PNG images to `/tmp/qs-clipboard-cache/`
 - `app-list.sh` → JSON of all non-hidden .desktop apps with exec, icon paths, terminal flag; sorted by frecency
 - `track-usage.sh <name>` → increments launch count in `~/.local/share/qs-launcher/usage.json`
+- `qs-wallpaper.sh` → sets wallpaper, runs matugen, updates blurred/square cache images
+- `qs-themes.sh` → theme picker
 
-**Error handling:** Every panel (BT, WiFi, Clipboard, Launcher, Dashboard) captures process stderr and shows a dismissible red `ErrorBanner` in the UI when a script fails. Errors are also sent to `console.warn()` which lands in Quickshell's log.
+**Startup:** `qs-autostart.sh` is called by Hyprland's `exec-once` on every login.
 
-**Troubleshooting commands:**
+**Troubleshooting:**
 ```bash
-qs-log      # view full current Quickshell log (warnings, errors, debug)
-qs-errors   # grep only WARN/ERROR lines from the log
+qs-log      # view full current Quickshell log
+qs-errors   # grep only WARN/ERROR lines
 ```
-The log path rotates each qs restart — the aliases find the latest one automatically via `ls -t /run/user/1000/quickshell/by-id/*/log.qslog`.
-
-**Startup:** Quickshell is started automatically by `~/.config/quickshell/scripts/qs-autostart.sh` on every Hyprland login via autostart.conf — `killall qs; sleep 0.5; qs &`. No manual steps needed after reboot.
-
-**eww is no longer used** — dashboard migrated to Quickshell. eww daemon was removed from autostart. The scripts in `~/.config/eww/scripts/` (claude-usage.sh, net-speed.sh) are still used by the Quickshell dashboard.
 
 ### Terminal / Shell
 - **Terminal:** Kitty (opacity 0.75, dynamic opacity, matugen colors)
-- **Shell:** Zsh + Oh My Zsh + Oh My Posh (zen theme: `luisito.toml`)
-- **Shell config:** `~/.zshrc` — standalone, tracked in dotfiles repo. Loads oh-my-zsh, plugins, aliases, prompt, fastfetch. Sources `~/.zshrc_custom` at the end.
-- **Custom aliases/functions:** `~/.zshrc_custom` — dotfiles-sync, claude wrapper, qs-log, qs-errors, etc.
+- **Shell:** Zsh + Oh My Zsh + Oh My Posh (zen theme: `~/.config/ohmyposh/luisito.toml`)
+- **Shell files:**
+  - `~/.zshrc` — main shell config (in dotfiles repo, copy-deployed)
+  - `~/.zshrc_custom` — personal aliases/functions (in dotfiles repo, copy-deployed)
+- **Custom aliases in zshrc_custom:**
+  - `claude` — `command claude --dangerously-skip-permissions --max-turns 20 "$@"`
+  - `dotfiles-sync` — sync configs to repo and push
 
 ### Browser
 - **Primary:** Zen Browser (`zen-browser` AUR package)
 
-### File Manager
-- **Primary:** Nautilus (GNOME Files)
-- **Also installed:** Dolphin (KDE)
+### File Managers
+- **Primary:** Nautilus (GNOME Files) — default for `inode/directory`
+- **Also installed:** Dolphin (KDE) — Qt themed via Kvantum (KvRoughGlass)
+
+### Qt theming
+- **Engine:** Kvantum → KvRoughGlass theme (glass/dark aesthetic)
+- **Platform theme:** qt6ct (`QT_QPA_PLATFORMTHEME=qt6ct` env var)
+- **Configs:** `~/.config/Kvantum/` and `~/.config/qt6ct/` (symlinked from dotfiles)
+
+### GTK theming
+- **Dark mode:** `gsettings org.gnome.desktop.interface color-scheme prefer-dark`
+- **GTK3 theme:** adw-gtk3-dark
+- **Settings files:** `~/.config/gtk-3.0/settings.ini` and `~/.config/gtk-4.0/settings.ini` (copy-deployed from dotfiles)
+- **Icon theme:** kora
+- **Cursor:** macOS (at `/usr/share/icons/macOS/`) — set via `cursor.conf` and gsettings
 
 ### Media / Jellyfin
 - **Server:** Jellyfin (system service: `jellyfin.service`)
 - **Web UI:** http://localhost:8096
-- **Web files location:** `/usr/share/jellyfin/web/`
 - **OSD fix:** Applied — reduces controls hide delay from 3s to 0.5s via sed patch on chunk JS file
   - Pacman hook auto-reapplies on every Jellyfin update: `/etc/pacman.d/hooks/jellyfin-osd-fix.hook`
   - Script: `/usr/local/bin/jellyfin-osd-fix.sh`
-  - After any Jellyfin update, clear browser cache or test in incognito to confirm fix persisted
-  - **Resilience:** Script finds the chunk via `grep -rl "osdHeader-hidden"` (survives filename hash changes), uses flexible regex for minifier variable renames, and fails silently if pattern not found (Jellyfin still works, just reverts to 3s delay)
-  - **Break risk:** Low on minor updates. Moderate on major versions if Jellyfin renames `osdHeader-hidden`, changes the 3s timeout value, or refactors the OSD mechanism. Worst case is always safe — fix just doesn't apply.
 - **Media library naming:** Standard Jellyfin convention (Movie Name (Year)/Movie Name (Year).mkv)
 
 ### Self-hosted Services
 - **SearXNG:** Self-hosted private search engine running in Docker. Access at `http://localhost:8888`. Container: `searxng/searxng:latest`, auto-starts with Docker on boot.
-- **Docker:** Installed and enabled at boot — used for SearXNG container. Manage with `docker ps -a` / `docker start searxng` / `docker stop searxng`
+- **Docker:** Installed and enabled at boot. Manage with `docker ps -a` / `docker start searxng` / `docker stop searxng`
 
 ### Gaming
 - **Steam:** Installed (multilib required — enabled by default on CachyOS)
@@ -153,155 +154,115 @@ The log path rotates each qs restart — the aliases find the latest one automat
 - **Wine/Winetricks:** Installed for non-Steam Windows apps
 
 ### Remote Access (Tailscale + Sunshine + Moonlight)
-
-- **Tailscale:** Installed — creates private WireGuard mesh network between devices. Daemon: `tailscaled.service` (system). Laptop Tailscale IP: run `tailscale ip` to get it
-- **Tailscale connected devices:** Linux laptop, Windows desktop, Mac, phone (iOS/Android)
-- **Adding a new device:** Install Tailscale + sign in (use auth key method on Mac/iOS — see below), install Moonlight, add PC → use the IP from `tailscale ip`
-- **Sunshine:** Installed — self-hosted game stream host (remote desktop server). User service: `sunshine.service`. Web UI: `https://localhost:47990`
-- **Moonlight:** Client available on Windows, Mac, iOS, Android — connects to Sunshine via your Tailscale IP (run `tailscale ip`), no port needed
-- **Capture config:** `wlr` capture + `vaapi` encoder on `/dev/dri/renderD129` (Intel iGPU). NVENC unusable because Intel drives the display and DMABUF cross-GPU import fails. VAAPI uses Intel's hardware encoder instead.
-- **Headless monitor:** `HEADLESS-1` (1920x1080@60) defined in `~/.config/hypr/monitors.conf` — virtual display so Hyprland always has something to render to when lid is closed. Created on each Hyprland start via `exec-once = hyprctl output create headless` in autostart.conf. **Do not run `hyprctl output create headless` manually after boot** — it creates a duplicate `HEADLESS-2` which shows up as an empty workspace 6. Fix if it happens: `hyprctl output remove HEADLESS-2`.
+- **Tailscale:** Installed — creates private WireGuard mesh network. Daemon: `tailscaled.service`
+- **Sunshine:** Installed — self-hosted game stream host. User service: `sunshine.service`. Web UI: `https://localhost:47990`
+- **Moonlight:** Client on Windows, Mac, iOS, Android — connects via Tailscale IP
+- **Capture config:** `wlr` capture + `vaapi` encoder on `/dev/dri/renderD129` (Intel iGPU). NVENC unusable because Intel drives the display.
+- **Headless monitor:** `HEADLESS-1` (1920x1080@60) — virtual display so Hyprland renders when lid closed. Created via `exec-once = hyprctl output create headless`.
 - **DRM layout:** `card1`/`renderD128` = NVIDIA, `card2`/`renderD129` = Intel (eDP-1 laptop screen)
-- **No port forwarding needed** — Tailscale handles NAT traversal automatically
-- **Moonlight recommended settings:** Video decoder → Hardware, Video codec → HEVC (H.265). Sunshine already encodes HEVC via `hevc_vaapi`. Fall back to H.264 only if a device has compatibility issues.
-- **Disconnecting from a session:** Press Ctrl+Alt+Shift+Q on the client device (Windows/Mac/phone) while Moonlight is focused, or Alt+Tab out and close the Moonlight window.
 
 #### Tailscale Mac auth workaround (macOS Sequoia)
-macOS Sequoia has a bug where Tailscale never opens the login browser. Bypass it entirely using an auth key:
-1. On any already-authenticated device, go to `https://login.tailscale.com/admin/settings/keys` → Generate auth key
-2. On the Mac in Terminal run:
 ```bash
 /Applications/Tailscale.app/Contents/MacOS/Tailscale login --authkey=tskey-auth-XXXX
 ```
-No browser needed. Works every time.
 
 ### AI / Local LLMs
 - **Ollama:** Running as system service, max 1 model loaded, 5s keep-alive
-- **GPU backend:** ollama-cuda (NVIDIA laptop) / ollama-rocm (AMD desktop, if ROCm works)
-- **Models pulled:** nomic-embed-text, llama3.1:8b, qwen2.5-coder:7b (14b removed — too large for VRAM)
-- **Open WebUI:** Running as user service at http://localhost:8080 — frontend for Ollama
-- **Aliases in zshrc_custom:**
-  - `claude` — wrapper function: `command claude --dangerously-skip-permissions --max-turns 20 "$@"` (skip permission prompts, cap turns to prevent runaway loops)
-  - `oc` — openclaude with qwen2.5-coder:7b
-  - `ai` — aider with qwen2.5-coder:7b
+- **GPU backend:** ollama-cuda (NVIDIA laptop)
+- **Open WebUI:** Running as user service at http://localhost:8080
 
 ### Theming
 - **Theme engine:** matugen (Material You — wallpaper-driven palette)
-- **Wallpaper manager:** waypaper (triggered via Quickshell WallpaperApp or keybind)
-- **Color pipeline:** wallpaper change → `qs-wallpaper.sh` → matugen → regenerates color files for waybar, kitty, hyprland, rofi, swaync, btop, ohmyposh, gtk3, gtk4 → reloads Quickshell theme-manager
-- **Color mode persistence:** `~/.config/quickshell/settings/color-mode` — contains `dark` or `light`. Read by `qs-wallpaper.sh` and written by `qs-themes.sh`. Defaults to `dark`.
-- **Light/dark switching:** `qs-themes.sh` — rofi picker, writes color-mode, re-runs matugen with selected mode, reloads waybar/dock/swaync
-- **Cursor:** Apple cursor (`apple_cursor` AUR)
-- **Icons:** Automatically tied to wallpaper via matugen
-
----
-
-## Script error handling
-
-All scripts use `set -euo pipefail` + an ERR trap so failures produce a clear error message with line number instead of silently continuing or crashing mid-run.
-
-### Pattern used in install scripts
-```bash
-err() { echo -e "${RED}  ✗${NC} $1"; }
-trap 'err "scriptname.sh failed at line $LINENO (exit code: $?). Check output above."; exit 1' ERR
-```
-
-### Pattern used in bin scripts (mode-status, toggle-mode, start-hypridle)
-```bash
-set -euo pipefail
-trap 'echo "[ERROR] scriptname.sh failed at line $LINENO (exit code: $?)" >&2' ERR
-```
-
-### Scripts intentionally excluded
-- `cliphist-rofi-img.sh` — interactive script; rofi cancellation returns non-zero, which `set -e` would treat as a fatal error. Left as-is.
+- **Wallpaper manager:** Quickshell WallpaperApp (Super+Ctrl+W) + waypaper (CLI)
+- **Color pipeline:** wallpaper change → `qs-wallpaper.sh` → matugen → regenerates colors for waybar, kitty, rofi, swaync, quickshell, hyprland, btop, ohmyposh, gtk3/gtk4
+- **Cursor:** macOS cursor theme (`/usr/share/icons/macOS/`) — set in `cursor.conf` and GTK settings
+- **Icons:** kora icon theme
 
 ---
 
 ## Key file paths
 
-### Dotfiles repo
+### Ricing Hub (everything ricing-related)
 ```
-~/Ricing Hub/dotfiles/                         — git repo (pushed to github.com/luisitossb/dotfiles)
-~/Ricing Hub/dotfiles/config/                  — config source; most dirs are symlinked from ~/.config/
-~/Ricing Hub/dotfiles/home/                    — home-level files (.zshrc, .zshrc_custom, .bashrc, .local/bin scripts)
-~/Ricing Hub/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
-~/Ricing Hub/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/Ricing Hub/AI - System Tools/)
-~/Ricing Hub/dotfiles/wallpapers/              — wallpaper collection
-~/Ricing Hub/dotfiles/install.sh               — full CachyOS bootstrap script
-~/Ricing Hub/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
+~/Ricing Hub/
+  dotfiles/          — git repo (github.com/luisitossb/dotfiles)
+  AI - System Tools/ — AI reference docs (this file lives here)
+  Config Hub/        — shortcuts, keybindings reference
+```
+
+### Dotfiles repo structure
+```
+~/Ricing Hub/dotfiles/
+  config/            — config source (most symlinked to ~/.config/)
+  home/              — home-level files (.zshrc, .zshrc_custom, .bashrc, .local/bin/)
+  system/            — system files requiring sudo (pacman hooks, etc.)
+  docs/              — pushed copy of AI - System Tools/ docs
+  wallpapers/        — wallpaper collection
+  install.sh         — full CachyOS bootstrap script
+  scripts/           — optional install scripts (apps, dev, server, ai)
 ```
 
 ### Config symlink architecture
-Most configs are symlinked directly from the repo so edits are immediately tracked in git.
-No manual sync needed for symlinked configs — just `git diff` and `git commit`.
 
 **Symlinked → repo** (edit anywhere, git picks it up instantly):
 ```
-~/.config/quickshell           → ~/Ricing Hub/dotfiles/config/quickshell
-~/.config/waybar               → ~/Ricing Hub/dotfiles/config/waybar
-~/.config/kitty                → ~/Ricing Hub/dotfiles/config/kitty
-~/.config/rofi                 → ~/Ricing Hub/dotfiles/config/rofi
-~/.config/btop                 → ~/Ricing Hub/dotfiles/config/btop
-~/.config/swaync               → ~/Ricing Hub/dotfiles/config/swaync
-~/.config/fastfetch            → ~/Ricing Hub/dotfiles/config/fastfetch
-~/.config/ohmyposh             → ~/Ricing Hub/dotfiles/config/ohmyposh
-~/.config/matugen              → ~/Ricing Hub/dotfiles/config/matugen
-~/.config/nwg-dock-hyprland    → ~/Ricing Hub/dotfiles/config/nwg-dock-hyprland
+~/.config/quickshell        → ~/Ricing Hub/dotfiles/config/quickshell
+~/.config/waybar            → ~/Ricing Hub/dotfiles/config/waybar
+~/.config/kitty             → ~/Ricing Hub/dotfiles/config/kitty
+~/.config/rofi              → ~/Ricing Hub/dotfiles/config/rofi
+~/.config/btop              → ~/Ricing Hub/dotfiles/config/btop
+~/.config/swaync            → ~/Ricing Hub/dotfiles/config/swaync
+~/.config/fastfetch         → ~/Ricing Hub/dotfiles/config/fastfetch
+~/.config/ohmyposh          → ~/Ricing Hub/dotfiles/config/ohmyposh
 ~/.config/networkmanager-dmenu → ~/Ricing Hub/dotfiles/config/networkmanager-dmenu
+~/.config/Kvantum           → ~/Ricing Hub/dotfiles/config/Kvantum
+~/.config/qt6ct             → ~/Ricing Hub/dotfiles/config/qt6ct
+~/.config/cava              → ~/Ricing Hub/dotfiles/config/cava
+~/.config/nwg-look          → ~/Ricing Hub/dotfiles/config/nwg-look
 ```
 
-**Home files** (copied by install.sh, synced by dotfiles-sync):
+**Copy-deployed** (machine-specific or generated data written here — NOT symlinked):
 ```
-~/.zshrc          — standalone shell config (plugins, aliases, prompt, fastfetch)
-~/.zshrc_custom   — personal additions: dotfiles-sync, claude alias, qs-log, etc.
-~/.bashrc         — minimal bash config (rarely used — shell is zsh)
-```
-
-**Copy-deployed** (machine-specific data written here — NOT symlinked):
-```
-~/.config/hypr/       — Hyprland config (changes must be manually synced via dotfiles-sync)
-~/.config/waypaper/   — wallpaper paths updated continuously
-~/.config/sunshine/   — machine-specific GPU encoder config
+~/.config/hypr/         — Hyprland config (machine-specific overrides written here)
+~/.config/waypaper/     — wallpaper path config
+~/.config/nwg-dock-hyprland/ — dock config
+~/.config/eww/          — eww (scripts still used by dashboard)
+~/.config/gtk-3.0/      — GTK3 settings (cursor, theme, icons)
+~/.config/gtk-4.0/      — GTK4 settings
+~/.config/sunshine/     — machine-specific GPU encoder config
 ```
 
-**Cache / generated state** (not tracked in repo):
-```
-~/.cache/qs-dotfiles/current_wallpaper      — path of active wallpaper
-~/.cache/qs-dotfiles/blurred_wallpaper.png  — blurred version for hyprlock/SDDM
-~/.cache/qs-dotfiles/square_wallpaper.png   — square crop for hyprlock
-~/.cache/qs-dotfiles/current_wallpaper.rasi — wallpaper path for rofi
-```
-
-**Gitignored generated files** (matugen writes these on wallpaper change, excluded from repo):
+**Gitignored generated files** (matugen writes on wallpaper change):
 ```
 ~/.config/waybar/colors.css
 ~/.config/kitty/colors.conf
 ~/.config/rofi/colors.rasi
+~/.config/quickshell/colors/colors.css
+~/.config/hypr/colors.conf
 ```
 
 ### Live config locations
 ```
-~/.config/quickshell/scripts/      — bt-devices.sh, wifi-networks.sh, app-list.sh, qs-wallpaper.sh, qs-themes.sh, etc.
-~/.config/quickshell/settings/color-mode  — "dark" or "light" (persists color mode choice)
-~/.config/quickshell/colors/colors.json   — matugen-generated color palette for Quickshell
-~/.config/waybar/themes/glass-center/default/style.css — bar styles
-~/.config/waybar/modules.json      — all module definitions
-~/.config/waybar/colors.css        — auto-generated by matugen (gitignored, do not commit)
-~/.config/eww/                     — eww scripts still used by Quickshell dashboard (claude-usage.sh, net-speed.sh)
-~/.config/sunshine/sunshine.conf   — Sunshine capture/encoder config (wlr + vaapi)
-~/.zshrc_custom                    — personal zsh additions (sourced by .zshrc)
+~/.config/quickshell/scripts/      — bt-devices.sh, wifi-networks.sh, app-list.sh, qs-wallpaper.sh, etc.
+~/.config/waybar/themes/glass-center/  — waybar theme (config + style.css)
+~/.config/waybar/modules.json      — all waybar module definitions
+~/.config/quickshell/settings/     — wallpaper-folder, state flags
+~/.config/quickshell/state/        — runtime state flags (waybar-disabled, dock-disabled, etc.)
+~/.config/hypr/conf/               — hyprland config fragments (keybindings, autostart, cursor, etc.)
+~/.config/sunshine/sunshine.conf   — Sunshine capture/encoder config
+~/.zshrc                           — main zsh config
+~/.zshrc_custom                    — personal aliases/functions
 ~/.local/bin/                      — personal scripts
 ~/.local/share/qs-launcher/usage.json — app launcher frecency data (per-machine, not in repo)
 ```
 
-### System files (require sudo, not auto-synced to dotfiles)
+### System files (require sudo)
 ```
-/usr/local/bin/jellyfin-osd-fix.sh     — OSD fix script (tracked in system/ in repo)
-/etc/pacman.d/hooks/jellyfin-osd-fix.hook — pacman hook (tracked in system/ in repo)
-/etc/systemd/system/ollama.service.d/override.conf — Ollama tuning
-/etc/systemd/system/battery-charge-limit.service   — 80% battery cap (laptop only)
-/etc/sddm.conf                         — SDDM config (theme + autologin session)
-/etc/bluetooth/main.conf               — AutoEnable=false
+/etc/pacman.d/hooks/jellyfin-osd-fix.hook  — pacman hook
+/usr/local/bin/jellyfin-osd-fix.sh         — OSD fix script
+/etc/systemd/system/battery-charge-limit.service — 80% battery cap (laptop only)
+/etc/sddm.conf                             — SDDM config
+/etc/bluetooth/main.conf                   — AutoEnable=false
 ```
 
 ---
@@ -310,35 +271,35 @@ No manual sync needed for symlinked configs — just `git diff` and `git commit`
 
 ### Dotfiles
 ```bash
-dotfiles-sync                                        # sync all configs to ~/Ricing Hub/dotfiles and push to GitHub
-cd ~/"Ricing Hub"/dotfiles && bash install.sh        # full bootstrap on fresh machine
+dotfiles-sync                                        # sync configs to repo and push
+cd ~/Ricing\ Hub/dotfiles && bash install.sh         # full bootstrap on fresh machine
+cd ~/Ricing\ Hub/dotfiles && bash install.sh --dotfiles-only  # re-deploy configs only
 ```
 
 ### Hyprland
 ```bash
-hyprctl reload                      # reload config without restart
-hyprctl clients                     # list open windows
-hyprctl monitors                    # list monitors and their properties
-hyprctl activewindow               # info on focused window
+hyprctl reload                  # reload config without restart
+hyprctl clients                 # list open windows
+hyprctl monitors                # list monitors and their properties
+hyprctl activewindow            # info on focused window
 ```
 
 ### Waybar
 ```bash
-pkill waybar; waybar &              # kill and restart Waybar
-~/.config/waybar/launch.sh         # restart via the managed launch script (handles locking)
-waybar --log-level debug 2>&1 | head -50  # debug launch to see errors
+~/.config/waybar/launch.sh      # restart Waybar (handles locking + env setup)
+waybar --log-level debug 2>&1 | head -50  # debug launch
 ```
 
 ### Quickshell
 ```bash
-qs ipc call dashboard toggle        # open/close dashboard (also Super+S)
-qs ipc call sidebar toggle          # open/close sidebar
+qs ipc call sidebar toggle          # open/close widget center
+qs ipc call dashboard toggle        # open/close dashboard (Super+S)
 qs ipc call bluetooth-panel toggle  # open/close BT panel
 qs ipc call wifi-panel toggle       # open/close WiFi panel
-qs ipc call theme-manager reload    # reload colors from colors.json
+qs ipc call wallpaper toggle        # open/close wallpaper picker
 qs ipc show                         # list all registered IPC targets
-pkill qs && qs &                    # restart Quickshell (loads new QML changes)
-cat /run/user/1000/quickshell/by-id/*/log.qslog  # view logs / debug errors
+pkill -x qs && bash ~/.config/quickshell/scripts/qs-autostart.sh &  # restart Quickshell
+cat /run/user/1000/quickshell/by-id/*/log.qslog  # view logs
 ```
 
 ### Jellyfin
@@ -347,7 +308,6 @@ systemctl status jellyfin           # check if running
 sudo systemctl restart jellyfin     # restart server
 journalctl -u jellyfin -f          # live logs
 sudo /usr/local/bin/jellyfin-osd-fix.sh  # manually apply OSD fix
-grep -rl "osdHeader-hidden" /usr/share/jellyfin/web/*.chunk.js  # find the right chunk
 ```
 
 ### Ollama
@@ -356,45 +316,36 @@ ollama list                         # installed models
 ollama run qwen2.5-coder:7b         # interactive chat
 ollama pull <model>                 # download a model
 systemctl status ollama             # service status
-journalctl -u ollama -f             # live logs
 ```
 
 ### Remote Access
 ```bash
-tailscale status                        # show connected devices and IPs
-tailscale ip                            # show this machine's Tailscale IP
-systemctl --user status sunshine        # check Sunshine service
-systemctl --user restart sunshine       # restart Sunshine
-journalctl --user -u sunshine -f        # live Sunshine logs
-hyprctl output create headless          # manually create headless monitor (auto-runs on boot)
-# Sunshine web UI: https://localhost:47990
-# Sunshine config: ~/.config/sunshine/sunshine.conf
+tailscale status                    # show connected devices and IPs
+tailscale ip                        # show this machine's Tailscale IP
+systemctl --user status sunshine    # check Sunshine service
+systemctl --user restart sunshine   # restart Sunshine
+journalctl --user -u sunshine -f   # live Sunshine logs
+hyprctl output create headless      # manually create headless monitor (auto-runs on boot)
 ```
 
 ### Open WebUI
 ```bash
 systemctl --user status open-webui  # check if running
 systemctl --user restart open-webui # restart
-journalctl --user -u open-webui -f  # live logs
 # Access at: http://localhost:8080
 ```
 
 ### Matugen / theming
 ```bash
 # Force re-apply colors from current wallpaper:
-matugen image "$(cat ~/.cache/qs-dotfiles/current_wallpaper)" -m "$(cat ~/.config/quickshell/settings/color-mode)"
-# Or run the full wallpaper script which handles everything:
-~/.config/quickshell/scripts/qs-wallpaper.sh
-# Switch dark/light mode:
-~/.config/quickshell/scripts/qs-themes.sh
+~/.config/quickshell/scripts/qs-wallpaper.sh "$(cat ~/.cache/qs-dotfiles/current_wallpaper)"
+# Or change wallpaper via Super+Ctrl+W — matugen runs automatically
 ```
 
 ### Swap
 ```bash
 # Swap is zram-based (compressed RAM, NOT SSD — fast, no NVMe wear)
-# Managed by: dev-zram0.swap (systemd unit)
-sudo systemctl status dev-zram0.swap     # check swap status
-# If swap fills up and you want to clear it:
+sudo systemctl status dev-zram0.swap
 sudo swapoff -a && sudo swapon -a && sudo systemctl start dev-zram0.swap
 ```
 
@@ -403,34 +354,15 @@ sudo swapoff -a && sudo swapon -a && sudo systemctl start dev-zram0.swap
 lspci | grep -i vga                 # identify GPU
 lspci -k | grep -A 3 "VGA"         # GPU + driver in use
 sudo dmesg | grep -i drm            # GPU driver messages
-ls /sys/class/drm/card*/device/mem_info_vram_total 2>/dev/null  # find AMD card index
 cat /proc/cpuinfo | grep "model name" | head -1  # CPU model
-```
-
-### External drive
-```bash
-lsblk                               # list block devices (find drive)
-udisksctl mount -b /dev/sdX1       # mount external drive
-udisksctl unmount -b /dev/sdX1     # unmount safely
-# Or just plug in and open Nautilus — auto-mounts
 ```
 
 ### pacman / paru
 ```bash
-sudo pacman -S --needed <pkg>       # install package (--needed skips if already installed)
+sudo pacman -S --needed <pkg>       # install package
 paru -S <pkg>                       # install AUR package
-paru -Syu                           # update everything (pacman + AUR)
-sudo pacman -Qs <pkg>               # search installed packages
-paru -Ss <pkg>                      # search all packages (pacman + AUR)
+paru -Syu                           # update everything
 sudo pacman -Rns <pkg>              # uninstall + remove orphan deps
-```
-
-### Networking
-```bash
-nmcli device wifi list              # scan WiFi networks
-nmcli device wifi connect "SSID" password "pass"  # connect to WiFi
-nmcli connection show               # all connections
-ip addr                             # show IP addresses
 ```
 
 ---
@@ -438,38 +370,24 @@ ip addr                             # show IP addresses
 ## Waybar module key details
 
 The bar uses the `glass-center` theme. Layout:
-- **Left:** App menu (Gengar icon), workspace numbers, new workspace button (`+`)
+- **Left:** App menu icon, workspace numbers, new workspace button (`+`)
 - **Center:** Network status (WiFi), Bluetooth, clock (12-hour), now-playing
-- **Right:** Volume, battery (laptop only), mode toggle, power profiles (leaf), exit, "luis" button (→ opens Widget Center sidebar)
+- **Right:** Volume, battery (laptop only), mode toggle, power profiles, sidebar button
 
-**Important:** Waybar config at `~/.config/waybar/themes/glass-center/config` is NOT a symlink — it's a real file. The dotfiles repo tracks it directly.
+**Bluetooth module:** Icon states: `󰊯` = on/idle, `󰊳` = connected, `󰊲` = off, `󰂲` = disabled/rfkill.
+Click → `qs ipc call bluetooth-panel toggle`
 
-**Colors:** Everything uses matugen palette variables (`@primary`, `@secondary`, `@tertiary`, etc.) defined in `~/.config/waybar/colors.css`. The only hardcoded color is the battery critical blink animation (red — intentional).
+**Bluetooth note:** After reboot, if bluetooth was powered off in a previous session, rfkill soft-blocks it and Waybar shows `󰂲`. Use the Bluetooth toggle in the widget center or `rfkill unblock bluetooth` to restore.
 
-**Custom modules defined in modules.json:**
-- `custom/mode-toggle` — laptop vs server mode (affects hypridle suspend behavior) — **active in bar**
-- `power-profiles-daemon` — cycles balanced → performance → power-saver — **active in bar**
-- `custom/kbd-backlight` — ASUS keyboard backlight level (0–3), cycles on click
-- `custom/nowplaying` — media player info via playerctl
-- `custom/appmenu` — Gengar icon launcher button
-- `custom/new-workspace` — clickable `+` button, runs `hyprctl dispatch workspace empty`
-- `custom/cliphist`, `custom/hyprshade`, `custom/notification` — defined but **removed from bar**; these functions now live in the Dashboard quick toggles row
-
-**Network module (WiFi click):** Left-click → `qs ipc call wifi-panel toggle` — Quickshell WiFi panel listing saved networks. Click any network to connect. Radio toggle switch at top. "More networks" button falls back to `networkmanager_dmenu` for new/unsaved networks. Right-click → nmtui.
-
-**Bluetooth module (click):** Left-click → `qs ipc call bluetooth-panel toggle` — Quickshell BT panel. Lists paired devices with connection status (green = connected). Click to connect/disconnect. Power toggle switch at top. "Scan for devices" button runs a 5-second scan then refreshes. Icon: `󰂯` = on/idle, `󰂱` = connected, `󰂲` = off.
+**Network module:** Click → `qs ipc call wifi-panel toggle`
 
 ---
 
 ## Pacman hooks
 
-Hooks in `/etc/pacman.d/hooks/` run automatically on package operations:
-
 | Hook file | Trigger | What it does |
 |-----------|---------|-------------|
 | `jellyfin-osd-fix.hook` | jellyfin install/upgrade | Patches OSD timeout from 3s to 0.5s, restarts Jellyfin |
-
-CachyOS also installs its own hooks via `cachyos-hooks` package.
 
 ---
 
@@ -477,35 +395,30 @@ CachyOS also installs its own hooks via `cachyos-hooks` package.
 
 | Feature | What happened | Notes |
 |---------|--------------|-------|
-| System tray in Waybar | Added, then removed | Works (`tray` module) but couldn't get it in its own separate bubble without a second Waybar instance; removed for now |
-| Zen Browser in autostart | Removed | Annoying to have it auto-open on login |
+| ml4w framework | Fully removed | Replaced with standalone dotfiles. All ml4w scripts/configs purged. |
+| Power buttons in widget center | Removed | User prefers hardware power button |
+| System tray in Waybar | Removed | Works (`tray` module) but couldn't isolate in its own bubble |
+| Zen Browser in autostart | Removed | Annoying to have auto-open on login |
 | Discord in autostart | Removed | Same reason |
 | Super+Alt+W wallpaper keybind | Removed | Not useful in practice |
-| Jellyfin CSS OSD override | Tried, didn't work | Custom CSS in Jellyfin branding/admin affects only styling, can't override JS-driven class toggling |
-| Session save/restore scripts | Removed | Caused widget duplication on reboot |
+| Jellyfin CSS OSD override | Tried, didn't work | Custom CSS can't override JS-driven class toggling |
+| Session save/restore scripts | Removed | Caused eww widget duplication on reboot |
 | Quick-search terminal (Super+\\) | Removed | Caused Hyprland windowrule errors |
-| Scroll speed overrides (Opera/Discord) | Removed | Broke Opera settings menu |
-| localsearch-3 (GNOME Tracker) | Masked | File indexer for GNOME search — not needed on Hyprland, was throwing constant D-Bus errors. Masked via `systemctl --user mask localsearch-3`. Tracked in dotfiles so mask persists on reinstall. |
-| Sunshine windowrule (hide workspace 6) | Removed | `windowrule = workspace special:sunshine silent, class:^(sunshine)$` caused Hyprland config errors — invalid field class syntax. Workspace 6 stays visible when Moonlight is connected, acceptable tradeoff. |
-| linux-cachyos-nvidia-open | Wrong package | Open NVIDIA kernel module only supports Turing (RTX 20xx+). GTX 1060 (Pascal) requires `linux-cachyos-nvidia` (proprietary). install.sh now uses `chwd` which auto-selects the correct driver. |
+| localsearch-3 (GNOME Tracker) | Masked | File indexer not needed on Hyprland, was throwing D-Bus errors |
+| linux-cachyos-nvidia-open | Wrong package | Open NVIDIA module only supports Turing (RTX 20xx+). GTX 1060 requires `linux-cachyos-nvidia`. install.sh uses `chwd` which auto-selects. |
+| apple_cursor AUR package | Not installed | cursor.conf switched to `macOS` theme which is installed at `/usr/share/icons/macOS/` |
 
 ---
 
-## dotfiles-sync function explained
+## dotfiles-sync function
 
-Defined in `~/.zshrc_custom`. Run it with: `dotfiles-sync`
+Defined in `~/.zshrc_custom`. Run with: `dotfiles-sync`
 
 What it does:
-1. `cd ~/Ricing Hub/dotfiles`
-2. rsync `~/.config/hypr/` into `dotfiles/config/hypr/` (copy-deployed, not symlinked)
-3. rsync `~/.config/eww/` into `dotfiles/config/eww/` (eww scripts used by Quickshell)
-4. Copy `~/.config/sunshine/sunshine.conf` into `dotfiles/config/sunshine/`
-5. Copies `~/.zshrc` and `~/.zshrc_custom` to `dotfiles/home/`
-6. rsync `~/.local/bin/*.sh` scripts (skips non-script binaries)
-7. rsync `~/.config/systemd/user/` (skips `default.target.wants/`)
-8. rsync `~/Ricing Hub/AI - System Tools/*.md` into `dotfiles/docs/ai-system-tools/` (with --delete, so deletions sync too)
-9. `git add . && git commit -m "sync: YYYY-MM-DD HH:MM" && git push`
+1. `cd ~/Ricing\ Hub/dotfiles`
+2. Copies home files (`.zshrc`, `.zshrc_custom`) to `home/`
+3. rsync `~/.local/bin/` scripts
+4. rsync `~/Ricing\ Hub/AI\ -\ System\ Tools/*.md` into `docs/ai-system-tools/` (with --delete)
+5. `git add . && git commit -m "sync: YYYY-MM-DD HH:MM" && git push`
 
-The `AI - System Tools/` directory (inside `~/Ricing Hub/`) contains markdown files documenting various fixes and setups. These get pushed to the repo as `docs/ai-system-tools/` so they're accessible from anywhere and AI assistants can reference them.
-
-**Important:** Files created directly in `~/Ricing Hub/dotfiles/docs/ai-system-tools/` will be deleted on the next sync if they don't also exist in `~/Ricing Hub/AI - System Tools/`. Always create new docs there first.
+**Note:** Symlinked configs (quickshell, waybar, kitty, etc.) are tracked automatically — edits there are already in the repo. Copy-deployed configs (hypr, nwg-dock-hyprland, gtk-3.0/4.0) need manual sync if changed.
