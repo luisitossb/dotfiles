@@ -32,7 +32,7 @@
 | `Super + Shift + S` | Screenshot — freeze screen, select region, copy (flameshot) |
 | `Super + Tab` | Window overview |
 | `Super + Ctrl + W` | Wallpaper selector |
-| `Super + A` | App launcher |
+| `Super + R` | App launcher |
 | `Super + Shift + B` | Reload waybar |
 | `Super + Shift + R` | Reload Hyprland config |
 | `Super + Shift + A` | Toggle animations |
@@ -75,6 +75,7 @@
 - `Super + Alt + S`
 - `Super + Alt + G`
 - `Super + Alt + ← → ↑ ↓`
+- `Super + A`
 - `Super + T`
 - `Super + Ctrl + E`
 - `Super + Ctrl + Enter`
