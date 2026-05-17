@@ -20,7 +20,7 @@
 | `Super + Shift + Q` | Kill process entirely |
 | `Super + F` | Fullscreen |
 | `Super + M` | Maximize |
-| `Super + T` | Toggle floating |
+| `Super + W` | Toggle floating |
 | `Super + J` | Toggle split |
 | `Super + K` | Swap split |
 | `Super + mouse drag (left)` | Move window |
@@ -32,7 +32,7 @@
 | `Super + Shift + S` | Screenshot — freeze screen, select region, copy (flameshot) |
 | `Super + Tab` | Window overview |
 | `Super + Ctrl + W` | Wallpaper selector |
-| `Super + Ctrl + Enter` | App launcher |
+| `Super + A` | App launcher |
 | `Super + Shift + B` | Reload waybar |
 | `Super + Shift + R` | Reload Hyprland config |
 | `Super + Shift + A` | Toggle animations |
@@ -56,6 +56,7 @@
 | `Calculator key` | Open calculator |
 | `Lock key` | Lock screen |
 | `Kbd backlight Up/Down` | Keyboard backlight |
+| `Ctrl + Alt + Delete` | Open Mission Center (task manager) |
 
 ---
 
@@ -74,7 +75,9 @@
 - `Super + Alt + S`
 - `Super + Alt + G`
 - `Super + Alt + ← → ↑ ↓`
+- `Super + T`
 - `Super + Ctrl + E`
+- `Super + Ctrl + Enter`
 - `Super + Ctrl + B`
 - `Super + Ctrl + C`
 - `Super + Ctrl + K`
