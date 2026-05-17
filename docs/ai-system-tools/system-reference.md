@@ -224,7 +224,7 @@ trap 'echo "[ERROR] scriptname.sh failed at line $LINENO (exit code: $?)" >&2' E
 ~/dotfiles/config/                  — config source; most dirs are symlinked from ~/.config/
 ~/dotfiles/home/                    — home-level files (.zshrc_custom, .local/bin scripts)
 ~/dotfiles/system/                  — system files requiring sudo (pacman hooks, etc.)
-~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/AI - System Tools/)
+~/dotfiles/docs/ai-system-tools/    — AI reference docs (synced from ~/Ricing Hub/AI - System Tools/)
 ~/dotfiles/wallpapers/              — wallpaper collection
 ~/dotfiles/install.sh               — full CachyOS bootstrap script
 ~/dotfiles/install-asahi.sh         — Asahi Linux (Apple Silicon) bootstrap script
@@ -496,6 +496,6 @@ What it does:
 6. rsync `~/AI\ -\ System\ Tools/*.md` into `dotfiles/docs/ai-system-tools/` (with --delete, so deletions sync too)
 7. `git add . && git commit -m "sync: YYYY-MM-DD HH:MM" && git push`
 
-The `AI - System Tools/` directory on the laptop contains markdown files documenting various fixes and setups. These get pushed to the repo as `docs/ai-system-tools/` so they're accessible from anywhere and AI assistants can reference them.
+The `AI - System Tools/` directory (at `~/Ricing Hub/AI - System Tools/`) contains markdown files documenting various fixes and setups. These get pushed to the repo as `docs/ai-system-tools/` so they're accessible from anywhere and AI assistants can reference them.
 
-**Important:** Files created directly in `~/dotfiles/docs/ai-system-tools/` will be deleted on the next sync if they don't also exist in `~/AI - System Tools/`. Always create new docs in `~/AI - System Tools/` first.
+**Important:** Files created directly in `~/dotfiles/docs/ai-system-tools/` will be deleted on the next sync if they don't also exist in `~/Ricing Hub/AI - System Tools/`. Always create new docs there first.
