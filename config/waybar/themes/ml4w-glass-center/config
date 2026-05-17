@@ -34,7 +34,6 @@
         "battery",
         "custom/mode-toggle",
         "power-profiles-daemon",
-        "custom/exit",
         "custom/ml4w-welcome"
     ]
 }
