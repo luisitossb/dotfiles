@@ -36,6 +36,7 @@
 | `Super + Shift + B` | Reload waybar |
 | `Super + Shift + R` | Reload Hyprland config |
 | `Super + Shift + A` | Toggle animations |
+| `Super + V` | Clipboard history |
 | `Super + S` | Toggle dashboard |
 
 ## Workspaces
@@ -89,7 +90,6 @@
 - `Super + Ctrl + ← →`
 - `Super + ← → ↑ ↓`
 - `Super + Print`
-- `Super + V`
 - `Alt + Tab`
 - `Ctrl + Alt + T`
 
