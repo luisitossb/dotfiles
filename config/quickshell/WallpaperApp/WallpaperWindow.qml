@@ -76,7 +76,7 @@ PanelWindow {
     }
 
     // Default fallback folder just in case the file doesn't exist
-    property string wallpaperFolder: "file://" + Quickshell.env("HOME") + "/dotfiles/wallpapers"
+    property string wallpaperFolder: "file://" + Quickshell.env("HOME") + "/Ricing Hub/dotfiles/wallpapers"
 
     Process {
         id: folderLoader
