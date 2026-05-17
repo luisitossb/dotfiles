@@ -467,10 +467,7 @@ PanelWindow {
                         statLabel: "Disk"; statIcon: "󰉉"; statPct: root.diskUsage
                         statInfo: root.diskInfo;          statColor: Theme.secondary
                     }
-                    StatRow {
-                        statLabel: "VRAM"; statIcon: "󰍹"; statPct: root.vramUsage
-                        statInfo: root.gpuTemp + "°C";   statColor: Theme.primary
-                    }
+
                 }
 
                 Item { implicitHeight: 14 }
