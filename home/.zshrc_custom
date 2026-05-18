@@ -42,6 +42,10 @@ dotfiles-sync() {
     "${R[@]}" --include='*.sh' --include='*.py' --exclude='*' ~/.local/bin/ home/.local/bin/
     "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
+    # OpenCode config
+    mkdir -p config/opencode
+    cp ~/.config/opencode/opencode.jsonc config/opencode/
+
     # AI - System Tools documentation (markdown only)
     mkdir -p docs/ai-system-tools
     rsync -a --delete --include='*.md' --exclude='*' ~/'Ricing Hub'/'AI - System Tools'/ docs/ai-system-tools/

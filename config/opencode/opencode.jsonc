@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "qwen3.5:9b": {},
+        "gemma3:12b": {},
+        "qwen2.5-coder:7b": {}
+      }
+    }
+  },
+  "model": "ollama/qwen3.5:9b",
+  "instructions": ["/no_think unless the task explicitly requires deep reasoning. Be concise and direct."]
+}
