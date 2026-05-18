@@ -1,4 +1,5 @@
 @import url("../../../colors.css");
+@import url("pixel-font.css");
 
 /*
  * __        __          _                  ____  _         _
@@ -144,8 +145,6 @@ window#waybar.empty #window {
 #custom-sidebar {
     padding: 0 8px;
     color: @primary;
-    font-family: "Press Start 2P";
-    font-size: 9px;
 }
 
 /* -----------------------------------------------------
@@ -286,8 +285,6 @@ window#waybar.empty #window {
 #clock {
     padding: 0 8px;
     color: @primary;
-    font-family: "Press Start 2P";
-    font-size: 9px;
 }
 
 /* -----------------------------------------------------
@@ -297,8 +294,6 @@ window#waybar.empty #window {
 #pulseaudio {
     padding: 0 4px;
     color: @primary;
-    font-family: "Press Start 2P";
-    font-size: 9px;
 }
 
 #pulseaudio.muted {
@@ -335,8 +330,6 @@ window#waybar.empty #window {
 #battery {
     padding: 0 4px;
     color: @primary;
-    font-family: "Press Start 2P";
-    font-size: 9px;
 }
 
 #battery.charging, #battery.plugged {
