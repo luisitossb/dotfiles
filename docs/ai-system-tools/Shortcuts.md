@@ -9,8 +9,9 @@
 ## Applications
 | Shortcut | Action |
 |---|---|
-| `Super + Enter` | Open terminal |
-| `Super + B` | Open browser |
+| `Super + T` | Open terminal |
+| `Super + Enter` | Open Zen browser in new empty workspace (quick search) |
+| `Super + B` | Open browser (current workspace) |
 | `Super + E` | Open file manager |
 
 ## Windows
@@ -77,7 +78,6 @@
 - `Super + Alt + G`
 - `Super + Alt + ← → ↑ ↓`
 - `Super + A`
-- `Super + T`
 - `Super + Ctrl + E`
 - `Super + Ctrl + Enter`
 - `Super + Ctrl + B`
