@@ -124,13 +124,16 @@ qs-errors   # grep only WARN/ERROR lines
 - **Primary:** Zen Browser (`zen-browser` AUR package)
 
 ### File Managers
-- **Primary:** Nautilus (GNOME Files) — default for `inode/directory`
-- **Also installed:** Dolphin (KDE) — Qt themed via Kvantum (KvRoughGlass)
+- **Primary:** Nautilus (GNOME Files) — default for `inode/directory`. Themes automatically via GTK/matugen.
+- **Also installed:** Dolphin (KDE) — theming outside KDE Plasma is not reliable. kded6 (from plasma-integration) resets colors after a few seconds. Leave as-is.
 
 ### Qt theming
 - **Engine:** Kvantum → KvRoughGlass theme (glass/dark aesthetic)
 - **Platform theme:** qt6ct (`QT_QPA_PLATFORMTHEME=qt6ct` env var)
 - **Configs:** `~/.config/Kvantum/` and `~/.config/qt6ct/` (symlinked from dotfiles)
+- **Matugen integration:** `~/.config/qt6ct/colors/matugen.conf` is auto-generated on wallpaper change via `~/.config/matugen/templates/qt6ct-colors.conf`
+- **kdeglobals:** `~/.config/kdeglobals` is auto-generated on wallpaper change via `~/.local/bin/gen-kdeglobals.sh` (post-hook on colorsjson template). Used by KDE apps.
+- **plasma-integration:** Installed (provides `KDEPlasmaPlatformTheme6.so`) — not active (env var stays qt6ct). Installed as Dolphin theming experiment.
 
 ### GTK theming
 - **Dark mode:** `gsettings org.gnome.desktop.interface color-scheme prefer-dark`
