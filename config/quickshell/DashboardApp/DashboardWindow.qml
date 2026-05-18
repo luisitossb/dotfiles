@@ -62,10 +62,6 @@ PanelWindow {
     property int    batHealth: 100
     property string netSpeed:  "? / ?"
     property string uptimeStr: ""
-    property int    claudePct:  0
-    property string claudeCtx:  "0K / 200K"
-    property string claudeOut:  "0K"
-    property int    claudeSess: 0
     property string clockTime:  Qt.formatTime(new Date(), "HH:mm")
     property string clockDate:  Qt.formatDate(new Date(), "dddd, MMMM d")
     property string lastError:  ""
@@ -142,11 +138,6 @@ PanelWindow {
     Timer {
         interval: 60000; running: root.isOpen; repeat: true; triggeredOnStart: true
         onTriggered: { uptimeProc.running = false; uptimeProc.running = true }
-    }
-
-    Timer {
-        interval: 10000; running: root.isOpen; repeat: true; triggeredOnStart: true
-        onTriggered: { claudeProc.running = false; claudeProc.running = true }
     }
 
     Timer { id: modeTimer;   interval: 3000; repeat: false; onTriggered: { modeProc.running   = false; modeProc.running   = true } }
@@ -247,26 +238,6 @@ PanelWindow {
         id: uptimeProc
         command: ["bash", "-c", "uptime -p | sed 's/up //'"]
         stdout: StdioCollector { onStreamFinished: root.uptimeStr = this.text.trim() }
-    }
-
-    Process {
-        id: claudeProc
-        command: ["bash", Quickshell.env("HOME") + "/.config/eww/scripts/claude-usage.sh"]
-        stdout: StdioCollector { onStreamFinished: {
-            try {
-                let d = JSON.parse(this.text.trim())
-                root.claudePct  = d.ctx_pct || 0
-                root.claudeCtx  = (d.ctx_tokens || "0K") + " / " + (d.ctx_max || "200K")
-                root.claudeOut  = d.today_out || "0K"
-                root.claudeSess = d.today_sessions || 0
-            } catch(e) {
-                root.logErr("claude-usage", "parse error: " + e)
-            }
-        }}
-        stderr: StdioCollector { onStreamFinished: {
-            let e = this.text.trim()
-            if (e) root.logErr("claude-usage", e)
-        }}
     }
 
     Process {
@@ -489,64 +460,6 @@ PanelWindow {
 
                     SysRow { rowIcon: "󰓅"; rowLabel: "Network"; rowValue: root.netSpeed }
                     SysRow { rowIcon: "󰔟"; rowLabel: "Uptime";  rowValue: root.uptimeStr }
-                }
-
-                Item { implicitHeight: 14 }
-                Divider { Layout.leftMargin: 22; Layout.rightMargin: 22 }
-                Item { implicitHeight: 12 }
-
-                // ── Claude Code usage ─────────────────────────────────────────
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 22; Layout.rightMargin: 22
-                    spacing: 8
-
-                    RowLayout {
-                        Layout.fillWidth: true; spacing: 8
-                        Text {
-                            text: "󰧑"; font.family: "monospace"; font.pixelSize: 14
-                            color: Theme.on_surface_variant; Layout.minimumWidth: 22
-                        }
-                        Text {
-                            text: "Claude Code"; color: Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12; Layout.fillWidth: true
-                        }
-                        Text {
-                            text: root.claudeOut; color: Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 11
-                        }
-                        Text {
-                            text: root.claudePct + "%"; color: Theme.on_surface_variant
-                            font.family: Theme.fontFamily; font.pixelSize: 12
-                            Layout.minimumWidth: 32; horizontalAlignment: Text.AlignRight
-                        }
-                    }
-
-                    StatBar {
-                        pct: root.claudePct
-                        barColor: root.claudePct >= 80 ? Theme.error :
-                                  root.claudePct >= 50 ? Theme.secondary : Theme.primary
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            text: root.claudeCtx + " ctx · " + root.claudeSess + " sessions"
-                            color: Theme.on_surface_variant; font.family: Theme.fontFamily
-                            font.pixelSize: 10; Layout.fillWidth: true
-                        }
-                        Text {
-                            id: weeklyLink
-                            text: "weekly →"; color: Theme.primary
-                            font.family: Theme.fontFamily; font.pixelSize: 10; opacity: 0.6
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: Quickshell.execDetached(["xdg-open", "https://claude.ai/settings/usage"])
-                                onEntered: weeklyLink.opacity = 1.0
-                                onExited:  weeklyLink.opacity = 0.6
-                            }
-                        }
-                    }
                 }
 
                 Item { implicitHeight: 14 }
