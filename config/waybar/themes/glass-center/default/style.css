@@ -144,7 +144,8 @@ window#waybar.empty #window {
 #custom-sidebar {
     padding: 0 8px;
     color: @primary;
-    font-weight: bold;
+    font-family: "Press Start 2P";
+    font-size: 9px;
 }
 
 /* -----------------------------------------------------

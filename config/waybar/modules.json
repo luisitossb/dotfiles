@@ -64,7 +64,7 @@
   // Sidebar Toggle
   "custom/sidebar": {
     "on-click": "qs ipc call widget-center toggle",
-    "format": "luis",
+    "format": "LUIS",
     "tooltip-format": "Open Widget Center"
   },
   // Empty
