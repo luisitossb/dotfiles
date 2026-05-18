@@ -1,15 +1,13 @@
 import Quickshell
 import Quickshell.Io
-import "PowerApp"
-import "SidebarApp"
-import "CalendarApp"
+import "WidgetCenter"
 import "WallpaperApp"
-import "DashboardApp"
+import "ResourceManager"
 import "BluetoothApp"
 import "WiFiApp"
-import "ScreenshotApp"
 import "ClipboardApp"
-import "LauncherApp"
+import "AppLauncher"
+import "TrayPanel"
 import "CustomTheme"
 
 ShellRoot {
@@ -22,14 +20,12 @@ ShellRoot {
         }
     }
 
-    PowerWindow {}
-    SidebarWindow {}
-    CalendarWindow {}
+    WidgetCenterWindow {}
     WallpaperWindow {}
-    DashboardWindow {}
+    ResourceManagerWindow {}
     BluetoothWindow {}
     WiFiWindow {}
-    ScreenshotWindow {}
     ClipboardWindow {}
-    LauncherWindow {}
+    AppLauncherWindow {}
+    TrayPanelWindow {}
 }

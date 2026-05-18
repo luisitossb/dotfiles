@@ -38,7 +38,7 @@ PanelWindow {
     }
 
     IpcHandler {
-        target: "dashboard"
+        target: "resource-manager"
         function toggle(): void { root.isOpen = !root.isOpen }
         function open():   void { root.isOpen = true  }
         function close():  void { root.isOpen = false }

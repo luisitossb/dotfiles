@@ -13,7 +13,7 @@ PanelWindow {
     id: root
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "qs-sidebar"
+    WlrLayershell.namespace: "qs-widget-center"
     exclusionMode: WlrLayershell.Ignore
     implicitWidth: 340
     color: "transparent"
@@ -41,7 +41,7 @@ PanelWindow {
     }
 
     IpcHandler {
-        target: "sidebar"
+        target: "widget-center"
         function toggle(): void { root.isOpen = !root.isOpen }
         function open():   void { root.isOpen = true  }
         function close():  void { root.isOpen = false }

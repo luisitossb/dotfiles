@@ -63,7 +63,7 @@
   },
   // Sidebar Toggle
   "custom/sidebar": {
-    "on-click": "qs ipc call sidebar toggle",
+    "on-click": "qs ipc call widget-center toggle",
     "format": "luis",
     "tooltip-format": "Open Widget Center"
   },
@@ -153,7 +153,7 @@
   // Rofi Application Launcher
   "custom/appmenu": {
     "format": "󱂬",
-    "on-click": "qs ipc call launcher toggle",
+    "on-click": "qs ipc call app-launcher toggle",
     "on-click-right": "~/.config/hypr/scripts/keybindings.sh",
     "tooltip-format": "Left: Open the application launcher\nRight: Show all keybindings"
   },
@@ -163,12 +163,6 @@
     "on-click": "sleep 0.2;rofi -show drun -replace",
     "on-click-right": "~/.config/hypr/scripts/keybindings.sh",
     "tooltip-format": "Left: Open the application launcher\nRight: Show all keybindings"
-  },
-  // Power Menu
-  "custom/exit": {
-    "format": "",
-    "on-click": "qs ipc call power toggle",
-    "tooltip-format": "Open Power Menu"
   },
   // SwayNC
   "custom/notification": {
@@ -242,7 +236,6 @@
   // Clock
   "clock": {
     "format": "{:%I:%M %p %a}",
-    "on-click": "qs ipc call calendar toggle",
     "timezone": "",
     "tooltip": false
   },
