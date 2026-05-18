@@ -54,6 +54,7 @@ PanelWindow {
     property string diskInfo:  "?"
     property int    vramUsage: 0
     property string gpuTemp:   "N/A"
+    property string vramInfo:  "?"
     property int    volPct:    0
     property bool   isMuted:   false
     property int    batPct:    100
@@ -181,11 +182,12 @@ PanelWindow {
         command: ["bash", "-c",
             "which nvidia-smi >/dev/null 2>&1 && " +
             "nvidia-smi --query-gpu=memory.used,memory.total,temperature.gpu --format=csv,noheader,nounits 2>/dev/null | " +
-            "awk -F', ' '{printf \"%d\\n%s\", $1/$2*100, $3}' || printf '0\\nN/A'"]
+            "awk -F', ' '{printf \"%d\\n%s\\n%.1f/%.1fG\", $1/$2*100, $3, $1/1024, $2/1024}' || printf '0\\nN/A\\n?'"]
         stdout: StdioCollector { onStreamFinished: {
             let l = this.text.trim().split("\n")
             root.vramUsage = parseInt(l[0]) || 0
             root.gpuTemp   = l[1] || "N/A"
+            root.vramInfo  = l[2] || "?"
         }}
     }
 
@@ -466,6 +468,11 @@ PanelWindow {
                     StatRow {
                         statLabel: "Disk"; statIcon: "󰉉"; statPct: root.diskUsage
                         statInfo: root.diskInfo;          statColor: Theme.secondary
+                    }
+                    StatRow {
+                        statLabel: "VRAM"; statIcon: "󰍹"; statPct: root.vramUsage
+                        statInfo: root.vramInfo
+                        statColor: root.vramUsage > 85 ? Theme.error : Theme.tertiary
                     }
 
                 }
