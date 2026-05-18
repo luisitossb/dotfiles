@@ -9,7 +9,7 @@ ExecStart=/usr/bin/docker run --rm --name open-webui \
   --add-host=host.docker.internal:host-gateway \
   -v open-webui:/app/backend/data \
   -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
-  -e DEFAULT_MODELS=llama3.1:8b \
+  -e DEFAULT_MODELS=gemma3:12b \
   -e RAG_EMBEDDING_ENGINE=ollama \
   -e RAG_EMBEDDING_MODEL=nomic-embed-text \
   -e RAG_OLLAMA_BASE_URL=http://host.docker.internal:11434 \
