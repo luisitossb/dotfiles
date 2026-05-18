@@ -175,6 +175,8 @@ window#waybar.empty #window {
 #custom-appmenu {
     padding-right: 3px;
     padding-left: 5px;
+    color: @primary;
+    font-size: 16px;
 }
 
 /* -----------------------------------------------------
