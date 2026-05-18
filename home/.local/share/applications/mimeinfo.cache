@@ -1,0 +1,25 @@
+[MIME Cache]
+application/json=zen.desktop;
+application/pdf=zen.desktop;
+application/rdf+xml=zen.desktop;
+application/rss+xml=zen.desktop;
+application/x-xpinstall=zen.desktop;
+application/xhtml+xml=zen.desktop;
+application/xml=zen.desktop;
+audio/flac=zen.desktop;
+audio/ogg=zen.desktop;
+audio/webm=zen.desktop;
+image/avif=zen.desktop;
+image/gif=zen.desktop;
+image/jpeg=zen.desktop;
+image/png=zen.desktop;
+image/svg+xml=zen.desktop;
+image/webp=zen.desktop;
+text/html=zen.desktop;
+text/xml=zen.desktop;
+video/ogg=zen.desktop;
+video/webm=zen.desktop;
+x-scheme-handler/chrome=zen.desktop;
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop;
+x-scheme-handler/http=zen.desktop;
+x-scheme-handler/https=zen.desktop;

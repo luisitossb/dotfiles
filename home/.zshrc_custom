@@ -42,6 +42,11 @@ dotfiles-sync() {
     "${R[@]}" --include='*.sh' --include='*.py' --exclude='*' ~/.local/bin/ home/.local/bin/
     "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
+    # MIME associations and local desktop overrides
+    mkdir -p home/.config home/.local/share/applications
+    cp ~/.config/mimeapps.list home/.config/
+    "${R[@]}" ~/.local/share/applications/ home/.local/share/applications/
+
     # OpenCode config
     mkdir -p config/opencode
     cp ~/.config/opencode/opencode.jsonc config/opencode/

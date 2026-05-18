@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=DAVE THE DIVER
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/1868140
+Icon=steam
+Terminal=false
+Type=Application
+Categories=Game;
