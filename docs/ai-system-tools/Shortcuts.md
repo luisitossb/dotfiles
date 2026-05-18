@@ -31,7 +31,7 @@
 | Shortcut | Action |
 |---|---|
 | `Super + Shift + S` | Screenshot — freeze screen, select region, copy (flameshot) |
-| `Super + Tab` | Window overview |
+| `Super + Tab` | Swap to last used workspace |
 | `Super + Ctrl + W` | Wallpaper selector |
 | `Super + R` | App launcher |
 | `Super + Shift + B` | Reload waybar |
