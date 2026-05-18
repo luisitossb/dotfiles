@@ -242,6 +242,60 @@ PanelWindow {
                         }
                     }
 
+                    // ── Mouse scroll ──────────────────────────────────────────
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: "󰍽"; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
+                        }
+                        WCSlider {
+                            id: mouseScrollSlider; from: 10; to: 150; value: 50; stepSize: 5
+                            Process {
+                                command: ["bash", "-c", "grep '# Scroll speed' " + Quickshell.env("HOME") + "/.config/hypr/conf/keyboard.conf | grep -oP 'scroll_factor = \\K[0-9.]+' | head -1"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseFloat(this.text.trim())
+                                    if (!isNaN(v)) mouseScrollSlider.value = Math.round(v * 100)
+                                }}
+                            }
+                            onMoved: mouseScrollTimer.restart()
+                        }
+                        Timer {
+                            id: mouseScrollTimer; interval: 400; repeat: false
+                            onTriggered: Quickshell.execDetached(["bash",
+                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                "mouse", (mouseScrollSlider.value / 100).toFixed(2)])
+                        }
+                    }
+
+                    // ── Trackpad scroll ────────────────────────────────────────
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: "󰟸"; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
+                        }
+                        WCSlider {
+                            id: trackpadScrollSlider; from: 10; to: 150; value: 50; stepSize: 5
+                            Process {
+                                command: ["bash", "-c", "grep '# Touchpad scroll' " + Quickshell.env("HOME") + "/.config/hypr/conf/keyboard.conf | grep -oP 'scroll_factor = \\K[0-9.]+' | head -1"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseFloat(this.text.trim())
+                                    if (!isNaN(v)) trackpadScrollSlider.value = Math.round(v * 100)
+                                }}
+                            }
+                            onMoved: trackpadScrollTimer.restart()
+                        }
+                        Timer {
+                            id: trackpadScrollTimer; interval: 400; repeat: false
+                            onTriggered: Quickshell.execDetached(["bash",
+                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                "trackpad", (trackpadScrollSlider.value / 100).toFixed(2)])
+                        }
+                    }
+
                     // ── MPRIS ─────────────────────────────────────────────────
                     Loader {
                         Layout.fillWidth: true
