@@ -349,10 +349,10 @@
       "warning": 30,
       "critical": 15
     },
-    "format": "[ {icon} {capacity}% ]",
-    "format-charging": "[   {capacity}% ]",
-    "format-plugged": "[   {capacity}% ]",
-    "format-alt": "[ {icon} {time} ]",
+    "format": "[ BAT {capacity}% ]",
+    "format-charging": "[ CHR {capacity}% ]",
+    "format-plugged": "[ PWR {capacity}% ]",
+    "format-alt": "[ BAT {time} ]",
     // "format-good": "", // An empty format will hide the module
     // "format-full": "",
     "format-icons": [
@@ -380,7 +380,7 @@
   // Pulseaudio
   "pulseaudio": {
     // "scroll-step": 1, // %, can be a float
-    "format": "[ {icon}  {volume}% ]",
+    "format": "[ VOL {volume}% ]",
     "format-bluetooth": "{volume}% {icon} {format_source}",
     "format-bluetooth-muted": " {icon} {format_source}",
     "format-muted": " {format_source}",

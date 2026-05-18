@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import QtQuick
 import "WidgetCenter"
 import "WallpaperApp"
 import "ResourceManager"
@@ -12,6 +13,10 @@ import "CustomTheme"
 
 ShellRoot {
     // Test IPC tools: qs ipc show
+
+    FontLoader {
+        source: "file:///usr/share/fonts/TTF/PressStart2P.ttf"
+    }
 
     IpcHandler {
         target: "theme-manager"
