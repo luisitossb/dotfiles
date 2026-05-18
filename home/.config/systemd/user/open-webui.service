@@ -3,27 +3,28 @@ Description=Open WebUI
 After=network.target ollama.service
 
 [Service]
-ExecStart=/home/luisito/.local/bin/open-webui serve
-Restart=always
-Environment=OLLAMA_BASE_URL=http://127.0.0.1:11434
-Environment=DEFAULT_MODELS=llama3.1:8b
-# RAG - use nomic-embed-text for document embeddings
-Environment=RAG_EMBEDDING_ENGINE=ollama
-Environment=RAG_EMBEDDING_MODEL=nomic-embed-text
-Environment=RAG_OLLAMA_BASE_URL=http://127.0.0.1:11434
-# Web search - SearXNG (self-hosted, queries Google/Bing/DDG simultaneously)
-Environment=ENABLE_RAG_WEB_SEARCH=true
-Environment=RAG_WEB_SEARCH_ENGINE=searxng
-Environment=SEARXNG_QUERY_URL=http://localhost:8888/search?q=<query>&format=json
-Environment=ENABLE_SEARCH_QUERY=true
-# Code execution
-Environment=ENABLE_CODE_EXECUTION=true
-Environment=CODE_EXECUTION_ENGINE=pyodide
-# RAG defaults - enable for all chats
-Environment=RAG_RERANKING_MODEL_AUTO_SELECT=true
-Environment=ENABLE_RAG_HYBRID_SEARCH=true
-# Web search on by default in new chats
-Environment=ENABLE_WEB_SEARCH_IN_NEW_CHAT=true
+ExecStartPre=-/usr/bin/docker rm -f open-webui
+ExecStart=/usr/bin/docker run --rm --name open-webui \
+  -p 8080:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v open-webui:/app/backend/data \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -e DEFAULT_MODELS=llama3.1:8b \
+  -e RAG_EMBEDDING_ENGINE=ollama \
+  -e RAG_EMBEDDING_MODEL=nomic-embed-text \
+  -e RAG_OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -e ENABLE_RAG_WEB_SEARCH=true \
+  -e RAG_WEB_SEARCH_ENGINE=searxng \
+  -e "SEARXNG_QUERY_URL=http://host.docker.internal:8888/search?q=<query>&format=json" \
+  -e ENABLE_SEARCH_QUERY=true \
+  -e ENABLE_CODE_EXECUTION=true \
+  -e CODE_EXECUTION_ENGINE=pyodide \
+  -e RAG_RERANKING_MODEL_AUTO_SELECT=true \
+  -e ENABLE_RAG_HYBRID_SEARCH=true \
+  -e ENABLE_WEB_SEARCH_IN_NEW_CHAT=true \
+  ghcr.io/open-webui/open-webui:main
+ExecStop=/usr/bin/docker stop open-webui
+Restart=on-failure
 
 [Install]
 WantedBy=default.target
