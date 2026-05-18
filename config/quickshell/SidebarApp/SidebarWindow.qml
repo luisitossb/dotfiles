@@ -242,7 +242,7 @@ PanelWindow {
                         }
                     }
 
-                    // ── Mouse scroll ──────────────────────────────────────────
+                    // ── Mouse scroll + sensitivity ────────────────────────────
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12
                         Text {
@@ -259,17 +259,34 @@ PanelWindow {
                                     if (!isNaN(v)) mouseScrollSlider.value = Math.round(v * 100)
                                 }}
                             }
-                            onMoved: mouseScrollTimer.restart()
-                        }
-                        Timer {
-                            id: mouseScrollTimer; interval: 400; repeat: false
-                            onTriggered: Quickshell.execDetached(["bash",
+                            onMoved: Quickshell.execDetached(["bash",
                                 Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "mouse", (mouseScrollSlider.value / 100).toFixed(2)])
+                                "mouse", "scroll", (value / 100).toFixed(2)])
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: "󰆾"; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
+                        }
+                        WCSlider {
+                            id: mouseSensSlider; from: 0; to: 200; value: 100; stepSize: 10
+                            Process {
+                                command: ["bash", "-c", "grep '# mouse-sensitivity' " + Quickshell.env("HOME") + "/.config/hypr/conf/keyboard.conf | grep -oP 'sensitivity = \\K[-0-9.]+' | head -1"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseFloat(this.text.trim())
+                                    if (!isNaN(v)) mouseSensSlider.value = Math.round(v * 100) + 100
+                                }}
+                            }
+                            onMoved: Quickshell.execDetached(["bash",
+                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                "mouse", "sens", ((value - 100) / 100).toFixed(2)])
                         }
                     }
 
-                    // ── Trackpad scroll ────────────────────────────────────────
+                    // ── Trackpad scroll + sensitivity ─────────────────────────
                     RowLayout {
                         Layout.fillWidth: true; spacing: 12
                         Text {
@@ -286,13 +303,30 @@ PanelWindow {
                                     if (!isNaN(v)) trackpadScrollSlider.value = Math.round(v * 100)
                                 }}
                             }
-                            onMoved: trackpadScrollTimer.restart()
-                        }
-                        Timer {
-                            id: trackpadScrollTimer; interval: 400; repeat: false
-                            onTriggered: Quickshell.execDetached(["bash",
+                            onMoved: Quickshell.execDetached(["bash",
                                 Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "trackpad", (trackpadScrollSlider.value / 100).toFixed(2)])
+                                "trackpad", "scroll", (value / 100).toFixed(2)])
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true; spacing: 12
+                        Text {
+                            text: "󱕴"; font.family: "monospace"; font.pixelSize: 16
+                            color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
+                        }
+                        WCSlider {
+                            id: trackpadSensSlider; from: 0; to: 200; value: 100; stepSize: 10
+                            Process {
+                                command: ["bash", "-c", "grep '# trackpad-sensitivity' " + Quickshell.env("HOME") + "/.config/hypr/conf/keyboard.conf | grep -oP 'sensitivity = \\K[-0-9.]+' | head -1"]
+                                running: root.isOpen
+                                stdout: StdioCollector { onStreamFinished: {
+                                    let v = parseFloat(this.text.trim())
+                                    if (!isNaN(v)) trackpadSensSlider.value = Math.round(v * 100) + 100
+                                }}
+                            }
+                            onMoved: Quickshell.execDetached(["bash",
+                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                "trackpad", "sens", ((value - 100) / 100).toFixed(2)])
                         }
                     }
 
