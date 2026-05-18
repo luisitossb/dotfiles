@@ -244,7 +244,7 @@ PanelWindow {
 
                     // ── Mouse scroll + sensitivity ────────────────────────────
                     RowLayout {
-                        Layout.fillWidth: true; spacing: 12
+                        Layout.fillWidth: true; spacing: 8
                         Text {
                             text: "󰍽"; font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
@@ -259,13 +259,37 @@ PanelWindow {
                                     if (!isNaN(v)) mouseScrollSlider.value = Math.round(v * 100)
                                 }}
                             }
-                            onMoved: Quickshell.execDetached(["bash",
-                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "mouse", "scroll", (value / 100).toFixed(2)])
+                            onMoved: {
+                                mouseScrollField.text = (value / 100).toFixed(2)
+                                Quickshell.execDetached(["bash",
+                                    Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                    "mouse", "scroll", (value / 100).toFixed(2)])
+                            }
+                        }
+                        TextField {
+                            id: mouseScrollField
+                            implicitWidth: 54; implicitHeight: 28
+                            text: (mouseScrollSlider.value / 100).toFixed(2)
+                            color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 11
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignVCenter
+                            background: Rectangle {
+                                radius: 6
+                                color: Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, mouseScrollField.activeFocus ? 0.7 : 0.25)
+                                border.width: 1
+                            }
+                            onAccepted: {
+                                let v = Math.max(0.10, Math.min(1.50, parseFloat(text) || 0.50))
+                                mouseScrollSlider.value = Math.round(v * 100)
+                                text = v.toFixed(2)
+                                Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/set-scroll.sh", "mouse", "scroll", v.toFixed(2)])
+                                focus = false
+                            }
                         }
                     }
                     RowLayout {
-                        Layout.fillWidth: true; spacing: 12
+                        Layout.fillWidth: true; spacing: 8
                         Text {
                             text: "󰆾"; font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
@@ -280,15 +304,39 @@ PanelWindow {
                                     if (!isNaN(v)) mouseSensSlider.value = Math.round(v * 100) + 100
                                 }}
                             }
-                            onMoved: Quickshell.execDetached(["bash",
-                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "mouse", "sens", ((value - 100) / 100).toFixed(2)])
+                            onMoved: {
+                                mouseSensField.text = ((value - 100) / 100).toFixed(2)
+                                Quickshell.execDetached(["bash",
+                                    Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                    "mouse", "sens", ((value - 100) / 100).toFixed(2)])
+                            }
+                        }
+                        TextField {
+                            id: mouseSensField
+                            implicitWidth: 54; implicitHeight: 28
+                            text: ((mouseSensSlider.value - 100) / 100).toFixed(2)
+                            color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 11
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignVCenter
+                            background: Rectangle {
+                                radius: 6
+                                color: Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, mouseSensField.activeFocus ? 0.7 : 0.25)
+                                border.width: 1
+                            }
+                            onAccepted: {
+                                let v = Math.max(-1.0, Math.min(1.0, parseFloat(text) || 0.0))
+                                mouseSensSlider.value = Math.round(v * 100) + 100
+                                text = v.toFixed(2)
+                                Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/set-scroll.sh", "mouse", "sens", v.toFixed(2)])
+                                focus = false
+                            }
                         }
                     }
 
                     // ── Trackpad scroll + sensitivity ─────────────────────────
                     RowLayout {
-                        Layout.fillWidth: true; spacing: 12
+                        Layout.fillWidth: true; spacing: 8
                         Text {
                             text: "󰟸"; font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
@@ -303,13 +351,37 @@ PanelWindow {
                                     if (!isNaN(v)) trackpadScrollSlider.value = Math.round(v * 100)
                                 }}
                             }
-                            onMoved: Quickshell.execDetached(["bash",
-                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "trackpad", "scroll", (value / 100).toFixed(2)])
+                            onMoved: {
+                                trackpadScrollField.text = (value / 100).toFixed(2)
+                                Quickshell.execDetached(["bash",
+                                    Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                    "trackpad", "scroll", (value / 100).toFixed(2)])
+                            }
+                        }
+                        TextField {
+                            id: trackpadScrollField
+                            implicitWidth: 54; implicitHeight: 28
+                            text: (trackpadScrollSlider.value / 100).toFixed(2)
+                            color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 11
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignVCenter
+                            background: Rectangle {
+                                radius: 6
+                                color: Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, trackpadScrollField.activeFocus ? 0.7 : 0.25)
+                                border.width: 1
+                            }
+                            onAccepted: {
+                                let v = Math.max(0.10, Math.min(1.50, parseFloat(text) || 0.50))
+                                trackpadScrollSlider.value = Math.round(v * 100)
+                                text = v.toFixed(2)
+                                Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/set-scroll.sh", "trackpad", "scroll", v.toFixed(2)])
+                                focus = false
+                            }
                         }
                     }
                     RowLayout {
-                        Layout.fillWidth: true; spacing: 12
+                        Layout.fillWidth: true; spacing: 8
                         Text {
                             text: "󱕴"; font.family: "monospace"; font.pixelSize: 16
                             color: Theme.on_surface_variant; Layout.alignment: Qt.AlignVCenter
@@ -324,9 +396,33 @@ PanelWindow {
                                     if (!isNaN(v)) trackpadSensSlider.value = Math.round(v * 100) + 100
                                 }}
                             }
-                            onMoved: Quickshell.execDetached(["bash",
-                                Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
-                                "trackpad", "sens", ((value - 100) / 100).toFixed(2)])
+                            onMoved: {
+                                trackpadSensField.text = ((value - 100) / 100).toFixed(2)
+                                Quickshell.execDetached(["bash",
+                                    Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                    "trackpad", "sens", ((value - 100) / 100).toFixed(2)])
+                            }
+                        }
+                        TextField {
+                            id: trackpadSensField
+                            implicitWidth: 54; implicitHeight: 28
+                            text: ((trackpadSensSlider.value - 100) / 100).toFixed(2)
+                            color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 11
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignVCenter
+                            background: Rectangle {
+                                radius: 6
+                                color: Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, trackpadSensField.activeFocus ? 0.7 : 0.25)
+                                border.width: 1
+                            }
+                            onAccepted: {
+                                let v = Math.max(-1.0, Math.min(1.0, parseFloat(text) || 0.0))
+                                trackpadSensSlider.value = Math.round(v * 100) + 100
+                                text = v.toFixed(2)
+                                Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/set-scroll.sh", "trackpad", "sens", v.toFixed(2)])
+                                focus = false
+                            }
                         }
                     }
 
