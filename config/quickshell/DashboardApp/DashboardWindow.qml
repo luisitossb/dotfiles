@@ -396,7 +396,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent; radius: 16
             color: Qt.rgba(Theme.surface_container_low.r, Theme.surface_container_low.g,
-                           Theme.surface_container_low.b, 0.93)
+                           Theme.surface_container_low.b, 1.0)
             border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
             border.width: 1
         }

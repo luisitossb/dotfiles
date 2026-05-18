@@ -13,6 +13,7 @@ PanelWindow {
     id: root
 
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.namespace: "qs-sidebar"
     exclusionMode: WlrLayershell.Ignore
     implicitWidth: 340
     color: "transparent"
@@ -123,7 +124,7 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent; radius: 16
             color: Qt.rgba(Theme.surface_container_low.r, Theme.surface_container_low.g,
-                           Theme.surface_container_low.b, 0.95)
+                           Theme.surface_container_low.b, 1.0)
             border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
             border.width: 1
         }
