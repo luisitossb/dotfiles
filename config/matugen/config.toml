@@ -1,8 +1,13 @@
 [config]
 
+[templates.qt6ct]
+input_path = '~/.config/matugen/templates/qt6ct-colors.conf'
+output_path = '~/.config/qt6ct/colors/matugen.conf'
+
 [templates.colorsjson]
 input_path = '~/.config/matugen/templates/colors.json'
 output_path = '~/.config/quickshell/colors/colors.json'
+post_hook = 'gen-kdeglobals.sh'
 
 [templates.kitty]
 input_path = '~/.config/matugen/templates/kitty-colors.conf'
