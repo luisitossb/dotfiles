@@ -12,9 +12,9 @@
     ],
     // Modules Left
     "modules-left": [
-        "custom/appmenu",
         "hyprland/workspaces",
         "custom/new-workspace",
+        "custom/appmenu",
         //"wlr/taskbar",
         //"group/quicklinks",
         //"custom/nowplaying",
