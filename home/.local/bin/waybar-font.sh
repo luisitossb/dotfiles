@@ -1,16 +1,17 @@
 #!/bin/bash
-# Cycle through video game fonts for Waybar pixel elements
-# Targets: #clock, #pulseaudio, #battery, #custom-sidebar
+# Cycle through video game fonts for Waybar + Quickshell
+# Waybar targets: #clock, #pulseaudio, #battery, #custom-sidebar
+# Quickshell target: Theme.fontFamily in CustomTheme/Theme.qml
 
 FONTS=(
     "Press Start 2P|9"
     "Orbitron|9"
     "Silkscreen|9"
-    "none|12"
 )
 
 STATE_FILE="$HOME/.config/waybar/active-font"
 CSS_FILE="$HOME/.config/waybar/themes/glass-center/default/pixel-font.css"
+THEME_QML="$HOME/.config/quickshell/CustomTheme/Theme.qml"
 
 CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "0")
 NEXT=$(( (CURRENT + 1) % ${#FONTS[@]} ))
@@ -20,12 +21,8 @@ ENTRY="${FONTS[$NEXT]}"
 FONT_NAME="${ENTRY%|*}"
 FONT_SIZE="${ENTRY#*|}"
 
-if [ "$FONT_NAME" = "none" ]; then
-    cat > "$CSS_FILE" << 'EOF'
-/* no pixel font — using default waybar font */
-EOF
-else
-    cat > "$CSS_FILE" << EOF
+# Update Waybar CSS
+cat > "$CSS_FILE" << EOF
 #clock,
 #pulseaudio,
 #battery,
@@ -34,6 +31,12 @@ else
     font-size: ${FONT_SIZE}px;
 }
 EOF
-fi
 
+# Update Quickshell theme font
+sed -i "s/readonly property string fontFamily: \".*\"/readonly property string fontFamily: \"$FONT_NAME\"/" "$THEME_QML"
+
+# Reload both
 ~/.config/waybar/launch.sh
+killall quickshell 2>/dev/null
+sleep 0.3
+quickshell &
