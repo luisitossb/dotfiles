@@ -13,6 +13,6 @@
       }
     }
   },
-  "model": "ollama/qwen3.5:9b",
+  "model": "opencode/deepseek-v4-flash-free",
   "instructions": ["/no_think unless the task explicitly requires deep reasoning. Be concise and direct."]
 }
