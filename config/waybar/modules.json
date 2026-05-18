@@ -336,7 +336,7 @@
   },
   // Network
   "network": {
-    "format": "{ifname}",
+    "format": "",
     "format-wifi": "[  {signalStrength}% ]",
     "format-ethernet": "[  ]",
     "format-disconnected": "[ ⚠ Disconnected ]",
