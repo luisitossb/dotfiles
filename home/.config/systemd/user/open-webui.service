@@ -24,6 +24,7 @@ ExecStart=/usr/bin/docker run --rm --name open-webui \
   -e ENABLE_WEB_SEARCH_IN_NEW_CHAT=true \
   -e ENABLE_RAG_LOCAL_WEB_FETCH=true \
   -e ENABLE_API_KEYS=true \
+  -e ENABLE_EVALUATION_ARENA_MODELS=false \
   -e ENABLE_IMAGE_GENERATION=true \
   -e IMAGE_GENERATION_ENGINE=comfyui \
   -e COMFYUI_BASE_URL=http://host.docker.internal:8188 \
