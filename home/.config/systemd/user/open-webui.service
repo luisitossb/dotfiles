@@ -22,6 +22,7 @@ ExecStart=/usr/bin/docker run --rm --name open-webui \
   -e RAG_RERANKING_MODEL_AUTO_SELECT=true \
   -e ENABLE_RAG_HYBRID_SEARCH=true \
   -e ENABLE_WEB_SEARCH_IN_NEW_CHAT=true \
+  -e ENABLE_RAG_LOCAL_WEB_FETCH=true \
   -e ENABLE_IMAGE_GENERATION=true \
   -e IMAGE_GENERATION_ENGINE=comfyui \
   -e COMFYUI_BASE_URL=http://host.docker.internal:8188 \
