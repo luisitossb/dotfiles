@@ -39,7 +39,7 @@ dotfiles-sync() {
     # Home files and scripts
     cp ~/.zshrc ~/.zshrc_custom home/
     mkdir -p home/.local/bin home/.config/systemd/user
-    "${R[@]}" --exclude='*' --include='*.sh' --include='*.py' ~/.local/bin/ home/.local/bin/
+    "${R[@]}" --include='*.sh' --include='*.py' --exclude='*' ~/.local/bin/ home/.local/bin/
     "${R[@]}" --exclude='default.target.wants/' ~/.config/systemd/user/ home/.config/systemd/user/
 
     # AI - System Tools documentation (markdown only)
