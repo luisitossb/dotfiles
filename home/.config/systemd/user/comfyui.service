@@ -1,0 +1,22 @@
+[Unit]
+Description=ComfyUI (FLUX image generation)
+After=network.target docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker rm -f comfyui
+ExecStart=/usr/bin/docker run --rm --name comfyui \
+  --gpus all \
+  -p 8188:8188 \
+  -v /home/luisito/.comfyui/models/unet:/opt/ComfyUI/models/unet \
+  -v /home/luisito/.comfyui/models/vae:/opt/ComfyUI/models/vae \
+  -v /home/luisito/.comfyui/models/clip:/opt/ComfyUI/models/clip \
+  -v /home/luisito/.comfyui/models/checkpoints:/opt/ComfyUI/models/checkpoints \
+  -v /home/luisito/.comfyui/custom_nodes:/opt/ComfyUI/custom_nodes \
+  -v /home/luisito/.comfyui/output:/opt/ComfyUI/output \
+  ghcr.io/ai-dock/comfyui:latest \
+  bash -c "/opt/environments/python/comfyui/bin/pip install -q -r /opt/ComfyUI/custom_nodes/ComfyUI-GGUF/requirements.txt && /opt/environments/python/comfyui/bin/python /opt/ComfyUI/main.py --listen 0.0.0.0 --port 8188"
+ExecStop=/usr/bin/docker stop comfyui
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
