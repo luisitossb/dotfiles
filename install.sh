@@ -205,6 +205,7 @@ SYMLINK_CONFIGS=(
     qt6ct        # Qt6 platform theme config
     cava         # Audio visualizer config + themes
     nwg-look     # GTK appearance settings
+    opencode     # AI terminal agent config
 )
 
 for name in "${SYMLINK_CONFIGS[@]}"; do
@@ -236,6 +237,14 @@ if [[ -d "$DOTFILES_DIR/home/.local/bin" ]]; then
     cp "$DOTFILES_DIR/home/.local/bin/"* ~/.local/bin/
     chmod +x ~/.local/bin/*
     info "Deployed: ~/.local/bin scripts"
+fi
+
+# Systemd user services
+if [[ -d "$DOTFILES_DIR/home/.config/systemd/user" ]]; then
+    mkdir -p ~/.config/systemd/user
+    cp "$DOTFILES_DIR/home/.config/systemd/user/"*.service ~/.config/systemd/user/ 2>/dev/null || true
+    systemctl --user daemon-reload
+    info "Deployed: systemd user services"
 fi
 
 # Fix hardcoded /home/luisito paths (waypaper config)
