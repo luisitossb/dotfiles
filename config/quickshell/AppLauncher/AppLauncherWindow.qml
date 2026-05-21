@@ -12,6 +12,7 @@ PanelWindow {
     id: root
 
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.namespace: "qs-app-launcher"
     exclusionMode: WlrLayershell.Ignore
     color: "transparent"
 
@@ -109,16 +110,6 @@ PanelWindow {
 
     Item {
         anchors.fill: parent
-
-        // Dim the rest of the screen to the right
-        Rectangle {
-            anchors { top: parent.top; bottom: parent.bottom; left: parent.left; right: parent.right }
-            color: Qt.rgba(0, 0, 0, 0.35)
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.isOpen = false
-            }
-        }
 
         // Launcher panel
         Rectangle {
