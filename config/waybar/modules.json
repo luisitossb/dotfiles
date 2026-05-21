@@ -85,20 +85,6 @@
     "on-scroll-down": "true"
   },
 
-  // Now Playing
-  "custom/nowplaying": {
-    "exec": "~/.config/quickshell/scripts/now-playing.sh",
-    "format": "  {text}",
-    "return-type": "json",
-    "interval": 1,
-    "escape": true,
-    "hide-empty-text": false,
-    "on-click": "playerctl play-pause",
-    "on-click-right": "playerctl next",
-    "on-click-middle": "playerctl previous",
-    "tooltip-format": "Left: Play/Pause\nRight: Next\nMiddle: Previous"
-  },
-  
   // Cliphist
   "custom/cliphist": {
     "format": "",
