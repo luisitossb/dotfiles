@@ -448,12 +448,6 @@ PanelWindow {
                                 checkCmd:  "pgrep -x hyprsunset >/dev/null && echo 1 || echo 0",
                                 onCmd:     "hyprsunset -t 4000 &",
                                 offCmd:    "pkill -x hyprsunset"
-                            },
-                            {
-                                label: "Do Not Disturb",
-                                checkCmd:  "swaync-client --get-dnd 2>/dev/null | grep -qi true && echo 1 || echo 0",
-                                onCmd:     "swaync-client --toggle-dnd",
-                                offCmd:    "swaync-client --toggle-dnd"
                             }
                         ]
                         delegate: RowLayout {

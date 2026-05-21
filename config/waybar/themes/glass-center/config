@@ -31,7 +31,7 @@
     "modules-right": [
         "pulseaudio",
         "battery",
-        "custom/mode-toggle",
+"custom/mode-toggle",
         "power-profiles-daemon",
         "custom/sidebar"
     ]
