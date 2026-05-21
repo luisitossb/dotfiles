@@ -2,7 +2,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
-import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -14,8 +13,8 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
-    implicitWidth:  420
-    implicitHeight: 680
+    implicitWidth:  260
+    implicitHeight: mainCol.implicitHeight + 2
     color: "transparent"
 
     anchors { left: true; top: true }
@@ -68,14 +67,11 @@ PanelWindow {
     property bool   modeServer:   false
     property bool   shaderOn:     false
     property string powerProfile: "balanced"
-    property bool   dndOn:        false
-
     onIsOpenChanged: {
         if (isOpen) {
             modeProc.running   = false; modeProc.running   = true
             shaderProc.running = false; shaderProc.running = true
             powerProc.running  = false; powerProc.running  = true
-            dndProc.running    = false; dndProc.running    = true
         }
     }
 
@@ -101,11 +97,6 @@ PanelWindow {
         Quickshell.execDetached(["bash", "-c", "powerprofilesctl set " + next])
         root.powerProfile = next
     }
-    function toggleDnd() {
-        Quickshell.execDetached(["bash", "-c", "swaync-client -d -sw"])
-        root.dndOn = !root.dndOn
-    }
-
     // ── Timers ────────────────────────────────────────────────────────────────
 
     Timer {
@@ -255,12 +246,6 @@ PanelWindow {
         command: ["bash", "-c", "powerprofilesctl get 2>/dev/null || echo balanced"]
         stdout: StdioCollector { onStreamFinished: root.powerProfile = this.text.trim() }
     }
-    Process {
-        id: dndProc
-        command: ["bash", "-c", "swaync-client -D 2>/dev/null || echo false"]
-        stdout: StdioCollector { onStreamFinished: root.dndOn = this.text.trim() === "true" }
-    }
-
     // ── Reusable components ───────────────────────────────────────────────────
 
     component StatBar: Item {
@@ -460,53 +445,6 @@ PanelWindow {
 
                     SysRow { rowIcon: "󰓅"; rowLabel: "Network"; rowValue: root.netSpeed }
                     SysRow { rowIcon: "󰔟"; rowLabel: "Uptime";  rowValue: root.uptimeStr }
-                }
-
-                Item { implicitHeight: 14 }
-
-                // ── Now Playing (MPRIS) ───────────────────────────────────────
-                Loader {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 22; Layout.rightMargin: 22
-                    active: Mpris.players.values.length > 0
-                    visible: active
-                    sourceComponent: ColumnLayout {
-                        spacing: 10
-                        Divider {}
-                        Item { implicitHeight: 2 }
-                        Repeater {
-                            model: Mpris.players.values
-                            delegate: RowLayout {
-                                required property var modelData
-                                property var player: modelData
-                                Layout.fillWidth: true; spacing: 12
-                                Text {
-                                    text: player.isPlaying ? "󰎇" : "󰏤"
-                                    font.family: "monospace"; font.pixelSize: 28
-                                    color: Theme.tertiary
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        onClicked: player.isPlaying = !player.isPlaying
-                                    }
-                                }
-                                ColumnLayout {
-                                    Layout.fillWidth: true; spacing: 2
-                                    Text {
-                                        text: player.trackTitle || "Nothing playing"
-                                        color: Theme.on_surface; font.family: Theme.fontFamily
-                                        font.pixelSize: 13; font.bold: true
-                                        elide: Text.ElideRight; Layout.fillWidth: true
-                                    }
-                                    Text {
-                                        text: player.trackArtist || ""
-                                        color: Theme.on_surface_variant; font.family: Theme.fontFamily
-                                        font.pixelSize: 11
-                                        elide: Text.ElideRight; Layout.fillWidth: true
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
 
                 Item { implicitHeight: 8 }
