@@ -17,8 +17,6 @@ PanelWindow {
     implicitHeight: mainCol.implicitHeight + 2
     color: "transparent"
 
-    anchors { left: true; top: true }
-    margins { left: 8; top: 54 }
 
     // ── Open / close ──────────────────────────────────────────────────────────
 
@@ -361,7 +359,7 @@ PanelWindow {
                 font.family: Theme.fontFamily; font.pixelSize: 9
                 color: pill.active ? pill.activeColor : Theme.on_surface_variant
                 Layout.alignment: Qt.AlignHCenter
-                opacity: 0.8
+                opacity: .8
             }
         }
 

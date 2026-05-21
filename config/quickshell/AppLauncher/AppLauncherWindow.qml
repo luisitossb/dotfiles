@@ -16,8 +16,8 @@ PanelWindow {
     exclusionMode: WlrLayershell.Ignore
     color: "transparent"
 
-    anchors { left: true; top: true; bottom: true }
     implicitWidth: 420
+    implicitHeight: 400
 
     property bool isOpen: false
     visible: isOpen
@@ -116,7 +116,7 @@ PanelWindow {
             anchors { top: parent.top; bottom: parent.bottom; left: parent.left }
             width: 380
             color: Qt.rgba(Theme.surface_container_low.r, Theme.surface_container_low.g,
-                           Theme.surface_container_low.b, 0.97)
+                           Theme.surface_container_low.b, 1.0)
             border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
             border.width: 1
 
