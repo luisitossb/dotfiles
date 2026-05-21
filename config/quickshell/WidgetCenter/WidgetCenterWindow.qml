@@ -2,7 +2,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
-import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -423,87 +422,6 @@ PanelWindow {
                                 text = v.toFixed(2)
                                 Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.local/bin/set-scroll.sh", "trackpad", "sens", v.toFixed(2)])
                                 focus = false
-                            }
-                        }
-                    }
-
-                    // ── MPRIS ─────────────────────────────────────────────────
-                    Loader {
-                        Layout.fillWidth: true
-                        active: Mpris.players.values.length > 0
-                        visible: active
-                        sourceComponent: ColumnLayout {
-                            spacing: 10
-                            Divider {}
-                            Repeater {
-                                model: Mpris.players.values
-                                delegate: Rectangle {
-                                    required property var modelData
-                                    property var player: modelData
-                                    width: col.width; implicitHeight: 90; radius: 10; clip: true
-                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g,
-                                                   Theme.surface_container.b, 0.6)
-                                    border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
-                                    border.width: 1
-
-                                    RowLayout {
-                                        anchors.fill: parent; anchors.margins: 10; spacing: 12
-
-                                        Rectangle {
-                                            implicitWidth: 70; implicitHeight: 70; radius: 8; clip: true
-                                            color: Qt.rgba(Theme.surface_container_high.r,
-                                                           Theme.surface_container_high.g,
-                                                           Theme.surface_container_high.b, 1.0)
-                                            Image {
-                                                anchors.fill: parent
-                                                source: player.trackArtUrl || ""
-                                                fillMode: Image.PreserveAspectCrop
-                                                visible: player.trackArtUrl !== ""
-                                            }
-                                            Text {
-                                                anchors.centerIn: parent; text: "󰝚"
-                                                font.family: "monospace"; font.pixelSize: 28
-                                                color: Theme.on_surface_variant
-                                                visible: !player.trackArtUrl || player.trackArtUrl === ""
-                                            }
-                                        }
-
-                                        ColumnLayout {
-                                            Layout.fillWidth: true; Layout.fillHeight: true; spacing: 4
-                                            Text {
-                                                Layout.fillWidth: true
-                                                text: player.trackTitle || player.identity || "No media"
-                                                color: Theme.on_surface; font.family: Theme.fontFamily
-                                                font.pixelSize: 13; font.bold: true; elide: Text.ElideRight
-                                            }
-                                            Text {
-                                                Layout.fillWidth: true
-                                                text: player.trackArtist || (player.trackArtists && player.trackArtists.length > 0 ? player.trackArtists[0] : "")
-                                                color: Theme.on_surface_variant; font.family: Theme.fontFamily
-                                                font.pixelSize: 11; elide: Text.ElideRight
-                                            }
-                                            Item { Layout.fillHeight: true }
-                                            RowLayout {
-                                                Layout.fillWidth: true; spacing: 10
-                                                Item { Layout.fillWidth: true }
-                                                Repeater {
-                                                    model: [
-                                                        { icon: "󰒮", act: () => player.previous() },
-                                                        { icon: player.isPlaying ? "󰏤" : "󰐊", act: () => { player.isPlaying = !player.isPlaying } },
-                                                        { icon: "󰒭", act: () => player.next() }
-                                                    ]
-                                                    delegate: Text {
-                                                        required property var modelData
-                                                        text: modelData.icon; font.family: "monospace"; font.pixelSize: 20
-                                                        color: Theme.on_surface_variant
-                                                        MouseArea { anchors.fill: parent; onClicked: parent.modelData.act() }
-                                                    }
-                                                }
-                                                Item { Layout.fillWidth: true }
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
