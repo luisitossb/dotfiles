@@ -9,7 +9,7 @@ XDG_DIRS = [
     "/usr/share/applications",
 ]
 
-ICON_SIZES = ["48", "32", "64", "24", "128", "256", "22", "16"]
+ICON_SIZES = ["48", "32", "64", "24", "128", "256", "512", "22", "16"]
 ICON_THEMES_DIR = "/usr/share/icons"
 PIXMAPS_DIR = "/usr/share/pixmaps"
 
