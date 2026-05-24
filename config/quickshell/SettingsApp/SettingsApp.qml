@@ -114,7 +114,6 @@ PanelWindow {
     property var audioSinks:       []
     property var audioSources:     []
     property var monitors:         []
-    property var autostartEntries: []
 
     Process {
         id: audioDisplayProc
@@ -177,16 +176,6 @@ PanelWindow {
     }
 
     Process {
-        id: autostartProc
-        command: ["python3",
-            Quickshell.env("HOME") + "/.config/quickshell/scripts/list-autostart.py"]
-        stdout: StdioCollector { onStreamFinished: {
-            try { root.autostartEntries = JSON.parse(this.text.trim()) }
-            catch(e) { console.warn("autostart parse error: " + e) }
-        }}
-    }
-
-    Process {
         id: sysInfoProc
         command: ["bash",
             Quickshell.env("HOME") + "/.config/quickshell/scripts/system-info.sh"]
@@ -237,7 +226,6 @@ PanelWindow {
             aestheticsProc.running    = false; aestheticsProc.running    = true
             audioDevicesProc.running  = false; audioDevicesProc.running  = true
             monitorsProc.running      = false; monitorsProc.running      = true
-            autostartProc.running     = false; autostartProc.running     = true
             sysInfoProc.running       = false; sysInfoProc.running       = true
         }
     }
@@ -1653,73 +1641,6 @@ PanelWindow {
                                                     }
                                                 }
                                             }
-                                        }
-                                    }
-                                }
-
-                                // ── Autostart card ────────────────────────────
-                                Rectangle {
-                                    Layout.fillWidth: true; radius: 12
-                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 1.0)
-                                    border.color: Qt.rgba(Theme.outline_variant.r, Theme.outline_variant.g, Theme.outline_variant.b, 0.2)
-                                    border.width: 1
-                                    implicitHeight: autostartCardCol.implicitHeight + 28
-
-                                    ColumnLayout {
-                                        id: autostartCardCol
-                                        anchors { top: parent.top; left: parent.left; right: parent.right; margins: 14 }
-                                        spacing: 14
-
-                                        RowLayout { spacing: 8
-                                            Text { text: "󰒔"; font.family: "monospace"; font.pixelSize: 16; color: Theme.primary }
-                                            Text { text: "Autostart"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14; font.bold: true }
-                                        }
-
-                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
-
-                                        Repeater {
-                                            model: root.autostartEntries
-                                            delegate: RowLayout {
-                                                required property var modelData
-                                                required property int index
-                                                Layout.fillWidth: true; spacing: 10
-
-                                                ColumnLayout { spacing: 2; Layout.fillWidth: true
-                                                    Text {
-                                                        text: modelData.name
-                                                        color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 13
-                                                    }
-                                                    Text {
-                                                        text: modelData.cmd.length > 42
-                                                            ? modelData.cmd.substring(0, 42) + "…"
-                                                            : modelData.cmd
-                                                        color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 10
-                                                    }
-                                                }
-
-                                                ToggleSwitch {
-                                                    checked: modelData.enabled
-                                                    onToggled: function(v) {
-                                                        let updated = []
-                                                        for (let i = 0; i < root.autostartEntries.length; i++) {
-                                                            let e = root.autostartEntries[i]
-                                                            updated.push(i === index
-                                                                ? { name: e.name, cmd: e.cmd, enabled: v }
-                                                                : e)
-                                                        }
-                                                        root.autostartEntries = updated
-                                                        Quickshell.execDetached(["python3",
-                                                            Quickshell.env("HOME") + "/.local/bin/toggle-autostart.py",
-                                                            modelData.cmd])
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Text {
-                                            visible: root.autostartEntries.length === 0
-                                            text: "No autostart entries found"
-                                            color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 12
                                         }
                                     }
                                 }
