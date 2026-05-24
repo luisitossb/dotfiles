@@ -17,7 +17,6 @@ PanelWindow {
     implicitHeight: mainCol.implicitHeight + 2
     color: "transparent"
 
-
     // ── Open / close ──────────────────────────────────────────────────────────
 
     property bool isOpen: false
@@ -65,6 +64,7 @@ PanelWindow {
     property bool   modeServer:   false
     property bool   shaderOn:     false
     property string powerProfile: "balanced"
+
     onIsOpenChanged: {
         if (isOpen) {
             modeProc.running   = false; modeProc.running   = true
@@ -74,7 +74,7 @@ PanelWindow {
     }
 
     function logErr(source, msg) {
-        let e = msg.split('\n')[0]   // first line only in UI
+        let e = msg.split('\n')[0]
         console.warn("dashboard [" + source + "]: " + msg)
         root.lastError = source + ": " + e
     }
@@ -95,6 +95,7 @@ PanelWindow {
         Quickshell.execDetached(["bash", "-c", "powerprofilesctl set " + next])
         root.powerProfile = next
     }
+
     // ── Timers ────────────────────────────────────────────────────────────────
 
     Timer {
@@ -244,58 +245,12 @@ PanelWindow {
         command: ["bash", "-c", "powerprofilesctl get 2>/dev/null || echo balanced"]
         stdout: StdioCollector { onStreamFinished: root.powerProfile = this.text.trim() }
     }
+
     // ── Reusable components ───────────────────────────────────────────────────
-
-    component StatBar: Item {
-        id: barRoot
-        property int   pct:      0
-        property color barColor: Theme.primary
-        Layout.fillWidth: true
-        implicitHeight: 5
-
-        Rectangle { anchors.fill: parent; radius: 3; color: Theme.surface_container_high }
-        Rectangle {
-            width: Math.max(0, Math.min(1, barRoot.pct / 100)) * barRoot.width
-            height: parent.height; radius: 3; color: barRoot.barColor
-            Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-        }
-    }
 
     component Divider: Rectangle {
         Layout.fillWidth: true; implicitHeight: 1
         color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
-    }
-
-    component StatRow: ColumnLayout {
-        property string statLabel: ""
-        property string statIcon:  ""
-        property int    statPct:   0
-        property string statInfo:  ""
-        property color  statColor: Theme.primary
-        Layout.fillWidth: true
-        spacing: 4
-
-        RowLayout {
-            Layout.fillWidth: true; spacing: 8
-            Text {
-                text: statIcon; font.family: "monospace"; font.pixelSize: 14
-                color: Theme.on_surface_variant; Layout.minimumWidth: 22
-            }
-            Text {
-                text: statLabel; color: Theme.on_surface_variant
-                font.family: Theme.fontFamily; font.pixelSize: 12; Layout.fillWidth: true
-            }
-            Text {
-                text: statInfo; color: Theme.on_surface_variant
-                font.family: Theme.fontFamily; font.pixelSize: 11
-            }
-            Text {
-                text: statPct + "%"; color: Theme.on_surface_variant
-                font.family: Theme.fontFamily; font.pixelSize: 12
-                Layout.minimumWidth: 32; horizontalAlignment: Text.AlignRight
-            }
-        }
-        StatBar { pct: statPct; barColor: statColor }
     }
 
     component SysRow: RowLayout {
@@ -317,57 +272,94 @@ PanelWindow {
         }
     }
 
-    component TogglePill: Item {
-        id: pill
-        property string iconText:    ""
-        property string tipText:     ""
-        property bool   active:      false
-        property color  activeColor: Theme.primary
-        signal clicked()
+    component RingGauge: Item {
+        id: ringItem
+        property int    pct:      0
+        property string label:    ""
+        property string subLabel: ""
+        property color  ringColor: Theme.primary
 
-        Layout.fillWidth: true
-        implicitHeight: 52
+        implicitWidth:  120
+        implicitHeight: 126
 
-        property bool hov: false
+        Canvas {
+            id: ringCanvas
+            readonly property int size: Math.min(ringItem.width, 100)
+            width:  size
+            height: size
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
 
-        Rectangle {
-            anchors.fill: parent; radius: 10
-            color: pill.active
-                   ? Qt.rgba(pill.activeColor.r, pill.activeColor.g, pill.activeColor.b, 0.18)
-                   : pill.hov
-                   ? Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.06)
-                   : Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 0.50)
-            border.color: pill.active
-                          ? Qt.rgba(pill.activeColor.r, pill.activeColor.g, pill.activeColor.b, 0.35)
-                          : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.10)
-            border.width: 1
-            Behavior on color { ColorAnimation { duration: 100 } }
+            property int   drawnPct:   ringItem.pct
+            property color drawnColor: ringItem.ringColor
+            onDrawnPctChanged:   requestPaint()
+            onDrawnColorChanged: requestPaint()
+
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+
+                var cx = width  / 2
+                var cy = height / 2
+                var r  = Math.min(cx, cy) - 7
+                var lw = 7
+
+                var startAngle = 135 * Math.PI / 180
+                var sweep      = 270 * Math.PI / 180
+
+                // Background track
+                ctx.beginPath()
+                ctx.arc(cx, cy, r, startAngle, startAngle + sweep, false)
+                ctx.lineWidth   = lw
+                ctx.strokeStyle = Qt.rgba(Theme.surface_container_high.r,
+                                          Theme.surface_container_high.g,
+                                          Theme.surface_container_high.b, 0.65)
+                ctx.lineCap = "round"
+                ctx.stroke()
+
+                // Value arc
+                if (drawnPct > 0) {
+                    var endAngle = startAngle + (Math.min(drawnPct, 100) / 100) * sweep
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, startAngle, endAngle, false)
+                    ctx.lineWidth   = lw
+                    ctx.strokeStyle = Qt.rgba(drawnColor.r, drawnColor.g, drawnColor.b, 1.0)
+                    ctx.lineCap = "round"
+                    ctx.stroke()
+                }
+            }
         }
 
-        ColumnLayout {
-            anchors.centerIn: parent; spacing: 3
-            Text {
-                text: pill.iconText
-                font.family: "monospace"; font.pixelSize: 18
-                color: pill.active ? pill.activeColor : Theme.on_surface_variant
-                Layout.alignment: Qt.AlignHCenter
-                Behavior on color { ColorAnimation { duration: 100 } }
-            }
-            Text {
-                text: pill.tipText
-                visible: pill.tipText !== ""
-                font.family: Theme.fontFamily; font.pixelSize: 9
-                color: pill.active ? pill.activeColor : Theme.on_surface_variant
-                Layout.alignment: Qt.AlignHCenter
-                opacity: .8
-            }
+        // Percentage text
+        Text {
+            anchors.horizontalCenter: ringCanvas.horizontalCenter
+            anchors.verticalCenter:   ringCanvas.verticalCenter
+            anchors.verticalCenterOffset: ringItem.subLabel !== "" ? -7 : 0
+            text:  ringItem.pct + "%"
+            color: Theme.on_surface
+            font.family: Theme.fontFamily; font.pixelSize: 14; font.bold: true
         }
 
-        MouseArea {
-            anchors.fill: parent; hoverEnabled: true
-            onEntered: pill.hov = true
-            onExited:  pill.hov = false
-            onClicked: pill.clicked()
+        // Sub-info (temp / used) inside ring
+        Text {
+            visible: ringItem.subLabel !== ""
+            anchors.horizontalCenter: ringCanvas.horizontalCenter
+            anchors.verticalCenter:   ringCanvas.verticalCenter
+            anchors.verticalCenterOffset: 9
+            text:  ringItem.subLabel
+            color: Theme.on_surface_variant
+            font.family: Theme.fontFamily; font.pixelSize: 9
+        }
+
+        // Label below ring
+        Text {
+            anchors.top:              ringCanvas.bottom
+            anchors.topMargin:        6
+            anchors.horizontalCenter: parent.horizontalCenter
+            text:  ringItem.label
+            color: Theme.on_surface_variant
+            font.family: Theme.fontFamily; font.pixelSize: 11
+            font.letterSpacing: 1
         }
     }
 
@@ -387,6 +379,7 @@ PanelWindow {
         ScrollView {
             anchors.fill: parent
             contentHeight: mainCol.implicitHeight
+            contentWidth: width
             clip: true
 
             ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -403,39 +396,47 @@ PanelWindow {
                 width: parent.width
                 spacing: 0
 
-                Item { implicitHeight: 22 }
+                Item { implicitHeight: 20 }
 
-                // ── Resource stats ────────────────────────────────────────────
-                ColumnLayout {
+                // ── Ring gauges (2×2 grid) ────────────────────────────────────
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.leftMargin: 22; Layout.rightMargin: 22
-                    spacing: 14
+                    Layout.leftMargin: 16; Layout.rightMargin: 16
+                    columns: 2
+                    columnSpacing: 8
+                    rowSpacing: 8
 
-                    StatRow {
-                        statLabel: "CPU";  statIcon: "󰻠"; statPct: root.cpuUsage
-                        statInfo: root.cpuTemp + "°C"; statColor: Theme.primary
+                    RingGauge {
+                        Layout.fillWidth: true
+                        pct: root.cpuUsage; label: "CPU"
+                        subLabel: root.cpuTemp + "°C"
+                        ringColor: Theme.primary
                     }
-                    StatRow {
-                        statLabel: "RAM";  statIcon: "󰍛"; statPct: root.ramUsage
-                        statInfo: root.ramUsed;           statColor: Theme.tertiary
+                    RingGauge {
+                        Layout.fillWidth: true
+                        pct: root.diskUsage; label: "DISK"
+                        subLabel: root.diskInfo
+                        ringColor: Theme.secondary
                     }
-                    StatRow {
-                        statLabel: "Disk"; statIcon: "󰉉"; statPct: root.diskUsage
-                        statInfo: root.diskInfo;          statColor: Theme.secondary
+                    RingGauge {
+                        Layout.fillWidth: true
+                        pct: root.ramUsage; label: "RAM"
+                        subLabel: root.ramUsed
+                        ringColor: Theme.tertiary
                     }
-                    StatRow {
-                        statLabel: "VRAM"; statIcon: "󰍹"; statPct: root.vramUsage
-                        statInfo: root.vramInfo
-                        statColor: root.vramUsage > 85 ? Theme.error : Theme.tertiary
+                    RingGauge {
+                        Layout.fillWidth: true
+                        pct: root.vramUsage; label: "VRAM"
+                        subLabel: root.vramInfo
+                        ringColor: root.vramUsage > 85 ? Theme.error : Theme.tertiary
                     }
-
                 }
 
                 Item { implicitHeight: 14 }
                 Divider { Layout.leftMargin: 22; Layout.rightMargin: 22 }
                 Item { implicitHeight: 12 }
 
-                // ── System info ───────────────────────────────────────────────
+                // ── System info rows ──────────────────────────────────────────
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.leftMargin: 22; Layout.rightMargin: 22

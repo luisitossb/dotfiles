@@ -92,13 +92,9 @@ PanelWindow {
     Item {
         anchors.fill: parent
 
-        Rectangle {
+        MouseArea {
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, 0.45)
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.isOpen = false
-            }
+            onClicked: root.isOpen = false
         }
 
         Rectangle {

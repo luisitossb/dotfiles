@@ -1,7 +1,7 @@
 #!/bin/bash
-# Cycle through video game fonts for Waybar + Quickshell
-# Waybar targets: #clock, #pulseaudio, #battery, #custom-sidebar
-# Quickshell target: Theme.fontFamily in CustomTheme/Theme.qml
+# Set font for Waybar + Quickshell.
+# Usage: waybar-font.sh [index]   — direct index (0/1/2)
+#        waybar-font.sh            — cycle to next
 
 FONTS=(
     "Press Start 2P|9"
@@ -11,10 +11,14 @@ FONTS=(
 
 STATE_FILE="$HOME/.config/waybar/active-font"
 CSS_FILE="$HOME/.config/waybar/themes/glass-center/default/pixel-font.css"
-THEME_QML="$HOME/.config/quickshell/CustomTheme/Theme.qml"
 
-CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "0")
-NEXT=$(( (CURRENT + 1) % ${#FONTS[@]} ))
+if [[ -n "$1" ]]; then
+    NEXT=$1
+else
+    CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "0")
+    NEXT=$(( (CURRENT + 1) % ${#FONTS[@]} ))
+fi
+
 echo "$NEXT" > "$STATE_FILE"
 
 ENTRY="${FONTS[$NEXT]}"
@@ -32,11 +36,5 @@ cat > "$CSS_FILE" << EOF
 }
 EOF
 
-# Update Quickshell theme font
-sed -i "s/readonly property string fontFamily: \".*\"/readonly property string fontFamily: \"$FONT_NAME\"/" "$THEME_QML"
-
-# Reload both
-~/.config/waybar/launch.sh
-killall quickshell 2>/dev/null
-sleep 0.3
-quickshell &
+# Reload Waybar CSS in-place (no kill/restart needed)
+pkill -SIGUSR2 waybar

@@ -37,6 +37,11 @@ PanelWindow {
         function close():  void { root.isOpen = false }
     }
 
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.isOpen = false
+    }
+
     Item {
         anchors.centerIn: parent
         width: 360
