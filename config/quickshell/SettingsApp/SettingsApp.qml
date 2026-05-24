@@ -39,7 +39,7 @@ PanelWindow {
         { name: "Minecraft" }
     ]
 
-    readonly property var fontOptions: ["Press Start 2P", "Orbitron", "Monocraft"]
+    readonly property var fontOptions: ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "VT323", "Rajdhani", "Exo 2"]
 
     Process {
         id: fontStateProc
