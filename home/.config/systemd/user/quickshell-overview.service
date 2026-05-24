@@ -1,0 +1,12 @@
+[Unit]
+Description=Quickshell overview (Super+Tab)
+After=quickshell.service
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/qs -p %h/.config/quickshell/overview
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

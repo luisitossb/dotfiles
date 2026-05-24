@@ -10,6 +10,7 @@ import "ClipboardApp"
 import "AppLauncher"
 import "TrayPanel"
 import "CustomTheme"
+import "SettingsApp"
 
 ShellRoot {
     // Test IPC tools: qs ipc show
@@ -33,4 +34,5 @@ ShellRoot {
     ClipboardWindow {}
     AppLauncherWindow {}
     TrayPanelWindow {}
+    SettingsApp {}
 }

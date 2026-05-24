@@ -33,6 +33,7 @@
         "battery",
 "custom/mode-toggle",
         "power-profiles-daemon",
+        "custom/settings-cog",
         "custom/sidebar"
     ]
 }

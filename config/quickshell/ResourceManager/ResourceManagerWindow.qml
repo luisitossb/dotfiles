@@ -13,7 +13,7 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
-    implicitWidth:  260
+    implicitWidth:  320
     implicitHeight: mainCol.implicitHeight + 2
     color: "transparent"
 

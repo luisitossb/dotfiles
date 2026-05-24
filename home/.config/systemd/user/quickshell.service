@@ -1,0 +1,13 @@
+[Unit]
+Description=Quickshell shell daemon
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStartPre=-/usr/bin/killall qs
+ExecStart=/usr/bin/qs
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

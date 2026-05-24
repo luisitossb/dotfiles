@@ -61,6 +61,12 @@
     },
     "separate-outputs": true
   },
+  // Settings Panel
+  "custom/settings-cog": {
+    "format": "󰒓",
+    "on-click": "qs ipc call settings-app toggle",
+    "tooltip-format": "Settings"
+  },
   // Sidebar Toggle
   "custom/sidebar": {
     "on-click": "qs ipc call widget-center toggle",
