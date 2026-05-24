@@ -9,9 +9,7 @@ FONTS=(
     "Monocraft|9"
     "Audiowide|10"
     "Oxanium|11"
-    "VT323|14"
-    "Rajdhani|11"
-    "Exo 2|11"
+    "Inter|11"
 )
 
 STATE_FILE="$HOME/.config/waybar/active-font"

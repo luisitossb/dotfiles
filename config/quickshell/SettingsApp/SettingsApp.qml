@@ -40,8 +40,8 @@ PanelWindow {
         { name: "Minecraft" }
     ]
 
-    readonly property var fontOptions:      ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "VT323", "Rajdhani", "Exo 2"]
-    readonly property var kittyFontOptions: ["JetBrainsMono Nerd Font", "Monocraft", "VT323"]
+    readonly property var fontOptions:      ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "Inter"]
+    readonly property var kittyFontOptions: ["JetBrainsMono Nerd Font", "Monocraft"]
 
     Process {
         id: fontStateProc
