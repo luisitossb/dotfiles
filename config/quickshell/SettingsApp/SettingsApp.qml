@@ -49,6 +49,7 @@ PanelWindow {
 
     property bool   naturalScroll:  false
     property bool   numlockDefault: true
+    property bool   accelEnabled:   false
     property string kbLayout:       "us"
 
     Process {
@@ -64,6 +65,7 @@ PanelWindow {
                 tpadSensSlider.value    = d.tsens
                 root.naturalScroll      = d.nat
                 root.numlockDefault     = d.nl
+                root.accelEnabled       = d.accel === "adaptive"
                 root.kbLayout           = d.kbl
             } catch(e) { console.warn("input-state parse error: " + e) }
         }}
@@ -575,6 +577,22 @@ PanelWindow {
                                                     Quickshell.execDetached(["bash",
                                                         Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
                                                         "mouse", "sens", v.toFixed(2)])
+                                                }
+                                            }
+                                        }
+
+                                        RowLayout { Layout.fillWidth: true
+                                            ColumnLayout { spacing: 1; Layout.fillWidth: true
+                                                Text { text: "Acceleration"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 13 }
+                                                Text { text: root.accelEnabled ? "adaptive" : "flat (off)"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11 }
+                                            }
+                                            ToggleSwitch {
+                                                checked: root.accelEnabled
+                                                onToggled: function(v) {
+                                                    root.accelEnabled = v
+                                                    Quickshell.execDetached(["bash",
+                                                        Quickshell.env("HOME") + "/.local/bin/set-scroll.sh",
+                                                        "accel", v ? "adaptive" : "flat"])
                                                 }
                                             }
                                         }

@@ -35,4 +35,8 @@ case "$1" in
         sed -i "s/numlock_by_default = .*/numlock_by_default = $2/" "$CONF"
         hyprctl keyword input:numlock_by_default "$2" -q 2>/dev/null || true
         ;;
+    accel)
+        sed -i "s/accel_profile = .*/accel_profile = $2/" "$CONF"
+        hyprctl keyword input:accel_profile "$2" -q 2>/dev/null || true
+        ;;
 esac
