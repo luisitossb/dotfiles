@@ -28,23 +28,33 @@ PanelWindow {
 
     // ── Appearance state ──────────────────────────────────────────────────────
 
-    property int    currentFontIndex: 0
-    property string colorMode:        "dark"
-    property int    activeTheme:      0
+    property int    currentWaybarFontIndex: 1
+    property int    currentQsFontIndex:    1
+    property string colorMode:             "dark"
+    property int    activeTheme:           0
 
     readonly property var themes: [
-        { name: "Default",   font: 0, mode: "dark", seed: "" },
-        { name: "Default 2", font: 0, mode: "dark", seed: "" },
-        { name: "Default 3", font: 0, mode: "dark", seed: "" }
+        { name: "Default"   },
+        { name: "League"    },
+        { name: "Minecraft" }
     ]
 
-    readonly property var fontOptions: ["Press Start 2P", "Orbitron", "Silkscreen"]
+    readonly property var fontOptions: ["Press Start 2P", "Orbitron", "Monocraft"]
 
     Process {
         id: fontStateProc
         command: ["bash", "-c",
-            "cat " + Quickshell.env("HOME") + "/.config/waybar/active-font 2>/dev/null || echo 0"]
-        stdout: StdioCollector { onStreamFinished: root.currentFontIndex = parseInt(this.text.trim()) || 0 }
+            "cat " + Quickshell.env("HOME") + "/.config/waybar/active-font 2>/dev/null || echo 1"]
+        stdout: StdioCollector { onStreamFinished: root.currentWaybarFontIndex = parseInt(this.text.trim()) || 1 }
+    }
+    Process {
+        id: qsFontStateProc
+        command: ["cat", Quickshell.env("HOME") + "/.config/quickshell/settings/active-font"]
+        stdout: StdioCollector { onStreamFinished: {
+            let name = this.text.trim()
+            let idx = root.fontOptions.indexOf(name)
+            root.currentQsFontIndex = idx >= 0 ? idx : 1
+        }}
     }
     Process {
         id: colorModeProc
@@ -206,8 +216,9 @@ PanelWindow {
 
     onIsOpenChanged: {
         if (isOpen) {
-            fontStateProc.running  = false; fontStateProc.running  = true
-            colorModeProc.running  = false; colorModeProc.running  = true
+            fontStateProc.running    = false; fontStateProc.running    = true
+            qsFontStateProc.running  = false; qsFontStateProc.running  = true
+            colorModeProc.running    = false; colorModeProc.running    = true
             inputStateProc.running    = false; inputStateProc.running    = true
             audioDisplayProc.running  = false; audioDisplayProc.running  = true
             aestheticsProc.running    = false; aestheticsProc.running    = true
@@ -556,25 +567,7 @@ PanelWindow {
 
                                                     MouseArea {
                                                         id: themeHov; anchors.fill: parent; hoverEnabled: true
-                                                        onClicked: {
-                                                            let t = themeChip.modelData
-                                                            root.activeTheme      = themeChip.index
-                                                            root.currentFontIndex = t.font
-                                                            root.colorMode        = t.mode
-                                                            let seedArg = t.seed !== "" ? "--source-color " + t.seed : ""
-                                                            let wall = t.seed !== ""
-                                                                ? ""
-                                                                : "WALL=$(cat $HOME/.cache/qs-dotfiles/current_wallpaper 2>/dev/null); matugen image \"$WALL\""
-                                                            let cmd = t.seed !== ""
-                                                                ? "matugen color hex " + t.seed + " -m " + t.mode
-                                                                : "WALL=$(cat $HOME/.cache/qs-dotfiles/current_wallpaper 2>/dev/null); matugen image \"$WALL\" -m " + t.mode
-                                                            Quickshell.execDetached(["bash", "-c",
-                                                                "echo " + t.font + " > $HOME/.config/waybar/active-font; " +
-                                                                "echo " + t.mode + " > $HOME/.config/quickshell/settings/color-mode; " +
-                                                                cmd + "; " +
-                                                                "qs ipc call theme-manager reload; " +
-                                                                "pkill -SIGUSR2 waybar"])
-                                                        }
+                                                        onClicked: root.activeTheme = themeChip.index
                                                     }
                                                 }
                                             }
@@ -595,44 +588,84 @@ PanelWindow {
                                         anchors { top: parent.top; left: parent.left; right: parent.right; margins: 14 }
                                         spacing: 12
 
-                                        ColumnLayout {
-                                            spacing: 2
-                                            Text { text: "Font Style"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14 }
-                                            Text { text: "Interface & Waybar font  ·  Super+Ctrl+F to cycle"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11 }
-                                        }
+                                        Text { text: "Font Style"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14 }
+
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
+
+                                        Text { text: "Waybar"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
 
                                         RowLayout {
                                             Layout.fillWidth: true; spacing: 8
                                             Repeater {
                                                 model: root.fontOptions
                                                 delegate: Rectangle {
-                                                    id: fontChip
+                                                    id: wbFontChip
                                                     required property string modelData
                                                     required property int    index
-                                                    property bool isActive: root.currentFontIndex === index
+                                                    property bool isActive: root.currentWaybarFontIndex === index
                                                     Layout.fillWidth: true; implicitHeight: 40; radius: 8
                                                     color: isActive
                                                         ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
-                                                        : chipHov.containsMouse
+                                                        : wbChipHov.containsMouse
                                                             ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
                                                             : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.5)
                                                     border.color: isActive ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4) : "transparent"
                                                     border.width: 1
                                                     Behavior on color { ColorAnimation { duration: 120 } }
                                                     Text {
-                                                        anchors.centerIn: parent
-                                                        text: fontChip.modelData
-                                                        color: fontChip.isActive ? Theme.on_primary_container : Theme.on_surface
+                                                        anchors.centerIn: parent; text: wbFontChip.modelData
+                                                        color: wbFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
                                                         font.family: Theme.fontFamily; font.pixelSize: 11
                                                         Behavior on color { ColorAnimation { duration: 120 } }
                                                     }
                                                     MouseArea {
-                                                        id: chipHov; anchors.fill: parent; hoverEnabled: true
+                                                        id: wbChipHov; anchors.fill: parent; hoverEnabled: true
                                                         onClicked: {
-                                                            root.currentFontIndex = fontChip.index
+                                                            root.currentWaybarFontIndex = wbFontChip.index
                                                             Quickshell.execDetached(["bash",
                                                                 Quickshell.env("HOME") + "/.local/bin/waybar-font.sh",
-                                                                String(fontChip.index)])
+                                                                String(wbFontChip.index)])
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
+
+                                        Text { text: "Quickshell"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
+
+                                        RowLayout {
+                                            Layout.fillWidth: true; spacing: 8
+                                            Repeater {
+                                                model: root.fontOptions
+                                                delegate: Rectangle {
+                                                    id: qsFontChip
+                                                    required property string modelData
+                                                    required property int    index
+                                                    property bool isActive: root.currentQsFontIndex === index
+                                                    Layout.fillWidth: true; implicitHeight: 40; radius: 8
+                                                    color: isActive
+                                                        ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
+                                                        : qsChipHov.containsMouse
+                                                            ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                                            : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.5)
+                                                    border.color: isActive ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4) : "transparent"
+                                                    border.width: 1
+                                                    Behavior on color { ColorAnimation { duration: 120 } }
+                                                    Text {
+                                                        anchors.centerIn: parent; text: qsFontChip.modelData
+                                                        color: qsFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
+                                                        font.family: Theme.fontFamily; font.pixelSize: 11
+                                                        Behavior on color { ColorAnimation { duration: 120 } }
+                                                    }
+                                                    MouseArea {
+                                                        id: qsChipHov; anchors.fill: parent; hoverEnabled: true
+                                                        onClicked: {
+                                                            root.currentQsFontIndex = qsFontChip.index
+                                                            Quickshell.execDetached(["bash", "-c",
+                                                                "echo '" + qsFontChip.modelData + "' > $HOME/.config/quickshell/settings/active-font; " +
+                                                                "qs ipc call theme-manager reload"])
                                                         }
                                                     }
                                                 }

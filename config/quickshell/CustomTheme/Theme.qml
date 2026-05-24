@@ -7,7 +7,18 @@ QtObject {
     id: root
     
     // Static properties
-    readonly property string fontFamily: "Orbitron"
+    property string fontFamily: "Orbitron"
+
+    property var fontReader: Process {
+        id: fontProc
+        command: ["cat", Quickshell.env("HOME") + "/.config/quickshell/settings/active-font"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var name = this.text.trim()
+                if (name !== "") root.fontFamily = name
+            }
+        }
+    }
     
     // Dynamic color properties
     property color background: "#1a1110"
@@ -89,11 +100,11 @@ QtObject {
     }
 
     function reloadTheme() {
-        // Toggle false then true to guarantee Quickshell restarts the cat process
         reader.running = false;
         reader.running = true;
+        fontProc.running = false;
+        fontProc.running = true;
     }
 
-    // Load the JSON colors automatically when Quickshell starts
     Component.onCompleted: reloadTheme()
 }

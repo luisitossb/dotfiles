@@ -6,7 +6,7 @@
 FONTS=(
     "Press Start 2P|9"
     "Orbitron|9"
-    "Silkscreen|9"
+    "Monocraft|9"
 )
 
 STATE_FILE="$HOME/.config/waybar/active-font"
