@@ -30,6 +30,7 @@ PanelWindow {
 
     property int    currentWaybarFontIndex: 1
     property int    currentQsFontIndex:    1
+    property int    currentKittyFontIndex: 0
     property string colorMode:             "dark"
     property int    activeTheme:           0
 
@@ -39,7 +40,8 @@ PanelWindow {
         { name: "Minecraft" }
     ]
 
-    readonly property var fontOptions: ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "VT323", "Rajdhani", "Exo 2"]
+    readonly property var fontOptions:      ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "VT323", "Rajdhani", "Exo 2"]
+    readonly property var kittyFontOptions: ["JetBrainsMono Nerd Font", "Monocraft", "VT323"]
 
     Process {
         id: fontStateProc
@@ -54,6 +56,16 @@ PanelWindow {
             let name = this.text.trim()
             let idx = root.fontOptions.indexOf(name)
             root.currentQsFontIndex = idx >= 0 ? idx : 1
+        }}
+    }
+    Process {
+        id: kittyFontStateProc
+        command: ["bash", "-c",
+            "grep 'font_family' " + Quickshell.env("HOME") + "/.config/kitty/pixel-font.conf 2>/dev/null | sed 's/font_family //'"]
+        stdout: StdioCollector { onStreamFinished: {
+            let name = this.text.trim()
+            let idx = root.kittyFontOptions.indexOf(name)
+            root.currentKittyFontIndex = idx >= 0 ? idx : 0
         }}
     }
     Process {
@@ -216,8 +228,9 @@ PanelWindow {
 
     onIsOpenChanged: {
         if (isOpen) {
-            fontStateProc.running    = false; fontStateProc.running    = true
-            qsFontStateProc.running  = false; qsFontStateProc.running  = true
+            fontStateProc.running      = false; fontStateProc.running      = true
+            qsFontStateProc.running    = false; qsFontStateProc.running    = true
+            kittyFontStateProc.running = false; kittyFontStateProc.running = true
             colorModeProc.running    = false; colorModeProc.running    = true
             inputStateProc.running    = false; inputStateProc.running    = true
             audioDisplayProc.running  = false; audioDisplayProc.running  = true
@@ -594,7 +607,8 @@ PanelWindow {
 
                                         Text { text: "Waybar"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
 
-                                        RowLayout {
+                                        Flow {
+                                            id: wbFontFlow
                                             Layout.fillWidth: true; spacing: 8
                                             Repeater {
                                                 model: root.fontOptions
@@ -603,7 +617,8 @@ PanelWindow {
                                                     required property string modelData
                                                     required property int    index
                                                     property bool isActive: root.currentWaybarFontIndex === index
-                                                    Layout.fillWidth: true; implicitHeight: 40; radius: 8
+                                                    width: Math.max(80, wbChipLabel.implicitWidth + 24)
+                                                    height: 36; radius: 8
                                                     color: isActive
                                                         ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
                                                         : wbChipHov.containsMouse
@@ -613,6 +628,7 @@ PanelWindow {
                                                     border.width: 1
                                                     Behavior on color { ColorAnimation { duration: 120 } }
                                                     Text {
+                                                        id: wbChipLabel
                                                         anchors.centerIn: parent; text: wbFontChip.modelData
                                                         color: wbFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
                                                         font.family: Theme.fontFamily; font.pixelSize: 11
@@ -635,7 +651,8 @@ PanelWindow {
 
                                         Text { text: "Quickshell"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
 
-                                        RowLayout {
+                                        Flow {
+                                            id: qsFontFlow
                                             Layout.fillWidth: true; spacing: 8
                                             Repeater {
                                                 model: root.fontOptions
@@ -644,7 +661,8 @@ PanelWindow {
                                                     required property string modelData
                                                     required property int    index
                                                     property bool isActive: root.currentQsFontIndex === index
-                                                    Layout.fillWidth: true; implicitHeight: 40; radius: 8
+                                                    width: Math.max(80, qsChipLabel.implicitWidth + 24)
+                                                    height: 36; radius: 8
                                                     color: isActive
                                                         ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
                                                         : qsChipHov.containsMouse
@@ -654,6 +672,7 @@ PanelWindow {
                                                     border.width: 1
                                                     Behavior on color { ColorAnimation { duration: 120 } }
                                                     Text {
+                                                        id: qsChipLabel
                                                         anchors.centerIn: parent; text: qsFontChip.modelData
                                                         color: qsFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
                                                         font.family: Theme.fontFamily; font.pixelSize: 11
@@ -664,8 +683,51 @@ PanelWindow {
                                                         onClicked: {
                                                             root.currentQsFontIndex = qsFontChip.index
                                                             Quickshell.execDetached(["bash", "-c",
-                                                                "echo '" + qsFontChip.modelData + "' > $HOME/.config/quickshell/settings/active-font; " +
-                                                                "qs ipc call theme-manager reload"])
+                                                                "qs-set-font '" + qsFontChip.modelData + "'"])
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
+
+                                        Text { text: "Kitty"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
+
+                                        Flow {
+                                            id: kittyFontFlow
+                                            Layout.fillWidth: true; spacing: 8
+                                            Repeater {
+                                                model: root.kittyFontOptions
+                                                delegate: Rectangle {
+                                                    id: kittyFontChip
+                                                    required property string modelData
+                                                    required property int    index
+                                                    property bool isActive: root.currentKittyFontIndex === index
+                                                    width: Math.max(80, kittyChipLabel.implicitWidth + 24)
+                                                    height: 36; radius: 8
+                                                    color: isActive
+                                                        ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
+                                                        : kittyChipHov.containsMouse
+                                                            ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
+                                                            : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.5)
+                                                    border.color: isActive ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4) : "transparent"
+                                                    border.width: 1
+                                                    Behavior on color { ColorAnimation { duration: 120 } }
+                                                    Text {
+                                                        id: kittyChipLabel
+                                                        anchors.centerIn: parent; text: kittyFontChip.modelData
+                                                        color: kittyFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
+                                                        font.family: Theme.fontFamily; font.pixelSize: 11
+                                                        Behavior on color { ColorAnimation { duration: 120 } }
+                                                    }
+                                                    MouseArea {
+                                                        id: kittyChipHov; anchors.fill: parent; hoverEnabled: true
+                                                        onClicked: {
+                                                            root.currentKittyFontIndex = kittyFontChip.index
+                                                            Quickshell.execDetached(["bash", "-c",
+                                                                "echo 'font_family " + kittyFontChip.modelData + "' > $HOME/.config/kitty/pixel-font.conf; " +
+                                                                "kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null"])
                                                         }
                                                     }
                                                 }
