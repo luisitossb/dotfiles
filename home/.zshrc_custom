@@ -47,6 +47,16 @@ dotfiles-sync() {
     cp ~/.config/mimeapps.list home/.config/
     "${R[@]}" ~/.local/share/applications/ home/.local/share/applications/
 
+    # KDE color scheme + Konsole profile (if KDE is installed)
+    if [[ -f ~/.local/share/color-schemes/LuisitoRice.colors ]]; then
+        mkdir -p home/.local/share/color-schemes
+        cp ~/.local/share/color-schemes/LuisitoRice.colors home/.local/share/color-schemes/
+    fi
+    if [[ -d ~/.local/share/konsole ]]; then
+        mkdir -p home/.local/share/konsole
+        "${R[@]}" ~/.local/share/konsole/ home/.local/share/konsole/
+    fi
+
     # OpenCode config
     mkdir -p config/opencode
     cp ~/.config/opencode/opencode.jsonc config/opencode/
