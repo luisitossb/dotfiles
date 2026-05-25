@@ -327,6 +327,24 @@ window#waybar.empty #window {
 }
 
 /* -----------------------------------------------------
+ * Module hover highlight
+ * ----------------------------------------------------- */
+
+#clock:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover,
+#battery:hover,
+#power-profiles-daemon:hover,
+#custom-mode-toggle:hover,
+#custom-settings-cog:hover,
+#custom-sidebar:hover {
+    background: alpha(@primary, 0.12);
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* -----------------------------------------------------
  * Clock
  * ----------------------------------------------------- */
 

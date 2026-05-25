@@ -33,7 +33,7 @@
   // Taskbar
   "wlr/taskbar": {
     "format": "{icon}",
-    "icon-size": 18,
+    "icon-size": 22,
     "tooltip-format": "{title}",
     "on-click": "activate",
     "on-click-middle": "close",
@@ -395,10 +395,10 @@
   },
   // Bluetooth
   "bluetooth": {
-    "format": "󰊯",
-    "format-connected": "󰊳",
-    "format-disabled": "󰂲",
-    "format-off": "󰊲",
+    "format": "[ 󰊯 ]",
+    "format-connected": "[ 󰊳 ]",
+    "format-disabled": "[ 󰂲 ]",
+    "format-off": "[ 󰊲 ]",
     "format-no-controller": "",
     "interval": 30,
     "on-click": "qs ipc call bluetooth-panel toggle",

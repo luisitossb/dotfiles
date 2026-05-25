@@ -22,13 +22,13 @@
     "modules-right": [
         "network",
         "bluetooth",
-        "clock",
         "pulseaudio",
         "battery",
         "custom/mode-toggle",
         "power-profiles-daemon",
         "custom/settings-cog",
-        "custom/sidebar"
+        "custom/sidebar",
+        "clock"
     ],
 }
 }
