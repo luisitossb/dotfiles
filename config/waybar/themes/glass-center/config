@@ -1,6 +1,7 @@
 {
     // General Settings
     "layer": "top",
+    "position": "bottom",
     "margin-top": 0,
     "margin-bottom": 0,
     "margin-left": 8,
@@ -15,23 +16,20 @@
         "hyprland/workspaces",
         "custom/new-workspace",
         "custom/appmenu",
-        //"wlr/taskbar",
-        //"group/quicklinks",
-        //"custom/nowplaying",
         "custom/empty"
     ],
     // Modules Center
     "modules-center": [
-        "network",
-        "bluetooth",
-        "clock",
-        "custom/empty"
+        "wlr/taskbar"
     ],
     // Modules Right
     "modules-right": [
+        "network",
+        "bluetooth",
+        "clock",
         "pulseaudio",
         "battery",
-"custom/mode-toggle",
+        "custom/mode-toggle",
         "power-profiles-daemon",
         "custom/settings-cog",
         "custom/sidebar"

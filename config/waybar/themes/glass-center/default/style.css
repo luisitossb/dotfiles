@@ -132,10 +132,19 @@ window#waybar.empty #window {
 
 #taskbar button {
     padding: 0 4px;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+}
+
+#taskbar button.active {
+    background: alpha(@primary, 0.2);
+    border-radius: 6px;
+    padding: 0 8px;
 }
 
 #taskbar button:hover {
-    color: @primary;
+    background: alpha(@primary, 0.1);
+    border-radius: 6px;
 }
 
 /* -----------------------------------------------------
