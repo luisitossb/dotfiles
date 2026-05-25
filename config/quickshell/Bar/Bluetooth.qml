@@ -8,21 +8,17 @@ Item {
     implicitWidth: label.implicitWidth + 8
     implicitHeight: parent.height
 
-    property string btState: "on"
-
-    readonly property string displayText: btState === "none" ? "" : "[  ]"
+    property string btState: "none"
 
     readonly property color iconColor: {
         if (btState === "connected") return Theme.tertiary
-        if (btState === "disabled") return Theme.on_surface_variant
-        if (btState === "off")     return Theme.on_surface_variant
         return Theme.primary
     }
 
     Text {
         id: label
         anchors.centerIn: parent
-        text: root.displayText
+        text: "[  ]"
         font.pixelSize: 12
         font.family: "JetBrainsMono Nerd Font"
         color: root.iconColor
@@ -31,17 +27,15 @@ Item {
 
     Process {
         id: btProc
-        command: ["bash", "-c", [
-            "POWERED=$(bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}')",
-            "if [ -z \"$POWERED\" ]; then echo 'none'; exit; fi",
-            "if [ \"$POWERED\" != 'yes' ]; then echo 'off'; exit; fi",
-            "CONN=$(bluetoothctl devices Connected 2>/dev/null | wc -l)",
-            "[ \"$CONN\" -gt 0 ] && echo 'connected' || echo 'on'"
-        ].join("; ")]
+        command: ["bash", "-c",
+            "POWERED=$(bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}'); " +
+            "if [ -z \"$POWERED\" ]; then echo none; exit; fi; " +
+            "if [ \"$POWERED\" != yes ]; then echo off; exit; fi; " +
+            "CONN=$(bluetoothctl devices Connected 2>/dev/null | wc -l); " +
+            "[ \"$CONN\" -gt 0 ] && echo connected || echo on"
+        ]
         stdout: StdioCollector {
-            onStreamFinished: {
-                root.btState = this.text.trim() || "none"
-            }
+            onStreamFinished: root.btState = this.text.trim() || "none"
         }
     }
 
