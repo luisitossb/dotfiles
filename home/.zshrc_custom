@@ -64,7 +64,7 @@ dotfiles-sync() {
     fi
 
     echo "dotfiles-sync: changes staged:"
-    git diff --cached --stat
+    git --no-pager diff --cached --stat
 
     local commit_msg
     if [[ -n "$msg" ]]; then
