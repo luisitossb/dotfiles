@@ -177,93 +177,6 @@ for i in range(1, 11):
 done
 info "10 virtual desktops"
 
-# ── Keyboard shortcuts — match Hyprland bindings ──────────────────────────────
-step "Applying keyboard shortcuts"
-
-# Clear plasmashell conflicts
-for i in 1 2 3 4 5 6 7 8 9; do
-    kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
-        --key "activate task manager entry $i" "none,Meta+$i,Activate Task Manager Entry $i"
-done
-kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
-    --key "manage activities" "none,Meta+Q,Show Activity Switcher"
-
-# Clear kwin conflicts
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Show Desktop" "none,Meta+D,Peek at Desktop"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Edit Tiles" "none,Meta+T,Toggle Tiles Editor"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "view_zoom_in" "none,Meta++=,Zoom In"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "view_zoom_out" "none,Meta+-,Zoom Out"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Walk Through Windows" "Alt+Tab,Alt+Tab,Walk Through Windows"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Walk Through Windows (Reverse)" "Alt+Shift+Tab,Alt+Shift+Tab,Walk Through Windows (Reverse)"
-
-# Window management
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Window Close" "Meta+Q,none,Close Window"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Kill Window" "Meta+Shift+Q,Meta+Ctrl+Esc,Kill Window"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Window Maximize" "Meta+M,Meta+M,Maximize Window"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Window Fullscreen" "Meta+Shift+M,none,Make Window Fullscreen"
-
-# Workspace switching (Meta+1-0, Meta+Shift+1-0, Meta+=/-)
-for i in 1 2 3 4 5 6 7 8 9; do
-    kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-        --key "Switch to Desktop $i" "Meta+$i,none,Switch to Desktop $i"
-    kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-        --key "Window to Desktop $i" "Meta+Shift+$i,none,Window to Desktop $i"
-done
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Switch to Desktop 10" "Meta+0,none,Switch to Desktop 10"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Window to Desktop 10" "Meta+Shift+0,none,Window to Desktop 10"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Switch to Next Desktop" "Meta+=,none,Switch to Next Desktop"
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Switch to Previous Desktop" "Meta+-,none,Switch to Previous Desktop"
-
-# App launch shortcuts
-kwriteconfig6 --file kglobalshortcutsrc --group "kitty.desktop" \
-    --key "_k_friendly_name" "Kitty"
-kwriteconfig6 --file kglobalshortcutsrc --group "kitty.desktop" \
-    --key "_launch" "Meta+Return,none,Launch Kitty"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.gnome.Nautilus.desktop" \
-    --key "_k_friendly_name" "Files"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.gnome.Nautilus.desktop" \
-    --key "_launch" "Meta+E,none,Open File Manager"
-kwriteconfig6 --file kglobalshortcutsrc --group "zen.desktop" \
-    --key "_k_friendly_name" "Zen Browser"
-kwriteconfig6 --file kglobalshortcutsrc --group "zen.desktop" \
-    --key "_launch" "Meta+B,none,Open Zen Browser"
-kwriteconfig6 --file kglobalshortcutsrc --group "systemsettings.desktop" \
-    --key "_k_friendly_name" "System Settings"
-kwriteconfig6 --file kglobalshortcutsrc --group "systemsettings.desktop" \
-    --key "_launch" "Meta+Escape,none,System Settings"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.flameshot.Flameshot.desktop" \
-    --key "_k_friendly_name" "Flameshot"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.flameshot.Flameshot.desktop" \
-    --key "_launch" "Meta+Shift+S,none,Screenshot"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
-    --key "_k_friendly_name" "KRunner"
-kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
-    --key "_launch" "Meta+D,none,Run Command"
-
-# Window Minimize → Meta+H
-kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
-    --key "Window Minimize" "Meta+H,Meta+PgDown,Minimize Window"
-
-# Clipboard → Meta+F
-kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
-    --key "show-on-mouse-pos" "Meta+F,Meta+V,Show Clipboard Items at Mouse Position"
-
-info "Shortcuts written to disk"
-
 # ── Apply live (only works inside a running Plasma session) ───────────────────
 if [[ "$IN_PLASMA" == "true" ]]; then
     step "Applying changes live"
@@ -273,44 +186,6 @@ if [[ "$IN_PLASMA" == "true" ]]; then
         --dest=org.kde.KGlobalSettings /KGlobalSettings \
         org.kde.KGlobalSettings.notifyChange int32:5 int32:0 2>/dev/null || true
     info "Style change broadcast to running apps"
-
-    # kglobalshortcutsrc is only read at session start; apply KWin shortcuts live via DBus
-    python3 - << 'PYEOF'
-import subprocess, sys
-
-META  = 0x10000000
-SHIFT = 0x02000000
-K = {
-    'Q':0x51,'M':0x4D,'H':0x48,
-    '1':0x31,'2':0x32,'3':0x33,'4':0x34,'5':0x35,
-    '6':0x36,'7':0x37,'8':0x38,'9':0x39,'0':0x30,
-    'Equal':0x3D,'Minus':0x2D,
-}
-
-def sk(action, friendly, keycode):
-    r = subprocess.run([
-        'busctl','--user','call',
-        'org.kde.kglobalaccel','/kglobalaccel',
-        'org.kde.KGlobalAccel','setForeignShortcut',
-        'asai','4','kwin',action,'KWin',friendly,'1',str(keycode)
-    ], capture_output=True)
-    return r.returncode == 0
-
-sk('Window Close',          'Close Window',           META|K['Q'])
-sk('Kill Window',           'Kill Window',            META|SHIFT|K['Q'])
-sk('Window Maximize',       'Maximize Window',        META|K['M'])
-sk('Window Minimize',       'Minimize Window',        META|K['H'])
-sk('Window Fullscreen',     'Make Window Fullscreen', META|SHIFT|K['M'])
-for i in range(1,10):
-    sk(f'Switch to Desktop {i}', f'Switch to Desktop {i}', META|K[str(i)])
-    sk(f'Window to Desktop {i}', f'Window to Desktop {i}', META|SHIFT|K[str(i)])
-sk('Switch to Desktop 10',      'Switch to Desktop 10',      META|K['0'])
-sk('Window to Desktop 10',      'Window to Desktop 10',      META|SHIFT|K['0'])
-sk('Switch to Next Desktop',    'Switch to Next Desktop',    META|K['Equal'])
-sk('Switch to Previous Desktop','Switch to Previous Desktop',META|K['Minus'])
-print('KWin shortcuts applied live')
-PYEOF
-    info "KWin shortcuts applied live via DBus"
 else
     warn "Not running in a Plasma session — settings written to disk."
     warn "Log into KDE Plasma for changes to take effect."
@@ -332,8 +207,9 @@ echo "    • Font          — Monocraft 11pt"
 echo "    • Blur          — KWin blur strength 10"
 echo "    • Panel         — floating, 50px"
 echo "    • Konsole       — LuisitoRice profile (dark, transparent)"
-echo "    • Shortcuts     — Meta+Q/M/1-0/Return/E/B/D/F/Shift+S matching Hyprland"
 echo "    • Desktops      — 10 virtual desktops"
+echo ""
+echo "  Configure shortcuts manually: System Settings → Shortcuts → Global Shortcuts"
 echo ""
 if [[ "$IN_PLASMA" == "false" ]]; then
     echo "  Log out → select KDE Plasma Wayland in SDDM to see the rice."
