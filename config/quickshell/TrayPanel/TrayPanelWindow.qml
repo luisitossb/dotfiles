@@ -42,6 +42,8 @@ PanelWindow {
         onClicked: root.isOpen = false
     }
 
+    // ── UI ────────────────────────────────────────────────────────────────────
+
     Item {
         anchors.centerIn: parent
         width: 360
@@ -71,23 +73,28 @@ PanelWindow {
                 Layout.alignment: Qt.AlignHCenter
             }
 
+            // ── Icon row ──────────────────────────────────────────────────────
             Flow {
-                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter
                 spacing: 8
 
                 Repeater {
                     model: SystemTray.items.values
-
                     delegate: Item {
                         required property var modelData
+
                         width: 36; height: 36
 
                         Rectangle {
                             anchors.fill: parent; radius: 8
-                            color: hoverArea.containsMouse
+                            color: iconArea.containsMouse
                                 ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
                                 : "transparent"
+                            border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b,
+                                iconArea.containsMouse ? 0.5 : 0.25)
+                            border.width: 1
                             Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on border.color { ColorAnimation { duration: 100 } }
                         }
 
                         Image {
@@ -99,13 +106,14 @@ PanelWindow {
                         }
 
                         MouseArea {
-                            id: hoverArea
+                            id: iconArea
                             anchors.fill: parent
                             hoverEnabled: true
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
+
                             onClicked: mouse => {
                                 if (mouse.button === Qt.RightButton) {
-                                    modelData.menu?.open(hoverArea, 0, -modelData.menu.height)
+                                    modelData.menu?.open(iconArea, 0, -modelData.menu.height)
                                 } else {
                                     modelData.activate()
                                     root.isOpen = false
@@ -113,8 +121,9 @@ PanelWindow {
                             }
                         }
 
+                        // Tooltip
                         Rectangle {
-                            visible: hoverArea.containsMouse && modelData.title !== ""
+                            visible: iconArea.containsMouse && modelData.title !== ""
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.bottom: parent.top
                             anchors.bottomMargin: 6
@@ -127,7 +136,6 @@ PanelWindow {
                             border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.2)
                             border.width: 1
                             z: 10
-
                             Text {
                                 id: tipText
                                 anchors.centerIn: parent

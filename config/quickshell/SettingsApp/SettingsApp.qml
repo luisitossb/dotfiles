@@ -1188,7 +1188,7 @@ PanelWindow {
 
                                         // Mute toggle row
                                         RowLayout { Layout.fillWidth: true
-                                            Text { text: "Mute"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 13; Layout.fillWidth: true }
+                                            Text { text: "Speakers Mute"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 13; Layout.fillWidth: true }
                                             ToggleSwitch {
                                                 checked: root.volMuted
                                                 onToggled: function(v) {
