@@ -221,7 +221,6 @@ PanelWindow {
                 height: parent.height
 
                 Network     { height: parent.height }
-                Bluetooth   { height: parent.height }
                 Volume      { height: parent.height }
                 Battery     { height: parent.height }
                 ModeToggle  { height: parent.height }

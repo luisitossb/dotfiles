@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Bluetooth
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -175,6 +176,7 @@ PanelWindow {
         }}
     }
 
+
     Process {
         id: sysInfoProc
         command: ["bash",
@@ -224,9 +226,9 @@ PanelWindow {
             inputStateProc.running    = false; inputStateProc.running    = true
             audioDisplayProc.running  = false; audioDisplayProc.running  = true
             aestheticsProc.running    = false; aestheticsProc.running    = true
-            audioDevicesProc.running  = false; audioDevicesProc.running  = true
-            monitorsProc.running      = false; monitorsProc.running      = true
-            sysInfoProc.running       = false; sysInfoProc.running       = true
+            audioDevicesProc.running       = false; audioDevicesProc.running       = true
+            monitorsProc.running           = false; monitorsProc.running           = true
+            sysInfoProc.running            = false; sysInfoProc.running            = true
         }
     }
 
@@ -254,7 +256,8 @@ PanelWindow {
         { name: "Appearance",      icon: "󰸌", sections: [] },
         { name: "Input",           icon: "󰍽", sections: [] },
         { name: "Audio & Display", icon: "󰕾", sections: [] },
-        { name: "System & Apps",   icon: "󰮤", sections: [] }
+        { name: "System & Apps",   icon: "󰮤", sections: [] },
+        { name: "Bluetooth",       icon: "󰂯", sections: [] }
     ]
 
     // ── Shared sub-components ─────────────────────────────────────────────────
@@ -1674,6 +1677,145 @@ PanelWindow {
                                             AboutRow { label: "RAM";     value: root.sysRam }
                                             AboutRow { label: "Uptime";  value: root.sysUptime }
                                         }
+                                    }
+                                }
+
+                                Item { implicitHeight: 4 }
+                            }
+                        }
+
+                        // ── 4: Bluetooth ──────────────────────
+                        ScrollView {
+                            Layout.fillWidth: true; Layout.fillHeight: true
+                            contentHeight: btCol.implicitHeight; clip: true
+                            ScrollBar.vertical: ScrollBar {
+                                policy: ScrollBar.AsNeeded
+                                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: Theme.primary; opacity: parent.active ? 0.6 : 0.3 }
+                            }
+
+                            ColumnLayout {
+                                id: btCol; width: parent.width - 8; spacing: 10
+
+                                Rectangle {
+                                    Layout.fillWidth: true; radius: 12
+                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 1.0)
+                                    border.color: Qt.rgba(Theme.outline_variant.r, Theme.outline_variant.g, Theme.outline_variant.b, 0.2)
+                                    border.width: 1
+                                    implicitHeight: btCardCol.implicitHeight + 28
+
+                                    ColumnLayout {
+                                        id: btCardCol
+                                        anchors { top: parent.top; left: parent.left; right: parent.right; margins: 14 }
+                                        spacing: 12
+
+                                        RowLayout { spacing: 8
+                                            Text {
+                                                text: ""
+                                                font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 14
+                                                color: (Bluetooth.defaultAdapter?.enabled ?? false) ? Theme.primary : Theme.on_surface_variant
+                                            }
+                                            Text {
+                                                text: "Bluetooth"
+                                                color: Theme.on_surface; font.family: Theme.fontFamily
+                                                font.pixelSize: 14; font.bold: true; Layout.fillWidth: true
+                                            }
+                                            ToggleSwitch {
+                                                checked: Bluetooth.defaultAdapter?.enabled ?? false
+                                                onToggled: function(v) {
+                                                    let cmd = v ? "rfkill unblock bluetooth && bluetoothctl power on"
+                                                                : "bluetoothctl power off"
+                                                    Quickshell.execDetached(["bash", "-c", cmd])
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
+
+                                        Text {
+                                            Layout.fillWidth: true; Layout.bottomMargin: 4
+                                            visible: !(Bluetooth.defaultAdapter?.enabled ?? false)
+                                            text: Bluetooth.defaultAdapter ? "Bluetooth is off" : "No Bluetooth adapter"
+                                            color: Theme.on_surface_variant; font.family: Theme.fontFamily
+                                            font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter
+                                        }
+
+                                        Repeater {
+                                            model: (Bluetooth.defaultAdapter?.enabled ?? false)
+                                                   ? (Bluetooth.defaultAdapter?.devices.values ?? [])
+                                                   : []
+                                            delegate: Rectangle {
+                                                required property var modelData
+                                                property bool hov: false
+                                                Layout.fillWidth: true; implicitHeight: 46; radius: 8
+                                                color: modelData.connected
+                                                       ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.10)
+                                                       : hov ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.05) : "transparent"
+                                                Behavior on color { ColorAnimation { duration: 100 } }
+                                                RowLayout { anchors.fill: parent; anchors.margins: 10; spacing: 10
+                                                    Text {
+                                                        text: modelData.name
+                                                        color: modelData.connected ? Theme.primary : Theme.on_surface
+                                                        font.family: Theme.fontFamily; font.pixelSize: 13
+                                                        Layout.fillWidth: true; elide: Text.ElideRight
+                                                    }
+                                                    Text {
+                                                        text: modelData.connected ? "connected" : ""
+                                                        color: Theme.primary; font.family: Theme.fontFamily
+                                                        font.pixelSize: 11; opacity: 0.7
+                                                    }
+                                                }
+                                                MouseArea {
+                                                    anchors.fill: parent; hoverEnabled: true
+                                                    onEntered: parent.hov = true; onExited: parent.hov = false
+                                                    onClicked: {
+                                                        let cmd = modelData.connected
+                                                            ? "bluetoothctl disconnect " + modelData.address
+                                                            : "bluetoothctl connect " + modelData.address
+                                                        Quickshell.execDetached(["bash", "-c", cmd])
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true; Layout.bottomMargin: 4
+                                            visible: (Bluetooth.defaultAdapter?.enabled ?? false) &&
+                                                     (Bluetooth.defaultAdapter?.devices.values ?? []).length === 0
+                                            text: "No paired devices"
+                                            color: Theme.on_surface_variant; font.family: Theme.fontFamily
+                                            font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true; implicitHeight: 1
+                                            color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12)
+                                            visible: Bluetooth.defaultAdapter?.enabled ?? false
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true; implicitHeight: 36; radius: 8
+                                            visible: Bluetooth.defaultAdapter?.enabled ?? false
+                                            property bool hov: false
+                                            color: hov ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.10) : "transparent"
+                                            border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.30); border.width: 1
+                                            Behavior on color { ColorAnimation { duration: 100 } }
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: (Bluetooth.defaultAdapter?.discovering ?? false) ? "  Scanning..." : "  Scan for devices"
+                                                color: Theme.primary; font.family: Theme.fontFamily; font.pixelSize: 13
+                                            }
+                                            MouseArea {
+                                                anchors.fill: parent; hoverEnabled: true
+                                                onEntered: parent.hov = true; onExited: parent.hov = false
+                                                onClicked: {
+                                                    let scanning = Bluetooth.defaultAdapter?.discovering ?? false
+                                                    Quickshell.execDetached(["bash", "-c",
+                                                        scanning ? "bluetoothctl scan off" : "bluetoothctl scan on & sleep 8; bluetoothctl scan off"])
+                                                }
+                                            }
+                                        }
+
+                                        Item { implicitHeight: 4 }
                                     }
                                 }
 

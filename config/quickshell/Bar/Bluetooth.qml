@@ -5,7 +5,7 @@ import qs.CustomTheme
 
 Item {
     id: root
-    implicitWidth: label.implicitWidth + 8
+    implicitWidth: btRow.implicitWidth + 8
     implicitHeight: parent.height
 
     readonly property bool hasAdapter: Bluetooth.defaultAdapter !== null
@@ -18,17 +18,35 @@ Item {
         return false
     }
 
+    readonly property color iconColor: root.anyConnected ? Theme.tertiary
+        : root.powered ? Theme.primary
+        : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4)
+
     visible: hasAdapter
 
-    Text {
-        id: label
+    Row {
+        id: btRow
         anchors.centerIn: parent
-        text: "[  ]"
-        font.pixelSize: 12
-        font.family: "JetBrainsMono Nerd Font"
-        color: root.anyConnected ? Theme.tertiary
-             : root.powered      ? Theme.primary
-             :                     Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4)
+        spacing: 0
+
+        Text {
+            text: "[ "
+            font.pixelSize: 12
+            font.family: Theme.fontFamily
+            color: root.iconColor
+        }
+        Text {
+            text: ""
+            font.pixelSize: 12
+            font.family: "JetBrainsMono Nerd Font"
+            color: root.iconColor
+        }
+        Text {
+            text: " ]"
+            font.pixelSize: 12
+            font.family: Theme.fontFamily
+            color: root.iconColor
+        }
     }
 
     MouseArea {
