@@ -1,5 +1,4 @@
 {
-    // General Settings
     "layer": "top",
     "position": "bottom",
     "margin-top": 0,
@@ -7,22 +6,19 @@
     "margin-left": 8,
     "margin-right": 8,
     "spacing": 0,
-    // Load Modules
     "include": [
-        "~/.config/waybar/modules.json"
+        "~/.config/waybar/modules.json",
+        "~/.config/waybar/pinned-modules.json"
     ],
-    // Modules Left
     "modules-left": [
         "hyprland/workspaces",
         "custom/new-workspace",
         "custom/appmenu",
         "custom/empty"
     ],
-    // Modules Center
     "modules-center": [
         "wlr/taskbar"
     ],
-    // Modules Right
     "modules-right": [
         "network",
         "bluetooth",
@@ -33,5 +29,6 @@
         "power-profiles-daemon",
         "custom/settings-cog",
         "custom/sidebar"
-    ]
+    ],
+}
 }

@@ -1,0 +1,6 @@
+[
+  {"class": "zen",               "exec": "zen-browser", "icon": "󰈹", "name": "Zen"},
+  {"class": "discord",           "exec": "discord",     "icon": "󰙯", "name": "Discord"},
+  {"class": "org.gnome.Nautilus","exec": "nautilus",    "icon": "󰉋", "name": "Files"},
+  {"class": "kitty",             "exec": "kitty",       "icon": "󰄛", "name": "Terminal"}
+]

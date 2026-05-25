@@ -148,6 +148,35 @@ window#waybar.empty #window {
 }
 
 /* -----------------------------------------------------
+ * Pinned Apps
+ * ----------------------------------------------------- */
+
+.pin-app {
+    padding: 0 5px;
+    font-size: 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.pin-app.pin-idle {
+    opacity: 0.35;
+}
+
+.pin-app.pin-running {
+    background: alpha(@primary, 0.15);
+}
+
+.pin-app.pin-running.pin-active {
+    background: alpha(@primary, 0.3);
+    padding: 0 7px;
+}
+
+.pin-app:hover {
+    background: alpha(@primary, 0.25);
+    opacity: 1;
+}
+
+/* -----------------------------------------------------
  * Settings Cog
  * ----------------------------------------------------- */
 

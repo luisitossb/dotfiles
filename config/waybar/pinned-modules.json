@@ -1,0 +1,34 @@
+{
+  "custom/pin-zen": {
+    "exec": "waybar-pinned-check.sh 'zen' '\udb80\ude39' 'Zen'",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "waybar-pinned-launch.sh 'zen' zen-browser",
+    "on-click-right": "waybar-unpin.sh 'zen'",
+    "tooltip": true
+  },
+  "custom/pin-discord": {
+    "exec": "waybar-pinned-check.sh 'discord' '\udb81\ude6f' 'Discord'",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "waybar-pinned-launch.sh 'discord' discord",
+    "on-click-right": "waybar-unpin.sh 'discord'",
+    "tooltip": true
+  },
+  "custom/pin-org-gnome-nautilus": {
+    "exec": "waybar-pinned-check.sh 'org.gnome.Nautilus' '\udb80\ude4b' 'Files'",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "waybar-pinned-launch.sh 'org.gnome.Nautilus' nautilus",
+    "on-click-right": "waybar-unpin.sh 'org.gnome.Nautilus'",
+    "tooltip": true
+  },
+  "custom/pin-kitty": {
+    "exec": "waybar-pinned-check.sh 'kitty' '\udb80\udd1b' 'Terminal'",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "waybar-pinned-launch.sh 'kitty' kitty",
+    "on-click-right": "waybar-unpin.sh 'kitty'",
+    "tooltip": true
+  }
+}
