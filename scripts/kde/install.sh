@@ -163,6 +163,102 @@ kwriteconfig6 --file konsolerc --group "Desktop Entry" --key "DefaultProfile" \
     "LuisitoRice.profile"
 info "Konsole default profile: LuisitoRice"
 
+# ── Virtual desktops (10 to match Hyprland workspaces) ───────────────────────
+step "Configuring virtual desktops"
+kwriteconfig6 --file kwinrc --group "Desktops" --key "Number" "10"
+kwriteconfig6 --file kwinrc --group "Desktops" --key "Rows" "1"
+python3 -c "
+import uuid
+for i in range(1, 11):
+    print(f'Id_{i}={uuid.uuid4()}')
+" | while IFS='=' read key val; do
+    kwriteconfig6 --file kwinrc --group "Desktops" --key "\$key" "\$val"
+done
+info "10 virtual desktops"
+
+# ── Keyboard shortcuts — match Hyprland bindings ──────────────────────────────
+step "Applying keyboard shortcuts"
+
+# Clear plasmashell conflicts
+for i in 1 2 3 4 5 6 7 8 9; do
+    kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
+        --key "activate task manager entry $i" "none,Meta+$i,Activate Task Manager Entry $i"
+done
+kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
+    --key "manage activities" "none,Meta+Q,Show Activity Switcher"
+
+# Clear kwin conflicts
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Show Desktop" "none,Meta+D,Peek at Desktop"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Edit Tiles" "none,Meta+T,Toggle Tiles Editor"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "view_zoom_in" "none,Meta++=,Zoom In"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "view_zoom_out" "none,Meta+-,Zoom Out"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Walk Through Windows" "Alt+Tab,Alt+Tab,Walk Through Windows"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Walk Through Windows (Reverse)" "Alt+Shift+Tab,Alt+Shift+Tab,Walk Through Windows (Reverse)"
+
+# Window management
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Window Close" "Meta+Q,none,Close Window"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Kill Window" "Meta+Shift+Q,Meta+Ctrl+Esc,Kill Window"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Window Maximize" "Meta+M,Meta+M,Maximize Window"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Window Fullscreen" "Meta+Shift+M,none,Make Window Fullscreen"
+
+# Workspace switching (Meta+1-0, Meta+Shift+1-0, Meta+=/-)
+for i in 1 2 3 4 5 6 7 8 9; do
+    kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+        --key "Switch to Desktop $i" "Meta+$i,none,Switch to Desktop $i"
+    kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+        --key "Window to Desktop $i" "Meta+Shift+$i,none,Window to Desktop $i"
+done
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Switch to Desktop 10" "Meta+0,none,Switch to Desktop 10"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Window to Desktop 10" "Meta+Shift+0,none,Window to Desktop 10"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Switch to Next Desktop" "Meta+=,none,Switch to Next Desktop"
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Switch to Previous Desktop" "Meta+-,none,Switch to Previous Desktop"
+
+# App launch shortcuts
+kwriteconfig6 --file kglobalshortcutsrc --group "kitty.desktop" \
+    --key "_k_friendly_name" "Kitty"
+kwriteconfig6 --file kglobalshortcutsrc --group "kitty.desktop" \
+    --key "_launch" "Meta+Return,none,Launch Kitty"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.gnome.Nautilus.desktop" \
+    --key "_k_friendly_name" "Files"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.gnome.Nautilus.desktop" \
+    --key "_launch" "Meta+E,none,Open File Manager"
+kwriteconfig6 --file kglobalshortcutsrc --group "zen.desktop" \
+    --key "_k_friendly_name" "Zen Browser"
+kwriteconfig6 --file kglobalshortcutsrc --group "zen.desktop" \
+    --key "_launch" "Meta+B,none,Open Zen Browser"
+kwriteconfig6 --file kglobalshortcutsrc --group "systemsettings.desktop" \
+    --key "_k_friendly_name" "System Settings"
+kwriteconfig6 --file kglobalshortcutsrc --group "systemsettings.desktop" \
+    --key "_launch" "Meta+Escape,none,System Settings"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.flameshot.Flameshot.desktop" \
+    --key "_k_friendly_name" "Flameshot"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.flameshot.Flameshot.desktop" \
+    --key "_launch" "Meta+Shift+S,none,Screenshot"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
+    --key "_k_friendly_name" "KRunner"
+kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
+    --key "_launch" "Meta+D,none,Run Command"
+
+# Clipboard → Meta+F
+kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
+    --key "show-on-mouse-pos" "Meta+F,Meta+V,Show Clipboard Items at Mouse Position"
+
+info "Shortcuts applied"
+
 # ── Apply live (only works inside a running Plasma session) ───────────────────
 if [[ "$IN_PLASMA" == "true" ]]; then
     step "Applying changes live"
@@ -172,6 +268,9 @@ if [[ "$IN_PLASMA" == "true" ]]; then
         --dest=org.kde.KGlobalSettings /KGlobalSettings \
         org.kde.KGlobalSettings.notifyChange int32:5 int32:0 2>/dev/null || true
     info "Style change broadcast to running apps"
+    pkill -x kglobalacceld 2>/dev/null; sleep 0.5
+    /usr/lib/kglobalacceld &
+    info "kglobalacceld restarted — shortcuts active"
 else
     warn "Not running in a Plasma session — settings written to disk."
     warn "Log into KDE Plasma for changes to take effect."
@@ -193,6 +292,8 @@ echo "    • Font          — Monocraft 11pt"
 echo "    • Blur          — KWin blur strength 10"
 echo "    • Panel         — floating, 50px"
 echo "    • Konsole       — LuisitoRice profile (dark, transparent)"
+echo "    • Shortcuts     — Meta+Q/M/1-0/Return/E/B/D/F/Shift+S matching Hyprland"
+echo "    • Desktops      — 10 virtual desktops"
 echo ""
 if [[ "$IN_PLASMA" == "false" ]]; then
     echo "  Log out → select KDE Plasma Wayland in SDDM to see the rice."
