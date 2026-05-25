@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.Pipewire
 import qs.CustomTheme
 
 Item {
@@ -8,8 +8,12 @@ Item {
     implicitWidth: label.implicitWidth + 8
     implicitHeight: parent.height
 
-    property int volume: 50
-    property bool muted: false
+    PwObjectTracker {
+        objects: [Pipewire.defaultAudioSink]
+    }
+
+    readonly property int volume: Math.round((Pipewire.defaultAudioSink?.audio.volume ?? 0) * 100)
+    readonly property bool muted: Pipewire.defaultAudioSink?.audio.muted ?? false
 
     Text {
         id: label
@@ -21,38 +25,15 @@ Item {
                           : Theme.primary
     }
 
-    Process {
-        id: volProc
-        command: ["bash", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo 'Volume: 0.50'"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var txt = this.text.trim()
-                root.muted   = txt.includes("[MUTED]")
-                var m = txt.match(/Volume:\s*([\d.]+)/)
-                root.volume  = m ? Math.round(parseFloat(m[1]) * 100) : 50
-            }
-        }
-    }
-
-    Timer {
-        interval: 3000
-        repeat: true
-        running: true
-        triggeredOnStart: true
-        onTriggered: { volProc.running = false; volProc.running = true }
-    }
-
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
         onClicked: Quickshell.execDetached(["pavucontrol"])
         onWheel: function(event) {
             var delta = event.angleDelta.y > 0 ? 5 : -5
-            Quickshell.execDetached(["bash", "-c",
-                "wpctl set-volume @DEFAULT_AUDIO_SINK@ " + (root.volume + delta) + "%"])
-            volProc.running = true
+            var newVol = Math.max(0, Math.min(100, root.volume + delta))
+            Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", newVol + "%"])
         }
-
         HoverHandler { id: volHover }
     }
 
