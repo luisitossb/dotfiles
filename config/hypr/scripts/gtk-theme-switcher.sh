@@ -25,7 +25,6 @@ apply_theme() {
 
     matugen image "$WALLPAPER" --source-color-index 0 -m "$MODE"
     qs ipc call theme-manager reload
-    nohup bash -c "$HOME/.config/waybar/launch.sh" >/dev/null 2>&1 &
     $HOME/.config/hypr/scripts/gtk.sh &
     swaync-client -rs
 }

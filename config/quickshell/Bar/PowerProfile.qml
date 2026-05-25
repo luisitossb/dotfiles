@@ -49,8 +49,24 @@ Item {
         onTriggered: { ppProc.running = false; ppProc.running = true }
     }
 
+    Process {
+        id: ppSetProc
+        onExited: (code, status) => {
+            ppProc.running = false
+            ppProc.running = true
+        }
+    }
+
     MouseArea {
         anchors.fill: parent
+        onClicked: {
+            var next = root.profile === "balanced"     ? "performance"
+                     : root.profile === "performance"  ? "power-saver"
+                     : "balanced"
+            ppSetProc.command = ["powerprofilesctl", "set", next]
+            ppSetProc.running = false
+            ppSetProc.running = true
+        }
         HoverHandler { id: ppHover }
     }
 

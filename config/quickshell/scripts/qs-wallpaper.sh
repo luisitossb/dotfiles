@@ -58,13 +58,6 @@ fi
 # Reload Quickshell theme (only if qs is running)
 pgrep -x qs > /dev/null && qs ipc call theme-manager reload
 
-# Reload Waybar
-if pgrep -x "waybar" > /dev/null; then
-    pkill -SIGUSR2 waybar
-else
-    nohup bash -c "$HOME/.config/waybar/launch.sh" > /dev/null 2>&1 &
-fi
-
 # Reload dock
 nohup bash -c "$HOME/.config/nwg-dock-hyprland/launch.sh" > /dev/null 2>&1 &
 

@@ -13,7 +13,6 @@ selected=$(printf "dark\nlight" | rofi -dmenu -replace -config ~/.config/rofi/co
 echo "$selected" > ~/.config/quickshell/settings/color-mode
 matugen image "$WALLPAPER" --source-color-index 0 -m "$selected"
 qs ipc call theme-manager reload
-nohup bash -c "$HOME/.config/waybar/launch.sh" >/dev/null 2>&1 &
 nohup bash -c "$HOME/.config/nwg-dock-hyprland/launch.sh" >/dev/null 2>&1 &
 swaync-client -rs
 notify-send -u low -a System "Theme" "Switched to $selected mode"
