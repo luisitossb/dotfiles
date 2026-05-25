@@ -10,7 +10,7 @@ Item {
     readonly property string profileIcon: {
         if (PowerProfiles.profile === PowerProfile.Performance) return ""
         if (PowerProfiles.profile === PowerProfile.PowerSaver)  return ""
-        return ""
+        return "󰈐"
     }
 
     readonly property color profileColor: {
