@@ -11,6 +11,7 @@ import "AppLauncher"
 import "TrayPanel"
 import "CustomTheme"
 import "SettingsApp"
+import "Bar"
 
 ShellRoot {
     // Test IPC tools: qs ipc show
@@ -35,4 +36,5 @@ ShellRoot {
     AppLauncherWindow {}
     TrayPanelWindow {}
     SettingsApp {}
+    BarWindow {}
 }
