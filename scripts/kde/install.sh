@@ -254,11 +254,15 @@ kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
 kwriteconfig6 --file kglobalshortcutsrc --group "org.kde.krunner.desktop" \
     --key "_launch" "Meta+D,none,Run Command"
 
+# Window Minimize → Meta+H
+kwriteconfig6 --file kglobalshortcutsrc --group "kwin" \
+    --key "Window Minimize" "Meta+H,Meta+PgDown,Minimize Window"
+
 # Clipboard → Meta+F
 kwriteconfig6 --file kglobalshortcutsrc --group "plasmashell" \
     --key "show-on-mouse-pos" "Meta+F,Meta+V,Show Clipboard Items at Mouse Position"
 
-info "Shortcuts applied"
+info "Shortcuts written to disk"
 
 # ── Apply live (only works inside a running Plasma session) ───────────────────
 if [[ "$IN_PLASMA" == "true" ]]; then
@@ -269,9 +273,44 @@ if [[ "$IN_PLASMA" == "true" ]]; then
         --dest=org.kde.KGlobalSettings /KGlobalSettings \
         org.kde.KGlobalSettings.notifyChange int32:5 int32:0 2>/dev/null || true
     info "Style change broadcast to running apps"
-    pkill -x kglobalacceld 2>/dev/null; sleep 0.5
-    /usr/lib/kglobalacceld &
-    info "kglobalacceld restarted — shortcuts active"
+
+    # kglobalshortcutsrc is only read at session start; apply KWin shortcuts live via DBus
+    python3 - << 'PYEOF'
+import subprocess, sys
+
+META  = 0x10000000
+SHIFT = 0x02000000
+K = {
+    'Q':0x51,'M':0x4D,'H':0x48,
+    '1':0x31,'2':0x32,'3':0x33,'4':0x34,'5':0x35,
+    '6':0x36,'7':0x37,'8':0x38,'9':0x39,'0':0x30,
+    'Equal':0x3D,'Minus':0x2D,
+}
+
+def sk(action, friendly, keycode):
+    r = subprocess.run([
+        'busctl','--user','call',
+        'org.kde.kglobalaccel','/kglobalaccel',
+        'org.kde.KGlobalAccel','setForeignShortcut',
+        'asai','4','kwin',action,'KWin',friendly,'1',str(keycode)
+    ], capture_output=True)
+    return r.returncode == 0
+
+sk('Window Close',          'Close Window',           META|K['Q'])
+sk('Kill Window',           'Kill Window',            META|SHIFT|K['Q'])
+sk('Window Maximize',       'Maximize Window',        META|K['M'])
+sk('Window Minimize',       'Minimize Window',        META|K['H'])
+sk('Window Fullscreen',     'Make Window Fullscreen', META|SHIFT|K['M'])
+for i in range(1,10):
+    sk(f'Switch to Desktop {i}', f'Switch to Desktop {i}', META|K[str(i)])
+    sk(f'Window to Desktop {i}', f'Window to Desktop {i}', META|SHIFT|K[str(i)])
+sk('Switch to Desktop 10',      'Switch to Desktop 10',      META|K['0'])
+sk('Window to Desktop 10',      'Window to Desktop 10',      META|SHIFT|K['0'])
+sk('Switch to Next Desktop',    'Switch to Next Desktop',    META|K['Equal'])
+sk('Switch to Previous Desktop','Switch to Previous Desktop',META|K['Minus'])
+print('KWin shortcuts applied live')
+PYEOF
+    info "KWin shortcuts applied live via DBus"
 else
     warn "Not running in a Plasma session — settings written to disk."
     warn "Log into KDE Plasma for changes to take effect."
