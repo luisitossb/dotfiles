@@ -15,6 +15,7 @@
 #   bash scripts/dev/install.sh        — dev tools (Neovim, Node, Python, Rust, etc.)
 #   bash scripts/server/install.sh     — self-hosted services (Jellyfin, Sunshine, Docker)
 #   bash scripts/server/install-ai.sh  — local AI stack (Ollama + Open WebUI)
+#   bash scripts/kde/install.sh        — KDE Plasma alongside Hyprland, riced to match
 
 set -euo pipefail
 
@@ -361,6 +362,7 @@ echo "    bash scripts/apps/install.sh       — Discord, Steam, Spotify, etc."
 echo "    bash scripts/dev/install.sh        — Neovim, Node, Python, Rust, etc."
 echo "    bash scripts/server/install.sh     — Jellyfin, Sunshine, Docker"
 echo "    bash scripts/server/install-ai.sh  — Ollama + Open WebUI"
+echo "    bash scripts/kde/install.sh        — KDE Plasma (riced to match)"
 echo ""
 echo "  GPU detected: $GPU — drivers installed via chwd"
 [[ "$GPU" == "amd" ]] && echo "  AMD GPU: update eww.yuck GPU widgets (see README → Porting to a new machine)"
