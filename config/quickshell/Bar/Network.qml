@@ -12,8 +12,8 @@ Item {
     property int    wifiSignal: 0
 
     readonly property string displayText: {
-        if (netType === "ethernet") return "[   ]"
-        if (netType === "wifi")     return "[   " + wifiSignal + "% ]"
+        if (netType === "ethernet") return "[ ETH ]"
+        if (netType === "wifi")     return "[ WIFI " + wifiSignal + "% ]"
         return "[ ⚠ ]"
     }
 
@@ -28,16 +28,13 @@ Item {
 
     Process {
         id: netProc
-        command: ["bash", "-c", [
-            "IFACE=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'dev \\K\\S+' | head -1)",
-            "if [ -z \"$IFACE\" ]; then echo 'disconnected'; exit; fi",
-            "if iw dev \"$IFACE\" info >/dev/null 2>&1 || echo \"$IFACE\" | grep -qE '^wl'; then",
-            "  SIG=$(nmcli -t -f ACTIVE,SIGNAL dev wifi 2>/dev/null | grep '^yes:' | cut -d: -f2 | head -1)",
-            "  echo \"wifi:${SIG:-0}\"",
-            "else",
-            "  echo 'ethernet'",
-            "fi"
-        ].join(" ")]
+        command: ["bash", "-c",
+            "IFACE=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'dev \\K\\S+' | head -1); " +
+            "if [ -z \"$IFACE\" ]; then echo disconnected; exit; fi; " +
+            "if iw dev \"$IFACE\" info >/dev/null 2>&1 || echo \"$IFACE\" | grep -qE '^wl'; then " +
+            "SIG=$(nmcli -t -f ACTIVE,SIGNAL dev wifi 2>/dev/null | grep '^yes:' | cut -d: -f2 | head -1); " +
+            "echo \"wifi:${SIG:-0}\"; else echo ethernet; fi"
+        ]
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = this.text.trim()
@@ -58,7 +55,7 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: netProc.running = true
+        onTriggered: { netProc.running = false; netProc.running = true }
     }
 
     MouseArea {

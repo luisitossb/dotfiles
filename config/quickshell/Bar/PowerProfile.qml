@@ -46,7 +46,7 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: ppProc.running = true
+        onTriggered: { ppProc.running = false; ppProc.running = true }
     }
 
     MouseArea {

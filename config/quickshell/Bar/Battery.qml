@@ -25,7 +25,7 @@ Item {
         anchors.centerIn: parent
         text: root.displayText
         font.pixelSize: 12
-        font.family: "JetBrainsMono Nerd Font"
+        font.family: Theme.fontFamily
         color: root.isCritical ? Theme.error
              : root.isWarning  ? Theme.secondary
              : Theme.primary
@@ -56,6 +56,6 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: battProc.running = true
+        onTriggered: { battProc.running = false; battProc.running = true }
     }
 }

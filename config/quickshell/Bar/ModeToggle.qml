@@ -41,7 +41,7 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: modeProc.running = true
+        onTriggered: { modeProc.running = false; modeProc.running = true }
     }
 
     MouseArea {

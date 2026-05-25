@@ -16,7 +16,7 @@ Item {
         anchors.centerIn: parent
         text: root.muted ? "[ MUTED ]" : "[ VOL " + root.volume + "% ]"
         font.pixelSize: 12
-        font.family: "JetBrainsMono Nerd Font"
+        font.family: Theme.fontFamily
         color: root.muted ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.5)
                           : Theme.primary
     }
@@ -39,7 +39,7 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: volProc.running = true
+        onTriggered: { volProc.running = false; volProc.running = true }
     }
 
     MouseArea {

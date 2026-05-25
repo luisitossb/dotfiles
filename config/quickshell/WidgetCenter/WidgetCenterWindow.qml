@@ -21,6 +21,7 @@ PanelWindow {
     margins { top: 54; bottom: 20; right: root.slideMargin }
 
     property bool isOpen: false
+    property int waybarFontIndex: -1
     visible: isOpen || slideAnim.running
 
     property real slideMargin: isOpen ? 12 : -380
@@ -44,6 +45,18 @@ PanelWindow {
         function toggle(): void { root.isOpen = !root.isOpen }
         function open():   void { root.isOpen = true  }
         function close():  void { root.isOpen = false }
+    }
+
+    Process {
+        id: waybarFontProc
+        command: ["cat", Quickshell.env("HOME") + "/.config/waybar/active-font"]
+        running: root.isOpen
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let idx = parseInt(this.text.trim())
+                if (!isNaN(idx)) root.waybarFontIndex = idx
+            }
+        }
     }
 
     // ── Reusable components ───────────────────────────────────────────────────
@@ -112,6 +125,37 @@ PanelWindow {
                               : Theme.primary
             border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
             border.width: 1
+        }
+    }
+
+    component FontChip: Rectangle {
+        id: chip
+        property string label: ""
+        property bool active: false
+        signal clicked()
+        implicitHeight: 28
+        implicitWidth: chipLabel.implicitWidth + 18
+        radius: 8
+        color: active
+               ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 1.0)
+               : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g,
+                         Theme.surface_container_high.b, 1.0)
+        border.color: active ? "transparent"
+                             : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.3)
+        border.width: 1
+        Behavior on color { ColorAnimation { duration: 120 } }
+        Text {
+            id: chipLabel
+            anchors.centerIn: parent
+            text: chip.label
+            color: chip.active ? Theme.on_primary : Theme.on_surface
+            font.family: Theme.fontFamily; font.pixelSize: 11
+            Behavior on color { ColorAnimation { duration: 120 } }
+        }
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: chip.clicked()
         }
     }
 
@@ -328,6 +372,71 @@ PanelWindow {
                     }
 
                     Divider {}
+
+                    // ── Font Style ────────────────────────────────────────────
+                    Divider {}
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            text: "Font Style"
+                            color: Theme.on_surface_variant
+                            font.family: Theme.fontFamily; font.pixelSize: 12
+                            Layout.fillWidth: true
+                        }
+
+                        Text {
+                            text: "Waybar"
+                            color: Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.55)
+                            font.family: Theme.fontFamily; font.pixelSize: 11
+                        }
+
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 6
+                            Repeater {
+                                model: ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "Inter"]
+                                delegate: FontChip {
+                                    required property string modelData
+                                    required property int index
+                                    label: modelData
+                                    active: root.waybarFontIndex === index
+                                    onClicked: {
+                                        root.waybarFontIndex = index
+                                        Quickshell.execDetached(["bash", "-c",
+                                            Quickshell.env("HOME") + "/.local/bin/waybar-font.sh " + index])
+                                    }
+                                }
+                            }
+                        }
+
+                        Text {
+                            text: "Quickshell"
+                            color: Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.55)
+                            font.family: Theme.fontFamily; font.pixelSize: 11
+                        }
+
+                        Flow {
+                            Layout.fillWidth: true
+                            spacing: 6
+                            Repeater {
+                                model: ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "Inter"]
+                                delegate: FontChip {
+                                    required property string modelData
+                                    label: modelData
+                                    active: Theme.fontFamily === modelData
+                                    onClicked: {
+                                        Theme.fontFamily = modelData
+                                        Quickshell.execDetached(["bash", "-c",
+                                            "printf '%s' '" + modelData + "' > " +
+                                            Quickshell.env("HOME") + "/.config/quickshell/settings/active-font"])
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     // ── Launch buttons ────────────────────────────────────────
                     Repeater {

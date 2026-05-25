@@ -14,10 +14,8 @@ Item {
 
     readonly property color iconColor: {
         if (btState === "connected") return Theme.tertiary
-        if (btState === "off")
-            return Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4)
-        if (btState === "disabled")
-            return Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.25)
+        if (btState === "disabled") return Theme.on_surface_variant
+        if (btState === "off")     return Theme.on_surface_variant
         return Theme.primary
     }
 
@@ -52,7 +50,7 @@ Item {
         repeat: true
         running: true
         triggeredOnStart: true
-        onTriggered: btProc.running = true
+        onTriggered: { btProc.running = false; btProc.running = true }
     }
 
     MouseArea {

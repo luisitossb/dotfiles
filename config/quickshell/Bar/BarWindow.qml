@@ -137,7 +137,7 @@ PanelWindow {
             anchors.centerIn: parent
             text: lbtn.label
             font.pixelSize: lbtn.fontSize
-            font.family: "JetBrainsMono Nerd Font"
+            font.family: Theme.fontFamily
             color: Theme.primary
         }
 
