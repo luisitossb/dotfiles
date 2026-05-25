@@ -29,7 +29,6 @@ PanelWindow {
 
     // ── Appearance state ──────────────────────────────────────────────────────
 
-    property int    currentWaybarFontIndex: 1
     property int    currentQsFontIndex:    1
     property int    currentKittyFontIndex: 0
     property string colorMode:             "dark"
@@ -44,12 +43,6 @@ PanelWindow {
     readonly property var fontOptions:      ["Press Start 2P", "Orbitron", "Monocraft", "Audiowide", "Oxanium", "Inter"]
     readonly property var kittyFontOptions: ["JetBrainsMono Nerd Font", "Monocraft"]
 
-    Process {
-        id: fontStateProc
-        command: ["bash", "-c",
-            "cat " + Quickshell.env("HOME") + "/.config/waybar/active-font 2>/dev/null || echo 1"]
-        stdout: StdioCollector { onStreamFinished: root.currentWaybarFontIndex = parseInt(this.text.trim()) || 1 }
-    }
     Process {
         id: qsFontStateProc
         command: ["cat", Quickshell.env("HOME") + "/.config/quickshell/settings/active-font"]
@@ -219,7 +212,6 @@ PanelWindow {
 
     onIsOpenChanged: {
         if (isOpen) {
-            fontStateProc.running      = false; fontStateProc.running      = true
             qsFontStateProc.running    = false; qsFontStateProc.running    = true
             kittyFontStateProc.running = false; kittyFontStateProc.running = true
             colorModeProc.running    = false; colorModeProc.running    = true
@@ -253,11 +245,12 @@ PanelWindow {
     property int selectedCategory: 0
 
     readonly property var categories: [
-        { name: "Appearance",      icon: "󰸌", sections: [] },
-        { name: "Input",           icon: "󰍽", sections: [] },
-        { name: "Audio & Display", icon: "󰕾", sections: [] },
-        { name: "System & Apps",   icon: "󰮤", sections: [] },
-        { name: "Bluetooth",       icon: "󰂯", sections: [] }
+        { name: "Appearance",    icon: "󰸌", sections: [] },
+        { name: "Input",         icon: "󰍽", sections: [] },
+        { name: "Audio",         icon: "󰕾", sections: [] },
+        { name: "Display",       icon: "󰍹", sections: [] },
+        { name: "System & Apps", icon: "󰮤", sections: [] },
+        { name: "Bluetooth",     icon: "󰂯", sections: [] }
     ]
 
     // ── Shared sub-components ─────────────────────────────────────────────────
@@ -593,50 +586,6 @@ PanelWindow {
                                         spacing: 12
 
                                         Text { text: "Font Style"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14 }
-
-                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
-
-                                        Text { text: "Waybar"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
-
-                                        Flow {
-                                            id: wbFontFlow
-                                            Layout.fillWidth: true; spacing: 8
-                                            Repeater {
-                                                model: root.fontOptions
-                                                delegate: Rectangle {
-                                                    id: wbFontChip
-                                                    required property string modelData
-                                                    required property int    index
-                                                    property bool isActive: root.currentWaybarFontIndex === index
-                                                    width: Math.max(80, wbChipLabel.implicitWidth + 24)
-                                                    height: 36; radius: 8
-                                                    color: isActive
-                                                        ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 1.0)
-                                                        : wbChipHov.containsMouse
-                                                            ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 1.0)
-                                                            : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.5)
-                                                    border.color: isActive ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4) : "transparent"
-                                                    border.width: 1
-                                                    Behavior on color { ColorAnimation { duration: 120 } }
-                                                    Text {
-                                                        id: wbChipLabel
-                                                        anchors.centerIn: parent; text: wbFontChip.modelData
-                                                        color: wbFontChip.isActive ? Theme.on_primary_container : Theme.on_surface
-                                                        font.family: Theme.fontFamily; font.pixelSize: 11
-                                                        Behavior on color { ColorAnimation { duration: 120 } }
-                                                    }
-                                                    MouseArea {
-                                                        id: wbChipHov; anchors.fill: parent; hoverEnabled: true
-                                                        onClicked: {
-                                                            root.currentWaybarFontIndex = wbFontChip.index
-                                                            Quickshell.execDetached(["bash",
-                                                                Quickshell.env("HOME") + "/.local/bin/waybar-font.sh",
-                                                                String(wbFontChip.index)])
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
 
                                         Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
 
@@ -1119,7 +1068,7 @@ PanelWindow {
                             }
                         }
 
-                        // ── 2: Audio & Display ────────────────────────────────
+                        // ── 2: Audio ────────────────────────────────────────
                         ScrollView {
                             Layout.fillWidth: true; Layout.fillHeight: true
                             contentHeight: audioCol.implicitHeight; clip: true
@@ -1254,6 +1203,120 @@ PanelWindow {
                                     }
                                 }
 
+                                // ── Audio Devices card ───────────────────────
+                                Rectangle {
+                                    Layout.fillWidth: true; radius: 12
+                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 1.0)
+                                    border.color: Qt.rgba(Theme.outline_variant.r, Theme.outline_variant.g, Theme.outline_variant.b, 0.2)
+                                    border.width: 1
+                                    implicitHeight: devicesCardCol.implicitHeight + 28
+
+                                    ColumnLayout {
+                                        id: devicesCardCol
+                                        anchors { top: parent.top; left: parent.left; right: parent.right; margins: 14 }
+                                        spacing: 14
+
+                                        RowLayout { spacing: 8
+                                            Text { text: "󰓃"; font.family: "monospace"; font.pixelSize: 16; color: Theme.primary }
+                                            Text { text: "Devices"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14; font.bold: true }
+                                        }
+
+                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
+
+                                        Text { text: "Output"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
+
+                                        Repeater {
+                                            model: root.audioSinks
+                                            delegate: Rectangle {
+                                                required property var modelData
+                                                Layout.fillWidth: true; implicitHeight: 36; radius: 8
+                                                color: modelData.active
+                                                    ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 0.8)
+                                                    : sinkHov.containsMouse
+                                                        ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.8)
+                                                        : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.4)
+                                                Behavior on color { ColorAnimation { duration: 100 } }
+
+                                                RowLayout { anchors.fill: parent; anchors.margins: 10; spacing: 10
+                                                    Rectangle {
+                                                        implicitWidth: 8; implicitHeight: 8; radius: 4
+                                                        color: modelData.active ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.4)
+                                                        Behavior on color { ColorAnimation { duration: 120 } }
+                                                    }
+                                                    Text {
+                                                        text: modelData.desc; Layout.fillWidth: true
+                                                        color: modelData.active ? Theme.on_primary_container : Theme.on_surface
+                                                        font.family: Theme.fontFamily; font.pixelSize: 12
+                                                        elide: Text.ElideRight
+                                                    }
+                                                }
+                                                MouseArea {
+                                                    id: sinkHov; anchors.fill: parent; hoverEnabled: true
+                                                    onClicked: {
+                                                        Quickshell.execDetached(["bash", "-c",
+                                                            "pactl set-default-sink " + modelData.name])
+                                                        audioDevicesProc.running = false; audioDevicesProc.running = true
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Text { text: "Input"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
+
+                                        Repeater {
+                                            model: root.audioSources
+                                            delegate: Rectangle {
+                                                required property var modelData
+                                                Layout.fillWidth: true; implicitHeight: 36; radius: 8
+                                                color: modelData.active
+                                                    ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 0.8)
+                                                    : srcHov.containsMouse
+                                                        ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.8)
+                                                        : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.4)
+                                                Behavior on color { ColorAnimation { duration: 100 } }
+
+                                                RowLayout { anchors.fill: parent; anchors.margins: 10; spacing: 10
+                                                    Rectangle {
+                                                        implicitWidth: 8; implicitHeight: 8; radius: 4
+                                                        color: modelData.active ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.4)
+                                                        Behavior on color { ColorAnimation { duration: 120 } }
+                                                    }
+                                                    Text {
+                                                        text: modelData.desc; Layout.fillWidth: true
+                                                        color: modelData.active ? Theme.on_primary_container : Theme.on_surface
+                                                        font.family: Theme.fontFamily; font.pixelSize: 12
+                                                        elide: Text.ElideRight
+                                                    }
+                                                }
+                                                MouseArea {
+                                                    id: srcHov; anchors.fill: parent; hoverEnabled: true
+                                                    onClicked: {
+                                                        Quickshell.execDetached(["bash", "-c",
+                                                            "pactl set-default-source " + modelData.name])
+                                                        audioDevicesProc.running = false; audioDevicesProc.running = true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Item { implicitHeight: 4 }
+                            }
+                        }
+
+                        // ── 3: Display ──────────────────────────────────────
+                        ScrollView {
+                            Layout.fillWidth: true; Layout.fillHeight: true
+                            contentHeight: displayCol.implicitHeight; clip: true
+                            ScrollBar.vertical: ScrollBar {
+                                policy: ScrollBar.AsNeeded
+                                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: Theme.primary; opacity: parent.active ? 0.6 : 0.3 }
+                            }
+
+                            ColumnLayout {
+                                id: displayCol; width: parent.width - 8; spacing: 10
+
                                 // ── Brightness card ───────────────────────────
                                 Rectangle {
                                     Layout.fillWidth: true; radius: 12
@@ -1364,104 +1427,6 @@ PanelWindow {
                                     }
                                 }
 
-                                // ── Audio Devices card ───────────────────────
-                                Rectangle {
-                                    Layout.fillWidth: true; radius: 12
-                                    color: Qt.rgba(Theme.surface_container.r, Theme.surface_container.g, Theme.surface_container.b, 1.0)
-                                    border.color: Qt.rgba(Theme.outline_variant.r, Theme.outline_variant.g, Theme.outline_variant.b, 0.2)
-                                    border.width: 1
-                                    implicitHeight: devicesCardCol.implicitHeight + 28
-
-                                    ColumnLayout {
-                                        id: devicesCardCol
-                                        anchors { top: parent.top; left: parent.left; right: parent.right; margins: 14 }
-                                        spacing: 14
-
-                                        RowLayout { spacing: 8
-                                            Text { text: "󰓃"; font.family: "monospace"; font.pixelSize: 16; color: Theme.primary }
-                                            Text { text: "Devices"; color: Theme.on_surface; font.family: Theme.fontFamily; font.pixelSize: 14; font.bold: true }
-                                        }
-
-                                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12) }
-
-                                        Text { text: "Output"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
-
-                                        Repeater {
-                                            model: root.audioSinks
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                Layout.fillWidth: true; implicitHeight: 36; radius: 8
-                                                color: modelData.active
-                                                    ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 0.8)
-                                                    : sinkHov.containsMouse
-                                                        ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.8)
-                                                        : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.4)
-                                                Behavior on color { ColorAnimation { duration: 100 } }
-
-                                                RowLayout { anchors.fill: parent; anchors.margins: 10; spacing: 10
-                                                    Rectangle {
-                                                        implicitWidth: 8; implicitHeight: 8; radius: 4
-                                                        color: modelData.active ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.4)
-                                                        Behavior on color { ColorAnimation { duration: 120 } }
-                                                    }
-                                                    Text {
-                                                        text: modelData.desc; Layout.fillWidth: true
-                                                        color: modelData.active ? Theme.on_primary_container : Theme.on_surface
-                                                        font.family: Theme.fontFamily; font.pixelSize: 12
-                                                        elide: Text.ElideRight
-                                                    }
-                                                }
-                                                MouseArea {
-                                                    id: sinkHov; anchors.fill: parent; hoverEnabled: true
-                                                    onClicked: {
-                                                        Quickshell.execDetached(["bash", "-c",
-                                                            "pactl set-default-sink " + modelData.name])
-                                                        audioDevicesProc.running = false; audioDevicesProc.running = true
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Text { text: "Input"; color: Theme.on_surface_variant; font.family: Theme.fontFamily; font.pixelSize: 11; font.bold: true }
-
-                                        Repeater {
-                                            model: root.audioSources
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                Layout.fillWidth: true; implicitHeight: 36; radius: 8
-                                                color: modelData.active
-                                                    ? Qt.rgba(Theme.primary_container.r, Theme.primary_container.g, Theme.primary_container.b, 0.8)
-                                                    : srcHov.containsMouse
-                                                        ? Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.8)
-                                                        : Qt.rgba(Theme.surface_container_high.r, Theme.surface_container_high.g, Theme.surface_container_high.b, 0.4)
-                                                Behavior on color { ColorAnimation { duration: 100 } }
-
-                                                RowLayout { anchors.fill: parent; anchors.margins: 10; spacing: 10
-                                                    Rectangle {
-                                                        implicitWidth: 8; implicitHeight: 8; radius: 4
-                                                        color: modelData.active ? Theme.primary : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.4)
-                                                        Behavior on color { ColorAnimation { duration: 120 } }
-                                                    }
-                                                    Text {
-                                                        text: modelData.desc; Layout.fillWidth: true
-                                                        color: modelData.active ? Theme.on_primary_container : Theme.on_surface
-                                                        font.family: Theme.fontFamily; font.pixelSize: 12
-                                                        elide: Text.ElideRight
-                                                    }
-                                                }
-                                                MouseArea {
-                                                    id: srcHov; anchors.fill: parent; hoverEnabled: true
-                                                    onClicked: {
-                                                        Quickshell.execDetached(["bash", "-c",
-                                                            "pactl set-default-source " + modelData.name])
-                                                        audioDevicesProc.running = false; audioDevicesProc.running = true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
                                 // ── Monitor card ──────────────────────────────
                                 Rectangle {
                                     Layout.fillWidth: true; radius: 12
@@ -1548,7 +1513,8 @@ PanelWindow {
                             }
                         }
 
-                        // ── 3: System & Apps ──────────────────────────────────
+
+                        // ── 4: System & Apps ──────────────────────────────────
                         ScrollView {
                             Layout.fillWidth: true; Layout.fillHeight: true
                             contentHeight: sysCol.implicitHeight; clip: true
@@ -1684,7 +1650,7 @@ PanelWindow {
                             }
                         }
 
-                        // ── 4: Bluetooth ──────────────────────
+                        // ── 5: Bluetooth ──────────────────────
                         ScrollView {
                             Layout.fillWidth: true; Layout.fillHeight: true
                             contentHeight: btCol.implicitHeight; clip: true
