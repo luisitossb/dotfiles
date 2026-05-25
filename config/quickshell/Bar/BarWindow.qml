@@ -225,7 +225,7 @@ PanelWindow {
                 Volume      { height: parent.height }
                 Battery     { height: parent.height }
                 ModeToggle  { height: parent.height }
-                PowerProfile { height: parent.height }
+                PerfProfile { height: parent.height }
 
                 IconBtn {
                     height: parent.height

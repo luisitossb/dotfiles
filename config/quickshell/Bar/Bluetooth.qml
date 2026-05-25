@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
+import Quickshell.Bluetooth
 import qs.CustomTheme
 
 Item {
@@ -8,12 +8,17 @@ Item {
     implicitWidth: label.implicitWidth + 8
     implicitHeight: parent.height
 
-    property string btState: "none"
-
-    readonly property color iconColor: {
-        if (btState === "connected") return Theme.tertiary
-        return Theme.primary
+    readonly property bool hasAdapter: Bluetooth.defaultAdapter !== null
+    readonly property bool powered: Bluetooth.defaultAdapter?.enabled ?? false
+    readonly property bool anyConnected: {
+        var devs = Bluetooth.defaultAdapter?.devices ?? []
+        for (var i = 0; i < devs.length; i++) {
+            if (devs[i].connected) return true
+        }
+        return false
     }
+
+    visible: hasAdapter
 
     Text {
         id: label
@@ -21,30 +26,9 @@ Item {
         text: "[  ]"
         font.pixelSize: 12
         font.family: "JetBrainsMono Nerd Font"
-        color: root.iconColor
-        visible: root.btState !== "none"
-    }
-
-    Process {
-        id: btProc
-        command: ["bash", "-c",
-            "POWERED=$(bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}'); " +
-            "if [ -z \"$POWERED\" ]; then echo none; exit; fi; " +
-            "if [ \"$POWERED\" != yes ]; then echo off; exit; fi; " +
-            "CONN=$(bluetoothctl devices Connected 2>/dev/null | wc -l); " +
-            "[ \"$CONN\" -gt 0 ] && echo connected || echo on"
-        ]
-        stdout: StdioCollector {
-            onStreamFinished: root.btState = this.text.trim() || "none"
-        }
-    }
-
-    Timer {
-        interval: 10000
-        repeat: true
-        running: true
-        triggeredOnStart: true
-        onTriggered: { btProc.running = false; btProc.running = true }
+        color: root.anyConnected ? Theme.tertiary
+             : root.powered      ? Theme.primary
+             :                     Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.4)
     }
 
     MouseArea {
