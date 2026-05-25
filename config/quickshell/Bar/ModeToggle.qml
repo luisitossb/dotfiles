@@ -44,12 +44,18 @@ Item {
         onTriggered: { modeProc.running = false; modeProc.running = true }
     }
 
+    Process {
+        id: toggleProc
+        command: [Quickshell.env("HOME") + "/.local/bin/toggle-mode.sh"]
+        onExited: (code, status) => {
+            modeProc.running = false
+            modeProc.running = true
+        }
+    }
+
     MouseArea {
         anchors.fill: parent
-        onClicked: {
-            Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/toggle-mode.sh"])
-            Qt.callLater(() => modeProc.running = true)
-        }
+        onClicked: { toggleProc.running = false; toggleProc.running = true }
         HoverHandler { id: modeHover }
     }
 

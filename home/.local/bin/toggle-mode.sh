@@ -14,8 +14,7 @@ fi
 
 echo "$NEW_MODE" > "$STATE_FILE"
 
-printf '[Login]\nHandleLidSwitch=%s\n' "$LID_ACTION" | sudo tee /etc/systemd/logind.conf.d/lid-mode.conf > /dev/null
-sudo systemctl kill -s HUP systemd-logind
+sudo "$HOME/.local/bin/toggle-mode-reload.sh" "$LID_ACTION"
 
 pkill -x hypridle
 sleep 0.5
