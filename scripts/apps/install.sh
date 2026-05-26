@@ -41,8 +41,9 @@ APPS=(
     obsidian
 
     # Downloads
-    qbittorrent
-    open-video-downloader-bin   # GUI for yt-dlp (YouTube / video downloads)
+    transmission-gtk             # Torrent client
+    yt-dlp                       # CLI video downloader
+    open-video-downloader-bin    # GUI for yt-dlp (YouTube / video downloads)
 
     # Gaming
     steam
@@ -57,8 +58,20 @@ APPS=(
     wine
     winetricks
 
+    # Network / remote
+    tailscale                    # VPN mesh network
+    proton-vpn-gtk-app           # ProtonVPN client
+    realvnc-vnc-viewer           # VNC client
+    kdeconnect                   # Phone ↔ desktop integration
+    putty                        # SSH / serial client
+
+    # Fonts
+    monocraft                    # Minecraft-style monospace font
+
     # Utilities
-    localsend-bin               # Local file sharing across devices
+    kitty                        # GPU-accelerated terminal
+    meld                         # Visual diff and merge tool
+    localsend-bin                # Local file sharing across devices
 )
 
 paru -S --needed --noconfirm "${APPS[@]}" || warn "Some packages failed — check output above"
@@ -68,5 +81,6 @@ echo ""
 echo "  Notes:"
 echo "  • Steam: launch and log in, then enable Proton-GE in Settings → Compatibility"
 echo "  • Spotify / Discord: log in after first launch"
-echo "  • Moonlight: add host → use the Tailscale IP of the machine running Sunshine"
+echo "  • Moonlight: add host → use the Tailscale IP of the machine running Sunshine
+  • Tailscale: run 'sudo tailscale up' after install to connect to your network"
 echo ""
