@@ -1,0 +1,17 @@
+[AC][HandleButtonEvents]
+lidAction=0
+triggerLidActionWhenExternalMonitorPresent=false
+
+[AC][SuspendAndShutdown]
+idleTime=0
+suspendType=0
+
+[Battery][HandleButtonEvents]
+lidAction=0
+
+[Battery][SuspendAndShutdown]
+idleTime=0
+suspendType=0
+
+[Migration]
+MigratedProfilesToPlasma6=powerdevilrc

@@ -20,17 +20,14 @@ dotfiles-sync() {
 
     cd "$DOTS" || return 1
 
-    # NOTE: quickshell, waybar, kitty, rofi, btop, swaync, fastfetch, ohmyposh,
-    # matugen, nwg-dock-hyprland, and networkmanager-dmenu are SYMLINKED to the repo —
+    # NOTE: kitty, btop, fastfetch, ohmyposh, matugen, Kvantum, qt6ct, cava,
+    # nwg-look, and networkmanager-dmenu are SYMLINKED to the repo —
     # no sync needed for those. Only sync copy-deployed (machine-specific) configs.
 
-    # Hyprland — copy-deployed (Hyprland writes into it at login)
-    mkdir -p config/hypr
-    "${R[@]}" ~/.config/hypr/ config/hypr/
-
-    # eww scripts still used by Quickshell dashboard (net-speed.sh, claude-usage.sh)
-    mkdir -p config/eww
-    "${R[@]}" ~/.config/eww/ config/eww/
+    # KDE power management (server mode — no sleep/suspend)
+    mkdir -p home/.config/systemd/logind.conf.d
+    cp /etc/systemd/logind.conf.d/server-mode.conf home/.config/systemd/logind.conf.d/ 2>/dev/null || true
+    cp ~/.config/powermanagementprofilesrc home/.config/ 2>/dev/null || true
 
     # Sunshine remote desktop config (credentials excluded)
     mkdir -p config/sunshine
@@ -88,6 +85,3 @@ dotfiles-sync() {
     cd - >/dev/null
 }
 
-# View the current Quickshell log (errors, warnings, debug output)
-alias qs-log='cat "$(ls -t /run/user/1000/quickshell/by-id/*/log.qslog 2>/dev/null | head -1)"'
-alias qs-errors='grep -E "WARN|ERROR" "$(ls -t /run/user/1000/quickshell/by-id/*/log.qslog 2>/dev/null | head -1)"'
